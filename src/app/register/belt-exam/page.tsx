@@ -25,6 +25,7 @@ export default function BeltExamForm() {
   const [baseFee, setBaseFee] = useState('1500');
   const [customQr, setCustomQr] = useState('');
   const [isLocked, setIsLocked] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     fetch('/api/settings')
@@ -108,6 +109,7 @@ export default function BeltExamForm() {
 
   const handleScreenshotUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
+      setIsUploading(true);
       const file = e.target.files[0];
       const uploadData = new FormData();
       uploadData.append('file', file);
@@ -120,12 +122,15 @@ export default function BeltExamForm() {
       } catch (error) {
         console.error("Upload failed", error);
         alert("Failed to upload screenshot.");
+      } finally {
+        setIsUploading(false);
       }
     }
   };
 
   const handleProfilePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
+      setIsUploading(true);
       const file = e.target.files[0];
       const uploadData = new FormData();
       uploadData.append('file', file);
@@ -138,6 +143,8 @@ export default function BeltExamForm() {
       } catch (error) {
         console.error("Upload failed", error);
         alert("Failed to upload profile photo.");
+      } finally {
+        setIsUploading(false);
       }
     }
   };
@@ -287,8 +294,8 @@ export default function BeltExamForm() {
               <input type="text" value={`₹ ${fee}`} disabled style={{ color: 'var(--text-muted)' }} />
             </div>
 
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }}>
-              Proceed to Payment
+            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem' }} disabled={isUploading}>
+              {isUploading ? 'Uploading Image...' : 'Proceed to Payment'}
             </button>
           </form>
         )}
@@ -336,8 +343,8 @@ export default function BeltExamForm() {
               <button type="button" className="btn btn-outline" style={{ flex: 1 }} onClick={() => setStep(1)}>
                 Back
               </button>
-              <button type="submit" className="btn btn-primary" style={{ flex: 2 }}>
-                Submit Registration
+              <button type="submit" className="btn btn-primary" style={{ flex: 2 }} disabled={isUploading}>
+                {isUploading ? 'Uploading Image...' : 'Submit Registration'}
               </button>
             </div>
           </form>

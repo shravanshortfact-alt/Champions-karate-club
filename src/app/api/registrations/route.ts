@@ -9,7 +9,17 @@ export async function GET() {
     const registrations = await prisma.registration.findMany({
       orderBy: { createdAt: 'desc' }
     });
-    return NextResponse.json(registrations);
+
+    const archivedStudents = await prisma.student.findMany({
+      where: { status: 'Archived' },
+      select: { registrationNumber: true }
+    });
+    
+    const archivedRegNumbers = new Set(archivedStudents.map(s => s.registrationNumber));
+
+    const activeRegistrations = registrations.filter(r => !archivedRegNumbers.has(r.id));
+
+    return NextResponse.json(activeRegistrations);
   } catch (error) {
     console.error("Error fetching registrations:", error);
     return NextResponse.json({ error: "Failed to load registrations" }, { status: 500 });
