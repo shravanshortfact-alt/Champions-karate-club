@@ -267,7 +267,28 @@ export default function StudentDashboard() {
       
       {loginStep !== 'dashboard' && (
         <>
-          <h1 className="text-center text-primary" style={{ marginBottom: '1rem' }}>Student Portal Login</h1>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
+            <button 
+              onClick={() => window.history.back()} 
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                width: '40px', 
+                height: '40px', 
+                borderRadius: '50%', 
+                background: 'rgba(255, 255, 255, 0.1)', 
+                color: 'var(--text-main)', 
+                border: 'none',
+                cursor: 'pointer',
+                marginRight: '1rem'
+              }}
+              title="Go Back"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <h1 className="text-primary" style={{ margin: 0, flex: 1, textAlign: 'center', paddingRight: '56px' }}>Student Portal Login</h1>
+          </div>
           <p className="text-center text-muted" style={{ marginBottom: '3rem' }}>
             Login with your Student Name and Password to view records.
           </p>
