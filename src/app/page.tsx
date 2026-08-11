@@ -93,7 +93,7 @@ export default async function Home() {
       </section>
 
       {/* Training Programs Section */}
-      <section style={{ background: 'var(--bg-card)', padding: '6rem 2rem' }}>
+      <section style={{ background: 'var(--bg-card)', padding: '6rem 2rem', overflow: 'hidden' }}>
         <div className="container">
           <h2 className="text-center text-primary section-title">Our Training Programs</h2>
           <div className="programs-grid" style={{ gap: '2rem' }}>
