@@ -49,7 +49,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         reg.generatedPassword = generatedPassword; // Temporary store for response
 
         // Save password in extraData so admin can see it later
-        let newExtraData = {};
+        let newExtraData: any = {};
         try { newExtraData = JSON.parse(registration.extraData || '{}'); } catch(e){}
         newExtraData.generatedPassword = generatedPassword;
         await prisma.registration.update({

@@ -39,7 +39,6 @@ export default function CompetitionForm() {
         const linkConfig = data.registrationLinks?.find((l: any) => l.link === '/register/competition');
         if (linkConfig) {
           if (linkConfig.fee) {
-            setFee(linkConfig.fee);
             setBaseFee(linkConfig.fee);
           }
           if (linkConfig.qrCodeUrl) setCustomQr(linkConfig.qrCodeUrl);

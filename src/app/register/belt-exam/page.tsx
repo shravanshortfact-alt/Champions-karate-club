@@ -37,7 +37,6 @@ export default function BeltExamForm() {
         const linkConfig = data.registrationLinks?.find((l: any) => l.link === '/register/belt-exam');
         if (linkConfig) {
           if (linkConfig.fee) {
-            setFee(linkConfig.fee);
             setBaseFee(linkConfig.fee);
           }
           if (linkConfig.qrCodeUrl) setCustomQr(linkConfig.qrCodeUrl);

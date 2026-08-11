@@ -34,7 +34,6 @@ export default function SeminarForm() {
         const linkConfig = data.registrationLinks?.find((l: any) => l.link === '/register/seminar');
         if (linkConfig) {
           if (linkConfig.fee) {
-            setFee(linkConfig.fee);
             setBaseFee(linkConfig.fee);
           }
           if (linkConfig.qrCodeUrl) setCustomQr(linkConfig.qrCodeUrl);
