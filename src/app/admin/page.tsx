@@ -41,10 +41,10 @@ export default function AdminDashboard() {
   });
 
   // Calculate dynamic totals for the dashboard
-  const totalAdmissions = filteredRegistrations.filter(r => r.category === 'Admission').length + (selectedMonth ? 0 : 139); 
-  const pendingExams = filteredRegistrations.filter(r => r.category === 'Belt Exam').length + (selectedMonth ? 0 : 54);
-  const totalCompetitors = filteredRegistrations.filter(r => r.category === 'Competition').length + (selectedMonth ? 0 : 26);
-  const totalSeminar = filteredRegistrations.filter(r => r.category === 'Seminar').length + (selectedMonth ? 0 : 89);
+  const totalAdmissions = filteredRegistrations.filter(r => r.category === 'Admission').length;
+  const pendingExams = filteredRegistrations.filter(r => r.category === 'Belt Exam').length;
+  const totalCompetitors = filteredRegistrations.filter(r => r.category === 'Competition').length;
+  const totalSeminar = filteredRegistrations.filter(r => r.category === 'Seminar').length;
 
   return (
     <div className="animate-fade-in">
