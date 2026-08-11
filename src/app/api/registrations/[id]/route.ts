@@ -102,7 +102,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       registration: { ...reg, status: 'Verified' },
       generatedPassword: reg.generatedPassword,
       studentName: reg.name,
-      whatsappNumber: reg.whatsappNumber
+      whatsappNumber: reg.whatsappNumber,
+      studentId: reg.id
     });
   } catch (error) {
     console.error("Error updating registration:", error);

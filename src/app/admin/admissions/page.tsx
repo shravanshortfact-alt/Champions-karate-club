@@ -40,14 +40,14 @@ export default function AdminAdmissions() {
         setAdmissions(admissions.map(a => a.id === id ? { ...a, status: 'Verified' } : a));
         
         if (data.generatedPassword) {
-          const msg = `Welcome to Champions Karate Club! 🥋\n\nYour Student Portal credentials have been created:\n*Student Name:* ${data.studentName}\n*Password:* ${data.generatedPassword}\n\nPlease login at our website to view your dashboard and change your password.`;
+          const msg = `Welcome to Champions Karate Club! 🥋\n\nYour Student Portal credentials have been created:\n*Student Name:* ${data.studentName}\n*Password:* ${data.generatedPassword}\n*Student Id:* ${data.studentId}\n\nPlease login at our website to view your dashboard 🔥`;
           
           if (data.whatsappNumber) {
             const phone = data.whatsappNumber.replace(/[^0-9]/g, '');
             const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
             window.open(url, '_blank');
           } else {
-            alert(`Credentials Generated:\n\nName: ${data.studentName}\nPassword: ${data.generatedPassword}\n\nPlease share this with the student manually.`);
+            alert(`Credentials Generated:\n\nStudent Name: ${data.studentName}\nPassword: ${data.generatedPassword}\nStudent Id: ${data.studentId}\n\nPlease share this with the student manually.`);
           }
         }
       } else {
