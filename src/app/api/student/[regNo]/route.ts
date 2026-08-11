@@ -21,6 +21,7 @@ export async function GET(
         ]
       },
       include: {
+        branch: true,
         achievements: {
           where: { status: { not: 'Rejected' } },
           include: { event: true },
@@ -56,7 +57,10 @@ export async function GET(
       profilePhotoUrl: student.profilePhotoUrl,
       globalRank,
       name: student.name,
-      registrationNumber: student.registrationNumber
+      registrationNumber: student.registrationNumber,
+      age: student.age,
+      dob: student.dob,
+      branch: student.branch?.name
     };
 
     return NextResponse.json({
