@@ -45,10 +45,42 @@ export default function AdminFees() {
 
   if (loading) return <div style={{ padding: '2rem' }}>Loading fees...</div>;
 
+  const exportToGoogleSheet = () => {
+    const headers = ['Date', 'Student Name', 'Branch', 'Month/Year', 'Amount', 'Late Fee', 'UTR Number', 'Status'];
+    
+    const rows = payments.map(p => [
+      new Date(p.createdAt).toLocaleDateString(),
+      p.student?.name || '-',
+      p.student?.branch?.name || '-',
+      `${p.month} ${p.year}`,
+      p.totalAmount,
+      p.lateFee,
+      p.transactionId || '-',
+      p.status
+    ]);
+    
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `fees_export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="animate-fade-in">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <h1 className="text-primary" style={{ margin: 0, minWidth: '250px' }}>Fee Payments</h1>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap', flex: 1, justifyContent: 'flex-end' }}>
+          <button className="btn btn-outline" onClick={exportToGoogleSheet}>Export to Google Sheet</button>
+        </div>
       </div>
       
       <div style={{ overflowX: 'auto' }}>

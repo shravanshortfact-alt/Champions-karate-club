@@ -53,6 +53,34 @@ export default function AdminSeminars() {
     ? seminars.filter(s => s.branch === selectedBranch) 
     : seminars;
 
+  const exportToGoogleSheet = () => {
+    const headers = ['ID', 'Name', 'Age', 'Branch', 'Payment Status', 'UTR Number', 'Submission Date'];
+    
+    const rows = filteredSeminars.map(s => [
+      s.id,
+      s.name,
+      s.age || '-',
+      s.branch,
+      s.status,
+      s.transactionId || '-',
+      new Date(s.createdAt).toLocaleDateString()
+    ]);
+    
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `seminars_export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="animate-fade-in">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -67,7 +95,7 @@ export default function AdminSeminars() {
             <option value="">All Branches</option>
             {branches.map(b => <option key={b.name} value={b.name}>{b.name}</option>)}
           </select>
-          <button className="btn btn-outline">Export to Excel</button>
+          <button className="btn btn-outline" onClick={exportToGoogleSheet}>Export to Google Sheet</button>
         </div>
       </div>
       
