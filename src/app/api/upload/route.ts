@@ -1,7 +1,5 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
 
 export async function POST(request: Request) {
   try {
@@ -15,22 +13,15 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Create a unique filename
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const filename = uniqueSuffix + '-' + file.name.replace(/\s+/g, '-');
-    
-    // Ensure the uploads directory exists
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    await fs.mkdir(uploadDir, { recursive: true });
-    
-    const filePath = path.join(uploadDir, filename);
-    await fs.writeFile(filePath, buffer);
+    // Convert to base64
+    const base64String = buffer.toString('base64');
+    const mimeType = file.type || 'image/jpeg';
+    const dataUri = `data:${mimeType};base64,${base64String}`;
 
-    // Return the URL to access the uploaded file
-    const fileUrl = `/uploads/${filename}`;
-    return NextResponse.json({ url: fileUrl });
+    // Return the base64 string directly as the URL
+    return NextResponse.json({ url: dataUri });
   } catch (error) {
     console.error("Upload error:", error);
-    return NextResponse.json({ error: "Failed to upload file" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to process file" }, { status: 500 });
   }
 }

@@ -1,36 +1,23 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { PrismaClient } from '@prisma/client';
 
-const dataFile = path.join(process.cwd(), 'data', 'registrations.json');
-
-// Ensure data file exists
-async function ensureFile() {
-  try {
-    await fs.access(dataFile);
-  } catch (error) {
-    await fs.writeFile(dataFile, JSON.stringify([]));
-  }
-}
+const prisma = new PrismaClient();
 
 export async function GET() {
   try {
-    await ensureFile();
-    const data = await fs.readFile(dataFile, 'utf8');
-    return NextResponse.json(JSON.parse(data));
+    const registrations = await prisma.registration.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    return NextResponse.json(registrations);
   } catch (error) {
-    console.error("Error reading registrations:", error);
+    console.error("Error fetching registrations:", error);
     return NextResponse.json({ error: "Failed to load registrations" }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    await ensureFile();
-    const data = await fs.readFile(dataFile, 'utf8');
-    const registrations = JSON.parse(data);
-
     const newRegistration = await request.json();
     
     // Add missing metadata
@@ -38,21 +25,29 @@ export async function POST(request: Request) {
                      newRegistration.category === 'Belt Exam' ? 'EXM' : 
                      newRegistration.category === 'Competition' ? 'CMP' : 'SEM';
                      
-    newRegistration.id = `${idPrefix}-${Math.floor(1000 + Math.random() * 9000)}`;
-    newRegistration.status = 'Pending';
-    newRegistration.createdAt = new Date().toISOString();
-    newRegistration.month = new Date().toLocaleString('en-US', { month: 'long' });
+    const id = `${idPrefix}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const month = new Date().toLocaleString('en-US', { month: 'long' });
 
-    registrations.unshift(newRegistration);
-    
-    await fs.writeFile(dataFile, JSON.stringify(registrations, null, 2));
+    const registration = await prisma.registration.create({
+      data: {
+        id,
+        category: newRegistration.category || '',
+        name: newRegistration.name || '',
+        age: newRegistration.age || '',
+        branch: newRegistration.branch || '',
+        profilePhotoUrl: newRegistration.profilePhotoUrl || '',
+        dob: newRegistration.dob || '',
+        whatsappNumber: newRegistration.whatsappNumber || '',
+        appearingBelt: newRegistration.appearingBelt || '',
+        status: 'Pending',
+        month,
+        extraData: JSON.stringify(newRegistration)
+      }
+    });
 
     // Automatic Belt Upgrade if it's a Belt Exam
     if (newRegistration.category === 'Belt Exam' && newRegistration.name && newRegistration.appearingBelt) {
       try {
-        const { PrismaClient } = require('@prisma/client');
-        const prisma = new PrismaClient();
-        
         const student = await prisma.student.findFirst({
           where: { name: newRegistration.name, status: 'Active' }
         });
@@ -68,7 +63,7 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ success: true, id: newRegistration.id });
+    return NextResponse.json({ success: true, id: registration.id });
   } catch (error) {
     console.error("Error saving registration:", error);
     return NextResponse.json({ error: "Failed to save registration" }, { status: 500 });

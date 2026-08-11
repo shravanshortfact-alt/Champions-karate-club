@@ -229,3 +229,19 @@ model PushSubscription {
 
   @@unique([endpoint])
 }
+
+model Registration {
+  id              String   @id
+  category        String
+  name            String
+  age             String?
+  branch          String?
+  profilePhotoUrl String?
+  dob             String?
+  whatsappNumber  String?
+  appearingBelt   String?
+  status          String   @default("Pending") // Pending, Verified
+  createdAt       DateTime @default(now())
+  month           String?
+  extraData       String?
+}

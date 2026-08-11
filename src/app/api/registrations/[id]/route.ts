@@ -1,32 +1,41 @@
+export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { PrismaClient } from '@prisma/client';
 
-const dataFile = path.join(process.cwd(), 'data', 'registrations.json');
+const prisma = new PrismaClient();
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> | { id: string } }) {
   try {
     const resolvedParams = await params;
     const { id } = resolvedParams;
     
-    // Read the current data
-    const data = await fs.readFile(dataFile, 'utf8');
-    const registrations = JSON.parse(data);
-
-    // Find the registration and update it
-    const index = registrations.findIndex((r: any) => r.id === id);
-    if (index === -1) {
+    // Find the registration
+    const registration = await prisma.registration.findUnique({ where: { id } });
+    if (!registration) {
       return NextResponse.json({ error: "Registration not found" }, { status: 404 });
     }
 
-    registrations[index].status = 'Verified';
+    // Update status to verified
+    await prisma.registration.update({
+      where: { id },
+      data: { status: 'Verified' }
+    });
 
-    // Handle specific logic on verification
-    const reg = registrations[index];
+    // Extract fields safely
+    const reg = {
+      id: registration.id,
+      category: registration.category,
+      name: registration.name,
+      age: registration.age,
+      branch: registration.branch,
+      profilePhotoUrl: registration.profilePhotoUrl,
+      dob: registration.dob,
+      whatsappNumber: registration.whatsappNumber,
+      appearingBelt: registration.appearingBelt,
+      generatedPassword: ''
+    };
+
     try {
-      const { PrismaClient } = require('@prisma/client');
-      const prisma = new PrismaClient();
-
       if (reg.category === 'Admission' && reg.name) {
         // Create new student
         const branch = await prisma.branch.findFirst({ where: { name: reg.branch || 'Main Branch' } });
@@ -43,7 +52,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
           data: {
             registrationNumber: reg.id,
             name: reg.name,
-            age: parseInt(reg.age) || 0,
+            age: parseInt(reg.age || '0') || 0,
             branchId: branchId,
             currentBelt: 'White Belt',
             profilePhotoUrl: reg.profilePhotoUrl || null,
@@ -79,12 +88,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       console.error("Failed to sync with Prisma", e);
     }
 
-    // Save back to file
-    await fs.writeFile(dataFile, JSON.stringify(registrations, null, 2));
-
     return NextResponse.json({ 
       success: true, 
-      registration: registrations[index],
+      registration: { ...reg, status: 'Verified' },
       generatedPassword: reg.generatedPassword,
       studentName: reg.name,
       whatsappNumber: reg.whatsappNumber
