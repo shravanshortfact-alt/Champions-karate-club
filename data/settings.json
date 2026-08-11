@@ -1,0 +1,93 @@
+{
+  "birthdayMessage": "Happy Birthday, {Student Name}! 🎉\nChampion Karate Club wishes you success, discipline, strength, and happiness. 🥋",
+  "logoUrl": "/uploads/1783337660390-638858702-Screenshot_2026-02-22-03-45-38-558_com.google.android.googlequicksearchbox-edit.png",
+  "instructors": [
+    {
+      "name": "Sensei Kenjiro",
+      "rank": "8th Dan Black Belt",
+      "experience": "With over 30 years of martial arts experience, Sensei Kenjiro has trained national champions and international medalists.",
+      "photoUrl": "/instructor.png"
+    }
+  ],
+  "achievements": [
+    "5x National Champion",
+    "Gold Medalist - Asian Karate Championships",
+    "Certified World Karate Federation Coach"
+  ],
+  "videos": [
+    {
+      "title": "Training Sessions",
+      "url": ""
+    },
+    {
+      "title": "Competition Highlights",
+      "url": ""
+    }
+  ],
+  "branches": [
+    {
+      "name": "Downtown Main Dojo",
+      "qrCodeUrl": ""
+    },
+    {
+      "name": "Westside Academy",
+      "qrCodeUrl": ""
+    },
+    {
+      "name": "North Hills Training Center",
+      "qrCodeUrl": ""
+    }
+  ],
+  "registrationLinks": [
+    {
+      "title": "Admission",
+      "description": "Join the academy",
+      "link": "/register/admission",
+      "fee": "2500",
+      "qrCodeUrl": "",
+      "branches": [
+        {
+          "name": "aman",
+          "fee": "2500",
+          "qrCodeUrl": "/uploads/1786311632677-761263145-Screenshot-2026-06-22-223357.png"
+        }
+      ]
+    },
+    {
+      "title": "Belt Exam",
+      "description": "Register for grading",
+      "link": "/register/belt-exam",
+      "fee": "1500",
+      "qrCodeUrl": ""
+    },
+    {
+      "title": "Competition",
+      "description": "Enter upcoming events",
+      "link": "/register/competition",
+      "fee": "1000",
+      "qrCodeUrl": ""
+    },
+    {
+      "title": "Seminar",
+      "description": "Special training camps",
+      "link": "/register/seminar",
+      "fee": "2000",
+      "qrCodeUrl": ""
+    },
+    {
+      "title": "Fee Payment",
+      "description": "Pay your monthly fees",
+      "link": "/pay-fee",
+      "fee": "700",
+      "qrCodeUrl": ""
+    }
+  ],
+  "whatsappNumber": "",
+  "instagramLink": "",
+  "formLocks": {
+    "competition": false,
+    "seminar": false,
+    "beltExam": false
+  },
+  "upiId": ""
+}

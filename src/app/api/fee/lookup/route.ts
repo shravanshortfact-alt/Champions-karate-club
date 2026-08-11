@@ -1,0 +1,97 @@
+import { NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+export async function POST(request: Request) {
+  try {
+    const { studentName } = await request.json();
+
+    if (!studentName) {
+      return NextResponse.json({ success: false, error: "Missing student name." }, { status: 400 });
+    }
+
+    const student = await prisma.student.findFirst({
+      where: {
+        name: { equals: studentName.trim() },
+        status: 'Active'
+      },
+      include: {
+        branch: true
+      }
+    });
+
+    if (!student) {
+       return NextResponse.json({ success: false, error: "Student not found or inactive." }, { status: 404 });
+    }
+
+    // Determine current month and year
+    const now = new Date();
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const currentMonth = monthNames[now.getMonth()];
+    const currentYear = now.getFullYear();
+
+    // Check if fee is already paid/pending for this month
+    const existingPayment = await prisma.feePayment.findFirst({
+      where: {
+        studentId: student.id,
+        month: currentMonth,
+        year: currentYear
+      }
+    });
+
+    if (existingPayment && existingPayment.status === "Verified") {
+      return NextResponse.json({ success: false, error: `Fee for ${currentMonth} ${currentYear} is already paid and verified.` }, { status: 400 });
+    }
+
+    if (existingPayment && existingPayment.status === "Pending") {
+      return NextResponse.json({ success: false, error: `Fee payment for ${currentMonth} ${currentYear} is currently pending admin verification.` }, { status: 400 });
+    }
+
+    // Calculate Late Fee
+    // If today's date is > 10, add late fee of 100
+    const currentDate = now.getDate();
+    let lateFee = 0;
+    if (currentDate > 10) {
+      lateFee = 100;
+    }
+
+    const baseAmount = student.monthlyFee;
+    const totalAmount = baseAmount + lateFee;
+
+    // Fetch UPI ID from settings.json
+    let upiId = 'championkarate@upi'; // Default fallback
+    try {
+      const fs = require('fs').promises;
+      const path = require('path');
+      const settingsData = await fs.readFile(path.join(process.cwd(), 'data', 'settings.json'), 'utf8');
+      const settings = JSON.parse(settingsData);
+      if (settings.upiId) {
+        upiId = settings.upiId;
+      }
+    } catch (e) {
+      console.error("Could not read settings.json", e);
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      student: {
+        id: student.id,
+        name: student.name,
+        branch: student.branch.name,
+        monthlyFee: student.monthlyFee,
+      },
+      feeDetails: {
+        month: currentMonth,
+        year: currentYear,
+        baseAmount,
+        lateFee,
+        totalAmount
+      },
+      upiId
+    });
+  } catch (error) {
+    console.error("Error looking up fee details:", error);
+    return NextResponse.json({ success: false, error: "Failed to look up fee details" }, { status: 500 });
+  }
+}

@@ -1,0 +1,231 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Branch {
+  id         String    @id @default(cuid())
+  name       String
+  address    String
+  isArchived Boolean   @default(false)
+  students   Student[]
+}
+
+model Student {
+  id                 String   @id @default(cuid())
+  registrationNumber String   @unique
+  name               String
+  age                Int
+  branchId           String
+  branch             Branch   @relation(fields: [branchId], references: [id])
+  paymentStatus      String   @default("Pending") // Pending, Verified
+  transactionId      String?
+  currentBelt        String   @default("White Belt")
+  status             String   @default("Active") // Active, Archived
+  totalPoints        Int      @default(0)
+  profilePhotoUrl    String?
+  dob                String?
+  whatsappNumber     String?
+  createdAt          DateTime @default(now())
+  password           String   @default("password123")
+  monthlyFee         Float    @default(700)
+  achievements       Achievement[]
+  messageLogs        MessageLog[]
+  feePayments        FeePayment[]
+  notifications      NotificationRecipient[]
+  feeReminderLogs    FeeReminderLog[]
+  pushSubscriptions  PushSubscription[]
+  instagramLink      String?
+}
+
+model FeePayment {
+  id               String   @id @default(cuid())
+  studentId        String
+  student          Student  @relation(fields: [studentId], references: [id])
+  month            String   // e.g. "July"
+  year             Int      // e.g. 2026
+  baseAmount       Float
+  lateFee          Float    @default(0)
+  totalAmount      Float
+  status           String   @default("Pending") // Pending, Verified
+  transactionId    String?
+  screenshotUrl    String?
+  createdAt        DateTime @default(now())
+}
+
+
+model MessageLog {
+  id           String   @id @default(cuid())
+  studentId    String
+  student      Student  @relation(fields: [studentId], references: [id])
+  type         String   @default("Birthday") // Birthday, General
+  message      String
+  status       String   // Sent, Failed
+  recipient    String
+  errorMessage String?
+  createdAt    DateTime @default(now())
+}
+
+model OtpVerification {
+  id             String   @id @default(cuid())
+  whatsappNumber String
+  studentName    String
+  otpCode        String
+  expiresAt      DateTime
+  verified       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+}
+
+model BeltExam {
+  id                 String   @id @default(cuid())
+  registrationNumber String   @unique
+  studentName        String
+  age                Int
+  currentBelt        String
+  appearingBelt      String
+  coachName          String
+  examFees           Float
+  paymentStatus      String   @default("Pending") // Pending, Verified
+  transactionId      String?
+  createdAt          DateTime @default(now())
+}
+
+model Competition {
+  id                 String   @id @default(cuid())
+  registrationNumber String   @unique
+  studentName        String
+  belt               String
+  age                Int
+  dob                String
+  weight             Float
+  height             Float
+  coachName          String
+  competitionFees    Float
+  paymentStatus      String   @default("Pending") // Pending, Verified
+  transactionId      String?
+  createdAt          DateTime @default(now())
+}
+
+model Seminar {
+  id                 String   @id @default(cuid())
+  registrationNumber String   @unique
+  studentName        String
+  age                Int
+  coachName          String
+  seminarFees        Float
+  paymentStatus      String   @default("Pending") // Pending, Verified
+  transactionId      String?
+  createdAt          DateTime @default(now())
+}
+
+model AdminUser {
+  id       String @id @default(cuid())
+  username String @unique
+  password String
+}
+
+model EventConfig {
+  id           String        @id @default(cuid())
+  name         String
+  goldPoints   Int           @default(3)
+  silverPoints Int           @default(2)
+  bronzePoints Int           @default(1)
+  achievements Achievement[]
+}
+
+model Achievement {
+  id           String      @id @default(cuid())
+  studentId    String
+  student      Student     @relation(fields: [studentId], references: [id])
+  eventId      String
+  event        EventConfig @relation(fields: [eventId], references: [id])
+  level        String      // District, State, National, Class
+  medal        String      // Gold, Silver, Bronze, Participation
+  pointsEarned Int         @default(0)
+  status       String      @default("Approved") // Pending, Approved
+  createdAt    DateTime    @default(now())
+}
+
+model SystemSettings {
+  id               String  @id @default(cuid())
+  key              String  @unique
+  value            String
+}
+
+model MapLocation {
+  id            String   @id @default(cuid())
+  name          String
+  address       String
+  city          String?
+  googleMapsUrl String?
+  latitude      Float?
+  longitude     Float?
+  phone         String?
+  whatsapp      String?
+  timings       String?
+  programs      String?
+  description   String?
+  image         String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Notification {
+  id          String                  @id @default(cuid())
+  title       String
+  message     String
+  type        String                  // General, Fee Reminder, Event, Competition, etc.
+  priority    String                  @default("Normal") // Normal, Important, Urgent
+  actionUrl   String?
+  imageUrl    String?
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  createdBy   String?                 // Admin ID
+  status      String                  @default("Pending") // Pending, Sent
+  createdAt   DateTime                @default(now())
+  
+  recipients  NotificationRecipient[]
+  feeReminderLogs FeeReminderLog[]
+}
+
+model NotificationRecipient {
+  id             String       @id @default(cuid())
+  notificationId String
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  studentId      String
+  student        Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  isRead         Boolean      @default(false)
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@unique([notificationId, studentId])
+}
+
+model FeeReminderLog {
+  id             String       @id @default(cuid())
+  studentId      String
+  student        Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  billingMonth   String       // e.g., "August-2026"
+  notificationId String
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+
+  @@unique([studentId, billingMonth])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  endpoint  String
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@unique([endpoint])
+}
