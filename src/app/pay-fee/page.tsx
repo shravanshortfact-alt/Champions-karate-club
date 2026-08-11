@@ -114,14 +114,37 @@ export default function PayFee() {
 
   return (
     <div className="container animate-fade-in" style={{ padding: '4rem 2rem', minHeight: '80vh' }}>
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 className="text-primary" style={{ marginBottom: '1rem', fontSize: '2.5rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '2px', textShadow: '0 2px 10px rgba(220, 38, 38, 0.3)' }}>Smart Fee Payment</h1>
-        
-        {!success && (
-          <p className="text-muted" style={{ fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto' }}>
-            Securely pay your monthly fees via Auto-Generated QR Code. Fast, easy, and reliable.
-          </p>
-        )}
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '3rem', position: 'relative' }}>
+        <button 
+          onClick={() => window.history.back()} 
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            width: '40px', 
+            height: '40px', 
+            borderRadius: '50%', 
+            background: 'rgba(255, 255, 255, 0.1)', 
+            color: 'var(--text-main)', 
+            border: 'none',
+            cursor: 'pointer',
+            position: 'absolute',
+            left: '0',
+            top: '0'
+          }}
+          title="Go Back"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </button>
+        <div style={{ width: '100%', textAlign: 'center' }}>
+          <h1 className="text-primary" style={{ marginBottom: '1rem', fontSize: '2.5rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '2px', textShadow: '0 2px 10px rgba(220, 38, 38, 0.3)' }}>Smart Fee Payment</h1>
+          
+          {!success && (
+            <p className="text-muted" style={{ fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto' }}>
+              Securely pay your monthly fees via Auto-Generated QR Code. Fast, easy, and reliable.
+            </p>
+          )}
+        </div>
       </div>
 
       {error && (
