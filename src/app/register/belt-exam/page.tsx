@@ -5,6 +5,10 @@ import Image from 'next/image';
 
 export default function BeltExamForm() {
   const [step, setStep] = useState(1);
+  const [isUploading, setIsUploading] = useState(false);
+  const [studentIdInput, setStudentIdInput] = useState('');
+  const [studentIdLoading, setStudentIdLoading] = useState(false);
+  const [studentIdError, setStudentIdError] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     age: '',
@@ -149,6 +153,33 @@ export default function BeltExamForm() {
     }
   };
 
+  const handleStudentIdSearch = async () => {
+    if (!studentIdInput) return;
+    setStudentIdLoading(true);
+    setStudentIdError('');
+    try {
+      const res = await fetch(`/api/student/${encodeURIComponent(studentIdInput)}`);
+      const data = await res.json();
+      if (res.ok && data.profile) {
+        setFormData(prev => ({
+          ...prev,
+          name: data.profile.name || prev.name,
+          branch: data.profile.branch || prev.branch,
+          currentBelt: data.profile.currentBelt || prev.currentBelt,
+          age: data.profile.age ? String(data.profile.age) : prev.age,
+          profilePhotoUrl: data.profile.profilePhotoUrl || prev.profilePhotoUrl
+        }));
+        setStudentIdError('');
+      } else {
+        setStudentIdError('Student ID not found');
+      }
+    } catch (err) {
+      setStudentIdError('Error searching student ID');
+    } finally {
+      setStudentIdLoading(false);
+    }
+  };
+
   return (
     <div className="container animate-fade-in" style={{ padding: '4rem 2rem', maxWidth: '800px' }}>
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem' }}>
@@ -185,44 +216,44 @@ export default function BeltExamForm() {
           <form onSubmit={handleNext}>
             <h3 style={{ marginBottom: '1.5rem', color: 'var(--secondary)' }}>Step 1: Exam Details</h3>
             
+            <div className="form-group" style={{ marginBottom: '2rem', padding: '1.5rem', background: '#1f2937', borderRadius: '8px', border: '1px solid #374151' }}>
+              <label style={{ color: 'white', marginBottom: '0.5rem', display: 'block' }}>Enter Student ID</label>
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <input 
+                  type="text" 
+                  placeholder="e.g. CKC-1234" 
+                  value={studentIdInput}
+                  onChange={(e) => setStudentIdInput(e.target.value)}
+                  style={{ flex: 1, background: '#111827', border: '1px solid #374151', color: 'white' }}
+                />
+                <button type="button" className="btn btn-primary" onClick={handleStudentIdSearch} disabled={studentIdLoading}>
+                  {studentIdLoading ? 'Searching...' : 'Search'}
+                </button>
+              </div>
+              {studentIdError && <p style={{ color: '#ef4444', fontSize: '0.9rem', marginTop: '0.5rem' }}>{studentIdError}</p>}
+              <p style={{ color: '#9ca3af', fontSize: '0.85rem', marginTop: '0.5rem' }}>Your details will be auto-filled from your ID.</p>
+            </div>
+
             <div className="grid grid-cols-2">
               <div className="form-group">
                 <label>Student Name</label>
                 <input 
                   type="text" 
-                  placeholder="Enter Student Name" 
+                  placeholder="Student Name" 
                   value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  onBlur={async () => {
-                    if (formData.name.length > 2) {
-                      try {
-                        const res = await fetch(`/api/students/search?q=${encodeURIComponent(formData.name)}`);
-                        const data = await res.json();
-                        if (data && data.length > 0) {
-                          const student = data[0];
-                          setFormData(prev => ({
-                            ...prev,
-                            branch: student.branch?.name || prev.branch,
-                            currentBelt: student.currentBelt || prev.currentBelt,
-                            age: student.age ? String(student.age) : prev.age
-                          }));
-                        }
-                      } catch (err) {}
-                    }
-                  }}
-                  required 
+                  readOnly
+                  style={{ background: 'rgba(255,255,255,0.05)', color: '#9ca3af', cursor: 'not-allowed' }}
                 />
               </div>
               <div className="form-group">
-                <label>Select Branch</label>
-                <select 
+                <label>Branch</label>
+                <input 
+                  type="text" 
+                  placeholder="Branch" 
                   value={formData.branch}
-                  onChange={(e) => setFormData({...formData, branch: e.target.value})}
-                  required
-                >
-                  <option value="">-- Choose Preferred Branch --</option>
-                  {branches.map(b => <option key={b.name} value={b.name}>{b.name}</option>)}
-                </select>
+                  readOnly
+                  style={{ background: 'rgba(255,255,255,0.05)', color: '#9ca3af', cursor: 'not-allowed' }}
+                />
               </div>
             </div>
 
@@ -231,11 +262,10 @@ export default function BeltExamForm() {
                 <label>Age</label>
                 <input 
                   type="number" 
-                  placeholder="Enter Age" 
-                  min="4"
+                  placeholder="Age" 
                   value={formData.age}
-                  onChange={(e) => setFormData({...formData, age: e.target.value})}
-                  required 
+                  readOnly
+                  style={{ background: 'rgba(255,255,255,0.05)', color: '#9ca3af', cursor: 'not-allowed' }}
                 />
               </div>
               <div className="form-group">
@@ -253,14 +283,13 @@ export default function BeltExamForm() {
             <div className="grid grid-cols-2">
               <div className="form-group">
                 <label>Current Belt</label>
-                <select 
+                <input 
+                  type="text" 
+                  placeholder="Current Belt" 
                   value={formData.currentBelt}
-                  onChange={(e) => setFormData({...formData, currentBelt: e.target.value})}
-                  required
-                >
-                  <option value="">-- Select --</option>
-                  {belts.map(b => <option key={b} value={b}>{b}</option>)}
-                </select>
+                  readOnly
+                  style={{ background: 'rgba(255,255,255,0.05)', color: '#9ca3af', cursor: 'not-allowed' }}
+                />
               </div>
               <div className="form-group">
                 <label>Appearing Belt</label>
