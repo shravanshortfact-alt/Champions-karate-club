@@ -19,7 +19,7 @@ export default function AdmissionForm() {
   
   const [branches, setBranches] = useState<{name: string, fee?: string, qrCodeUrl: string}[]>([]);
   const [qrCodeUrl, setQrCodeUrl] = useState('/qr.png');
-  const [fee, setFee] = useState('2500');
+  const [fee, setFee] = useState('0');
   const [baseFee, setBaseFee] = useState('2500');
   const [customQr, setCustomQr] = useState('');
 
@@ -44,7 +44,9 @@ export default function AdmissionForm() {
   useEffect(() => {
     const selectedBranch = branches.find(b => b.name === formData.branch);
     
-    if (selectedBranch && selectedBranch.fee) {
+    if (!formData.branch) {
+      setFee('0');
+    } else if (selectedBranch && selectedBranch.fee) {
       setFee(selectedBranch.fee);
     } else {
       setFee(baseFee);
