@@ -124,13 +124,20 @@ export default function AdminStudents() {
                 <td data-label="Age" style={{ padding: '1rem' }}>{student.age}</td>
                 <td data-label="Branch" style={{ padding: '1rem' }}>{student.branch?.name || 'N/A'}</td>
                 <td data-label="Current Belt" style={{ padding: '1rem', color: 'var(--primary)' }}>{student.currentBelt}</td>
-                <td data-label="Action" style={{ padding: '1rem' }}>
+                <td data-label="Action" style={{ padding: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   <button 
                     className="btn btn-outline" 
                     style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', borderColor: 'var(--danger-color, red)', color: 'var(--danger-color, red)' }}
                     onClick={() => handleArchive(student.id)}
                   >
                     Archive
+                  </button>
+                  <button 
+                    className="btn btn-outline" 
+                    style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', borderColor: 'red', color: 'red', background: 'rgba(255,0,0,0.1)' }}
+                    onClick={() => handleDelete(student.id)}
+                  >
+                    Delete
                   </button>
                 </td>
               </tr>
