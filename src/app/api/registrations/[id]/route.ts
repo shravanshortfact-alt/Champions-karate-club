@@ -48,6 +48,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         const generatedPassword = Math.floor(100000 + Math.random() * 900000).toString();
         reg.generatedPassword = generatedPassword; // Temporary store for response
 
+        // Save password in extraData so admin can see it later
+        let newExtraData = {};
+        try { newExtraData = JSON.parse(registration.extraData || '{}'); } catch(e){}
+        newExtraData.generatedPassword = generatedPassword;
+        await prisma.registration.update({
+          where: { id },
+          data: { extraData: JSON.stringify(newExtraData) }
+        });
+
         await prisma.student.create({
           data: {
             registrationNumber: reg.id,

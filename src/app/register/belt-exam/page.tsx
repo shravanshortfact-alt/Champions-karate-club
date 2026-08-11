@@ -21,7 +21,7 @@ export default function BeltExamForm() {
   const belts = ["White", "Yellow", "Orange", "Green", "Blue", "Purple", "Brown", "Black"];
   const [branches, setBranches] = useState<{name: string, fee?: string, qrCodeUrl: string}[]>([]);
   const [qrCodeUrl, setQrCodeUrl] = useState('/qr.png');
-  const [fee, setFee] = useState('1500');
+  const [fee, setFee] = useState('0');
   const [baseFee, setBaseFee] = useState('1500');
   const [customQr, setCustomQr] = useState('');
   const [isLocked, setIsLocked] = useState(false);
@@ -50,7 +50,9 @@ export default function BeltExamForm() {
   useEffect(() => {
     const selectedBranch = branches.find(b => b.name === formData.branch);
     
-    if (selectedBranch && selectedBranch.fee) {
+    if (!formData.branch) {
+      setFee('0');
+    } else if (selectedBranch && selectedBranch.fee) {
       setFee(selectedBranch.fee);
     } else {
       setFee(baseFee);

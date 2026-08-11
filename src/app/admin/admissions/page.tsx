@@ -189,16 +189,25 @@ export default function AdminAdmissions() {
             <div><strong style={{color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase'}}>Student Name</strong> <div style={{fontSize: '1.1rem', color: 'white', marginTop: '4px'}}>{selectedAdmission.name}</div></div>
             <div><strong style={{color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase'}}>Registration No</strong> <div style={{fontSize: '1.1rem', color: 'white', marginTop: '4px'}}>{selectedAdmission.id}</div></div>
             <div><strong style={{color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase'}}>Branch</strong> <div style={{fontSize: '1rem', color: 'white', marginTop: '4px'}}>{selectedAdmission.branch}</div></div>
-            <div><strong style={{color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase'}}>Current Belt</strong> <div style={{fontSize: '1rem', color: 'white', marginTop: '4px'}}>{selectedAdmission.currentBelt || '-'}</div></div>
             <div><strong style={{color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase'}}>Age</strong> <div style={{fontSize: '1rem', color: 'white', marginTop: '4px'}}>{selectedAdmission.age} Years</div></div>
             <div><strong style={{color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase'}}>Date of Birth</strong> <div style={{fontSize: '1rem', color: 'white', marginTop: '4px'}}>{selectedAdmission.dob || '-'}</div></div>
             <div><strong style={{color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase'}}>WhatsApp No</strong> <div style={{fontSize: '1rem', color: 'white', marginTop: '4px'}}>{selectedAdmission.whatsappNumber || '-'}</div></div>
             <div><strong style={{color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase'}}>Submission Date</strong> <div style={{fontSize: '1rem', color: 'white', marginTop: '4px'}}>{new Date(selectedAdmission.createdAt).toLocaleDateString()}</div></div>
             <div><strong style={{color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase'}}>Payment Status</strong> <div style={{fontSize: '1rem', marginTop: '4px', fontWeight: 'bold', color: selectedAdmission.status === 'Verified' ? '#4ade80' : '#fbbf24'}}>{selectedAdmission.status}</div></div>
             <div><strong style={{color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase'}}>Transaction ID</strong> <div style={{fontSize: '1rem', color: 'white', marginTop: '4px'}}>{selectedAdmission.transactionId || '-'}</div></div>
-            {selectedAdmission.generatedPassword && (
-              <div><strong style={{color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase'}}>Generated Password</strong> <div style={{fontSize: '1.1rem', color: 'var(--primary)', marginTop: '4px', fontWeight: 'bold'}}>{selectedAdmission.generatedPassword}</div></div>
-            )}
+            {(() => {
+              let pw = selectedAdmission.generatedPassword;
+              if (!pw && selectedAdmission.extraData) {
+                try {
+                  const ed = JSON.parse(selectedAdmission.extraData);
+                  pw = ed.generatedPassword;
+                } catch(e) {}
+              }
+              if (pw) {
+                return <div><strong style={{color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase'}}>Generated Password</strong> <div style={{fontSize: '1.1rem', color: 'var(--primary)', marginTop: '4px', fontWeight: 'bold'}}>{pw}</div></div>;
+              }
+              return null;
+            })()}
           </div>
 
           {selectedAdmission.paymentScreenshot && (
