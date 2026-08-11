@@ -54,6 +54,23 @@ export default function AdminStudents() {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    if (confirm("Are you sure you want to permanently delete this student? All related data will be lost.")) {
+      try {
+        const res = await fetch(`/api/students/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          setStudents(students.filter(s => s.id !== id));
+        } else {
+          alert("Failed to delete student");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("An error occurred while deleting");
+      }
+    }
+  };
+
   const filteredStudents = selectedBranch 
     ? students.filter(s => s.branch?.name === selectedBranch) 
     : students;
