@@ -29,7 +29,6 @@ export default function BeltExamForm() {
   const [baseFee, setBaseFee] = useState('1500');
   const [customQr, setCustomQr] = useState('');
   const [isLocked, setIsLocked] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     fetch('/api/settings')
