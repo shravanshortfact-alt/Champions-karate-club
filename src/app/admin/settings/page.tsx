@@ -24,7 +24,7 @@ export default function AdminSettings() {
   const [newAchievement, setNewAchievement] = useState('');
 
   useEffect(() => {
-    fetch('/api/settings')
+    fetch('/api/settings', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         setUpiId(data.upiId || '');
@@ -52,13 +52,17 @@ export default function AdminSettings() {
       formLocks
     };
     
-    await fetch('/api/settings', {
+    const res = await fetch('/api/settings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
     
-    alert("Settings saved successfully! The Home page is now updated.");
+    if (res.ok) {
+      alert("Settings saved successfully! The Home page is now updated.");
+    } else {
+      alert("Error saving settings! Please check the server logs.");
+    }
   };
 
 
