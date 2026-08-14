@@ -1,7 +1,8 @@
+import { getPrisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+
+const prisma = getPrisma();
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {

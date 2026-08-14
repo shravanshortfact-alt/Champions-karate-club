@@ -1,8 +1,9 @@
+import { getPrisma } from '@/lib/prisma';
 import cron from 'node-cron';
-import { PrismaClient } from '@prisma/client';
+
 import webpush from 'web-push';
 
-const prisma = new PrismaClient();
+const prisma = getPrisma();
 
 // Only set VAPID details if they exist to prevent crashing during build or missing env vars
 if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {

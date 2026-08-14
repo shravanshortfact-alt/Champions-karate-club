@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error("API SETTINGS ERROR:", error);
-    return NextResponse.json({ success: false, error: error?.message || "Failed to save settings" }, { status: 500 });
+    return NextResponse.json({ success: false, error: error?.message || String(error) || "Failed to save settings" }, { status: 500 });
   }
 }
 

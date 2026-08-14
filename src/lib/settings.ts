@@ -1,8 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+import { getPrisma } from '@/lib/prisma';
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
-const prisma = globalForPrisma.prisma || new PrismaClient();
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+
+
+const prisma = getPrisma();
+
 
 const SETTINGS_KEY = 'site_settings';
 
@@ -53,23 +54,6 @@ export const defaultSettings = {
 
 export async function getSiteSettings() {
   try {
-    // Attempt to create table if it doesn't exist (failsafe for Vercel)
-    try {
-      await prisma.$executeRawUnsafe(`
-        CREATE TABLE IF NOT EXISTS "SystemSettings" (
-            "id" TEXT NOT NULL,
-            "key" TEXT NOT NULL,
-            "value" TEXT NOT NULL,
-            CONSTRAINT "SystemSettings_pkey" PRIMARY KEY ("id")
-        );
-      `);
-      await prisma.$executeRawUnsafe(`
-        CREATE UNIQUE INDEX IF NOT EXISTS "SystemSettings_key_key" ON "SystemSettings"("key");
-      `);
-    } catch (e) {
-      console.log("Table creation check skipped/failed");
-    }
-
     const record = await prisma.systemSettings.findUnique({
       where: { key: SETTINGS_KEY }
     });

@@ -1,8 +1,9 @@
+import { getPrisma } from '@/lib/prisma';
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+
+const prisma = getPrisma();
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> | { id: string } }) {
   try {
