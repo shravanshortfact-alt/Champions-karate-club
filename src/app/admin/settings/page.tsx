@@ -61,7 +61,8 @@ export default function AdminSettings() {
     if (res.ok) {
       alert("Settings saved successfully! The Home page is now updated.");
     } else {
-      alert("Error saving settings! Please check the server logs.");
+      const errData = await res.json().catch(() => ({}));
+      alert("Error saving settings! " + (errData.error || "Please check the server logs."));
     }
   };
 

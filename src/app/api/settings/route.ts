@@ -12,8 +12,9 @@ export async function POST(request: Request) {
     const newSettings = await request.json();
     await updateSiteSettings(newSettings);
     return NextResponse.json({ success: true });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: "Failed to save settings" }, { status: 500 });
+  } catch (error: any) {
+    console.error("API SETTINGS ERROR:", error);
+    return NextResponse.json({ success: false, error: error?.message || "Failed to save settings" }, { status: 500 });
   }
 }
 
