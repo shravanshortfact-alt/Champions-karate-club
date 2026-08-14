@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { promises as fs } from 'fs';
 import path from 'path';
 import MapSection from '@/components/MapSection';
-import { Medal, Flame, ShieldCheck } from 'lucide-react';
+import { Medal, Flame, ShieldCheck, Lock } from 'lucide-react';
 
 async function getSiteSettings() {
   const dbPath = path.join(process.cwd(), 'data', 'settings.json');
@@ -65,12 +65,30 @@ export default async function Home() {
             { title: "Competition", description: "Enter upcoming events", link: "/register/competition" },
             { title: "Seminar", description: "Special training camps", link: "/register/seminar" },
             { title: "Fee Payment", description: "Pay your monthly fees", link: "/pay-fee" }
-          ]).map((linkItem: any, i: number) => (
-            <a key={i} href={linkItem.link} className="card">
-              <h3>{linkItem.title}</h3>
-              <p className="text-muted" style={{ fontSize: '0.9rem', marginTop: '1rem' }}>{linkItem.description}</p>
-            </a>
-          ))}
+          ]).map((linkItem: any, i: number) => {
+            let isLocked = false;
+            if (linkItem.link.includes('competition') && settings.formLocks?.competition) isLocked = true;
+            if (linkItem.link.includes('seminar') && settings.formLocks?.seminar) isLocked = true;
+            if (linkItem.link.includes('belt-exam') && settings.formLocks?.beltExam) isLocked = true;
+
+            return (
+              <a 
+                key={i} 
+                href={isLocked ? '#' : linkItem.link} 
+                className="card"
+                style={isLocked ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+                onClick={(e) => { if (isLocked) e.preventDefault(); }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <h3>{linkItem.title}</h3>
+                  {isLocked && <Lock size={20} color="var(--danger-color, red)" />}
+                </div>
+                <p className="text-muted" style={{ fontSize: '0.9rem', marginTop: '1rem' }}>
+                  {isLocked ? "Currently Locked" : linkItem.description}
+                </p>
+              </a>
+            );
+          })}
         </div>
       </section>
 
