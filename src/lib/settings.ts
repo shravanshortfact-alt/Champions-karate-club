@@ -53,9 +53,27 @@ export const defaultSettings = {
 
 export async function getSiteSettings() {
   try {
+    // Attempt to create table if it doesn't exist (failsafe for Vercel)
+    try {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS "SystemSettings" (
+            "id" TEXT NOT NULL,
+            "key" TEXT NOT NULL,
+            "value" TEXT NOT NULL,
+            CONSTRAINT "SystemSettings_pkey" PRIMARY KEY ("id")
+        );
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE UNIQUE INDEX IF NOT EXISTS "SystemSettings_key_key" ON "SystemSettings"("key");
+      `);
+    } catch (e) {
+      console.log("Table creation check skipped/failed");
+    }
+
     const record = await prisma.systemSettings.findUnique({
       where: { key: SETTINGS_KEY }
     });
+
     if (record && record.value) {
       const parsed = JSON.parse(record.value);
       // Migrate branches to objects
