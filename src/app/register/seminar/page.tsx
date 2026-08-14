@@ -26,6 +26,7 @@ export default function SeminarForm() {
   const [baseFee, setBaseFee] = useState('2000');
   const [customQr, setCustomQr] = useState('');
   const [isLocked, setIsLocked] = useState(false);
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
 
   useEffect(() => {
     fetch('/api/settings')
@@ -45,7 +46,9 @@ export default function SeminarForm() {
             setBranches(linkConfig.branches);
           }
         }
-      });
+        setIsLoadingSettings(false);
+      })
+      .catch(() => setIsLoadingSettings(false));
   }, []);
   useEffect(() => {
     const selectedBranch = branches.find(b => b.name === formData.branch);
@@ -197,7 +200,11 @@ export default function SeminarForm() {
         <h1 className="text-primary" style={{ margin: 0, flex: 1, textAlign: 'center', paddingRight: '56px' }}>Training Seminar Registration</h1>
       </div>
       
-      {isLocked ? (
+      {isLoadingSettings ? (
+        <div className="card" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+          <h2 style={{ color: 'var(--text-muted)' }}>Loading...</h2>
+        </div>
+      ) : isLocked ? (
         <div className="card" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
           <h2 style={{ color: 'var(--danger-color, red)', marginBottom: '1rem' }}>Form Locked</h2>
           <p style={{ color: 'var(--text-muted)' }}>This form has not started yet or is currently closed. Please check back later.</p>

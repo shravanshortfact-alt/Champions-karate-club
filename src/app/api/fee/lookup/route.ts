@@ -60,18 +60,16 @@ export async function POST(request: Request) {
     const baseAmount = student.monthlyFee;
     const totalAmount = baseAmount + lateFee;
 
-    // Fetch UPI ID from settings.json
+    // Fetch UPI ID from settings
     let upiId = 'championkarate@upi'; // Default fallback
     try {
-      const fs = require('fs').promises;
-      const path = require('path');
-      const settingsData = await fs.readFile(path.join(process.cwd(), 'data', 'settings.json'), 'utf8');
-      const settings = JSON.parse(settingsData);
+      const { getSiteSettings } = await import('@/lib/settings');
+      const settings = await getSiteSettings();
       if (settings.upiId) {
         upiId = settings.upiId;
       }
     } catch (e) {
-      console.error("Could not read settings.json", e);
+      console.error("Could not fetch settings", e);
     }
 
     return NextResponse.json({ 

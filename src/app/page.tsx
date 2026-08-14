@@ -1,33 +1,9 @@
 export const dynamic = 'force-dynamic';
 import Image from 'next/image';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { getSiteSettings } from '@/lib/settings';
 import MapSection from '@/components/MapSection';
 import { Medal, Flame, ShieldCheck, Lock } from 'lucide-react';
-
-async function getSiteSettings() {
-  const dbPath = path.join(process.cwd(), 'data', 'settings.json');
-  try {
-    const data = await fs.readFile(dbPath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    // Return defaults if file doesn't exist yet
-    return {
-      logoUrl: '',
-      instructor: {
-        name: 'Sensei Kenjiro',
-        rank: '8th Dan Black Belt',
-        experience: 'With over 30 years of martial arts experience, Sensei Kenjiro has trained national champions and international medalists.',
-        photoUrl: '/instructor.png'
-      },
-      achievements: [
-        '5x National Champion',
-        'Gold Medalist - Asian Karate Championships',
-        'Certified World Karate Federation Coach'
-      ]
-    };
-  }
-}
+import { getSiteSettings } from '@/lib/settings';
 
 export default async function Home() {
   const settings = await getSiteSettings();

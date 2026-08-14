@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { promises as fs } from 'fs';
-import path from 'path';
+import { getSiteSettings } from '@/lib/settings';
 import Navbar from "@/components/Navbar";
 import "./globals.css";
 
@@ -8,16 +7,6 @@ export const metadata: Metadata = {
   title: "Champions Karate Club",
   description: "Join the elite Champions Karate Club. Register for admissions, belt exams, and tournaments.",
 };
-
-async function getSiteSettings() {
-  const dbPath = path.join(process.cwd(), 'data', 'settings.json');
-  try {
-    const data = await fs.readFile(dbPath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return { logoUrl: '' };
-  }
-}
 
 export default async function RootLayout({
   children,
