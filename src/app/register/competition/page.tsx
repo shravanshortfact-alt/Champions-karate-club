@@ -37,8 +37,10 @@ export default function CompetitionForm() {
     fetch('/api/settings', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
-        if (data.formLocks?.competition) {
+        if (data.formLocks?.competition === true || String(data.formLocks?.competition) === 'true') {
           setIsLocked(true);
+        } else {
+          setIsLocked(false);
         }
         setBranches(data.branches || []);
         const linkConfig = data.registrationLinks?.find((l: any) => l.link === '/register/competition');

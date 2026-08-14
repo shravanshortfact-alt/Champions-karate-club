@@ -32,8 +32,10 @@ export default function SeminarForm() {
     fetch('/api/settings', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
-        if (data.formLocks?.seminar) {
+        if (data.formLocks?.seminar === true || String(data.formLocks?.seminar) === 'true') {
           setIsLocked(true);
+        } else {
+          setIsLocked(false);
         }
         setBranches(data.branches || []);
         const linkConfig = data.registrationLinks?.find((l: any) => l.link === '/register/seminar');

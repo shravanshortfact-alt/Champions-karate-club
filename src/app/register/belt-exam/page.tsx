@@ -35,8 +35,10 @@ export default function BeltExamForm() {
     fetch('/api/settings', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
-        if (data.formLocks?.beltExam) {
+        if (data.formLocks?.beltExam === true || String(data.formLocks?.beltExam) === 'true') {
           setIsLocked(true);
+        } else {
+          setIsLocked(false);
         }
         setBranches(data.branches || []);
         const linkConfig = data.registrationLinks?.find((l: any) => l.link === '/register/belt-exam');
@@ -204,7 +206,7 @@ export default function BeltExamForm() {
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
         </button>
-        <h1 className="text-primary" style={{ margin: 0, flex: 1, textAlign: 'center', paddingRight: '56px' }}>Belt Examination Registration</h1>
+        <h1 className="text-primary page-title" style={{ margin: 0, flex: 1, textAlign: 'center' }}>Belt Examination Registration</h1>
       </div>
       
       {isLoadingSettings ? (
