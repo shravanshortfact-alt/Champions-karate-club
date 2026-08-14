@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { getSiteSettings } from '@/lib/settings';
 import MapSection from '@/components/MapSection';
 import { Medal, Flame, ShieldCheck, Lock } from 'lucide-react';
+import RegistrationLink from '@/components/RegistrationLink';
 
 export default async function Home() {
   const settings = await getSiteSettings();
@@ -43,26 +44,12 @@ export default async function Home() {
             { title: "Fee Payment", description: "Pay your monthly fees", link: "/pay-fee" }
           ]).map((linkItem: any, i: number) => {
             let isLocked = false;
-            if (linkItem.link.includes('competition') && settings.formLocks?.competition) isLocked = true;
-            if (linkItem.link.includes('seminar') && settings.formLocks?.seminar) isLocked = true;
-            if (linkItem.link.includes('belt-exam') && settings.formLocks?.beltExam) isLocked = true;
+            if (linkItem.link.includes('competition') && (settings.formLocks?.competition === true || String(settings.formLocks?.competition) === 'true')) isLocked = true;
+            if (linkItem.link.includes('seminar') && (settings.formLocks?.seminar === true || String(settings.formLocks?.seminar) === 'true')) isLocked = true;
+            if (linkItem.link.includes('belt-exam') && (settings.formLocks?.beltExam === true || String(settings.formLocks?.beltExam) === 'true')) isLocked = true;
 
-            const LinkWrapper = isLocked ? 'div' : 'a';
             return (
-              <LinkWrapper 
-                key={i} 
-                {...(!isLocked ? { href: linkItem.link } : {})}
-                className="card"
-                style={isLocked ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <h3>{linkItem.title}</h3>
-                  {isLocked && <Lock size={20} color="var(--danger-color, red)" />}
-                </div>
-                <p className="text-muted" style={{ fontSize: '0.9rem', marginTop: '1rem' }}>
-                  {isLocked ? "Currently Locked" : linkItem.description}
-                </p>
-              </LinkWrapper>
+              <RegistrationLink key={i} linkItem={linkItem} isLocked={isLocked} />
             );
           })}
         </div>
