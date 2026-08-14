@@ -3,7 +3,6 @@ import Image from 'next/image';
 import { getSiteSettings } from '@/lib/settings';
 import MapSection from '@/components/MapSection';
 import { Medal, Flame, ShieldCheck, Lock } from 'lucide-react';
-import { getSiteSettings } from '@/lib/settings';
 
 export default async function Home() {
   const settings = await getSiteSettings();
