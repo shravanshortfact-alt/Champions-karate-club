@@ -71,13 +71,13 @@ export default async function Home() {
             if (linkItem.link.includes('seminar') && settings.formLocks?.seminar) isLocked = true;
             if (linkItem.link.includes('belt-exam') && settings.formLocks?.beltExam) isLocked = true;
 
+            const LinkWrapper = isLocked ? 'div' : 'a';
             return (
-              <a 
+              <LinkWrapper 
                 key={i} 
-                href={isLocked ? '#' : linkItem.link} 
+                {...(!isLocked ? { href: linkItem.link } : {})}
                 className="card"
                 style={isLocked ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
-                onClick={(e) => { if (isLocked) e.preventDefault(); }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <h3>{linkItem.title}</h3>
@@ -86,7 +86,7 @@ export default async function Home() {
                 <p className="text-muted" style={{ fontSize: '0.9rem', marginTop: '1rem' }}>
                   {isLocked ? "Currently Locked" : linkItem.description}
                 </p>
-              </a>
+              </LinkWrapper>
             );
           })}
         </div>
