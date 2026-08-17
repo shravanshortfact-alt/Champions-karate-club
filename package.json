@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && npx @cloudflare/next-on-pages",
+    "build": "prisma generate && next build",
     "preview": "npm run build && wrangler pages dev .vercel/output/static",
     "deploy": "npm run build && wrangler pages deploy .vercel/output/static",
     "start": "next start",
