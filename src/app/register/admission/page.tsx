@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
-export const runtime = 'edge';
-
 
 export default function AdmissionForm() {
   const [step, setStep] = useState(1);

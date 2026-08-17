@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaD1 } from '@prisma/adapter-d1';
-import { getRequestContext } from '@cloudflare/next-on-pages';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 
 let cachedPrisma: PrismaClient | undefined;
 
@@ -8,7 +8,7 @@ function createPrismaClient(): PrismaClient {
   if (cachedPrisma) return cachedPrisma;
   
   try {
-    const env = getRequestContext()?.env;
+    const env = (getCloudflareContext() as any)?.env;
     if (env && env.DB) {
       const adapter = new PrismaD1(env.DB);
       cachedPrisma = new PrismaClient({ adapter });

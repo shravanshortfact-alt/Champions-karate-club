@@ -2,8 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import NotificationForm from '@/components/admin/NotificationForm';
 
-export const runtime = 'edge';
-
 
 export default function AdminNotificationsPage() {
   const [notifications, setNotifications] = useState<any[]>([]);

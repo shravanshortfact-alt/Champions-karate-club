@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react';
 
-export const runtime = 'edge';
-
 
 export default function AdminStudents() {
   const [branches, setBranches] = useState<{name: string}[]>([]);

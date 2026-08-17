@@ -1,8 +1,6 @@
 import { getPrisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
-export const runtime = 'edge';
-
 
 
 const prisma = getPrisma();

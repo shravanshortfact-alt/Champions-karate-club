@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react';
 
-export const runtime = 'edge';
-
 
 export default function AdminMessages() {
   const [defaultMessage, setDefaultMessage] = useState('Happy Birthday, {Student Name}! 🎉\nChampion Karate Club wishes you success, discipline, strength, and happiness. 🥋');

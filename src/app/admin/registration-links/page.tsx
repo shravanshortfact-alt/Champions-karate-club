@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react';
 
-export const runtime = 'edge';
-
 
 type RegLink = {
   title: string;

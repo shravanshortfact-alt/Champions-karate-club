@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
-export const runtime = 'edge';
-
 
 export default function SeminarForm() {
   const [step, setStep] = useState(1);

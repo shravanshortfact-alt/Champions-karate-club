@@ -2,8 +2,6 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { getSiteSettings, updateSiteSettings } from '@/lib/settings';
 
-export const runtime = 'edge';
-
 
 export async function GET() {
   const settings = await getSiteSettings();

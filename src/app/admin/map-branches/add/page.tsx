@@ -2,8 +2,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export const runtime = 'edge';
-
 
 export default function AddBranchPage() {
   const router = useRouter();

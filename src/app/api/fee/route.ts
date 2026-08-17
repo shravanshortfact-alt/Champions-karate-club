@@ -2,8 +2,6 @@ import { getPrisma } from '@/lib/prisma';
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 
-export const runtime = 'edge';
-
 
 
 const prisma = getPrisma();
