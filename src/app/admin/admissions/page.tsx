@@ -11,7 +11,7 @@ export default function AdminAdmissions() {
   useEffect(() => {
     fetch('/api/settings')
       .then(res => res.json())
-      .then(data => {
+      .then((data: any) => {
         const uniqueBranches = new Set<string>();
         if (data.registrationLinks) {
           data.registrationLinks.forEach((link: any) => {
