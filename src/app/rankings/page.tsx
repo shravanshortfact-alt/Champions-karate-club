@@ -15,7 +15,7 @@ export default function RankingsPage() {
   useEffect(() => {
     fetch('/api/students?status=Active')
       .then(res => res.json())
-      .then(data => {
+      .then((data: any) => {
         if (Array.isArray(data)) {
           setAllStudents(data);
         }

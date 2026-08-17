@@ -13,7 +13,7 @@ export default function AdminSeminars() {
   useEffect(() => {
     fetch('/api/settings')
       .then(res => res.json())
-      .then(data => {
+      .then((data: any) => {
         const uniqueBranches = new Set<string>();
         if (data.registrationLinks) {
           data.registrationLinks.forEach((link: any) => {
@@ -27,7 +27,7 @@ export default function AdminSeminars() {
 
     fetch('/api/registrations')
       .then(res => res.json())
-      .then(data => {
+      .then((data: any) => {
         if (Array.isArray(data)) {
           setSeminars(data.filter(r => r.category === 'Seminar'));
         }
@@ -37,7 +37,7 @@ export default function AdminSeminars() {
   const handleVerify = async (id: string) => {
     try {
       const res = await fetch(`/api/registrations/${id}`, { method: 'PATCH' });
-      const data = await res.json();
+      const data: any = await res.json();
       if (data.success) {
         setSeminars(seminars.map(s => s.id === id ? { ...s, status: 'Verified' } : s));
       } else {

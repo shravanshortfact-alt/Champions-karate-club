@@ -20,7 +20,7 @@ export default function Navbar({ settings }: { settings: any }) {
         try {
           const res = await fetch(`/api/student/notifications?studentName=${encodeURIComponent(name)}`);
           if (res.ok) {
-            const data = await res.json();
+            const data: any = await res.json();
             if (data.success) {
               setNotifications(data.notifications);
             }

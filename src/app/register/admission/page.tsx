@@ -27,7 +27,7 @@ export default function AdmissionForm() {
   useEffect(() => {
     fetch('/api/settings')
       .then(res => res.json())
-      .then(data => {
+      .then((data: any) => {
         setBranches(data.branches || []);
         const linkConfig = data.registrationLinks?.find((l: any) => l.link === '/register/admission');
         if (linkConfig) {
@@ -104,7 +104,7 @@ export default function AdmissionForm() {
         body: JSON.stringify(formData)
       });
       
-      const data = await res.json();
+      const data: any = await res.json();
       if (data.success) {
         alert(`Payment Successful! Registration submitted. Please wait for admin approval.`);
         window.location.href = "/";
@@ -125,7 +125,7 @@ export default function AdmissionForm() {
       uploadData.append('file', file);
       try {
         const res = await fetch('/api/upload', { method: 'POST', body: uploadData });
-        const data = await res.json();
+        const data: any = await res.json();
         if (data.url) {
           setFormData({ ...formData, paymentScreenshot: data.url });
         }
@@ -146,7 +146,7 @@ export default function AdmissionForm() {
       uploadData.append('file', file);
       try {
         const res = await fetch('/api/upload', { method: 'POST', body: uploadData });
-        const data = await res.json();
+        const data: any = await res.json();
         if (data.url) {
           setFormData({ ...formData, profilePhotoUrl: data.url });
         }

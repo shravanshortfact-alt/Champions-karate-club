@@ -16,7 +16,7 @@ export default function AdminMessages() {
     try {
       // Fetch settings for birthday message
       const resSettings = await fetch('/api/settings');
-      const data = await resSettings.json();
+      const data: any = await resSettings.json();
       if (data.birthdayMessage) {
         setDefaultMessage(data.birthdayMessage);
       }
@@ -57,7 +57,7 @@ export default function AdminMessages() {
       setIsTriggering(true);
       try {
         const res = await fetch('/api/cron/birthdays', { method: 'POST' });
-        const data = await res.json();
+        const data: any = await res.json();
         if (res.ok) {
           alert(`Successfully ran check. Messages sent: ${data.sentCount}`);
           fetchData(); // Refresh logs

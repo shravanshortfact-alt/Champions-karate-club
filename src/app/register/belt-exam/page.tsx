@@ -34,7 +34,7 @@ export default function BeltExamForm() {
   useEffect(() => {
     fetch('/api/settings', { cache: 'no-store' })
       .then(res => res.json())
-      .then(data => {
+      .then((data: any) => {
         if (data.formLocks?.beltExam === true || String(data.formLocks?.beltExam) === 'true') {
           setIsLocked(true);
         } else {
@@ -102,7 +102,7 @@ export default function BeltExamForm() {
         body: JSON.stringify(formData)
       });
       
-      const data = await res.json();
+      const data: any = await res.json();
       if (data.success) {
         alert(`Belt Exam Registration Successful! Your ID is ${data.id}`);
         window.location.href = "/";
@@ -123,7 +123,7 @@ export default function BeltExamForm() {
       uploadData.append('file', file);
       try {
         const res = await fetch('/api/upload', { method: 'POST', body: uploadData });
-        const data = await res.json();
+        const data: any = await res.json();
         if (data.url) {
           setFormData({ ...formData, paymentScreenshot: data.url });
         }
@@ -144,7 +144,7 @@ export default function BeltExamForm() {
       uploadData.append('file', file);
       try {
         const res = await fetch('/api/upload', { method: 'POST', body: uploadData });
-        const data = await res.json();
+        const data: any = await res.json();
         if (data.url) {
           setFormData({ ...formData, profilePhotoUrl: data.url });
         }
@@ -163,7 +163,7 @@ export default function BeltExamForm() {
     setStudentIdError('');
     try {
       const res = await fetch(`/api/student/${encodeURIComponent(studentIdInput)}`);
-      const data = await res.json();
+      const data: any = await res.json();
       if (res.ok && data.profile) {
         setFormData(prev => ({
           ...prev,

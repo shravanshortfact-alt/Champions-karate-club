@@ -25,7 +25,7 @@ export default function AdminAdmissions() {
 
     fetch('/api/registrations')
       .then(res => res.json())
-      .then(data => {
+      .then((data: any) => {
         if (Array.isArray(data)) {
           setAdmissions(data.filter(r => r.category === 'Admission'));
         }
@@ -35,7 +35,7 @@ export default function AdminAdmissions() {
   const handleVerify = async (id: string) => {
     try {
       const res = await fetch(`/api/registrations/${id}`, { method: 'PATCH' });
-      const data = await res.json();
+      const data: any = await res.json();
       if (data.success) {
         setAdmissions(admissions.map(a => a.id === id ? { ...a, status: 'Verified' } : a));
         

@@ -9,7 +9,7 @@ export default function MapBranchesPage() {
     try {
       const res = await fetch("/api/admin/map-locations");
       if (res.ok) {
-        const data = await res.json();
+        const data: any = await res.json();
         setLocations(data);
       }
     } catch (e) {

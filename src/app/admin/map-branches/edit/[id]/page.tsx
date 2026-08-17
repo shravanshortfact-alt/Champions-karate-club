@@ -29,7 +29,7 @@ export default function EditBranchPage() {
       try {
         const res = await fetch("/api/admin/map-locations");
         if (res.ok) {
-          const data = await res.json();
+          const data: any = await res.json();
           const location = data.find((l: any) => l.id === params.id);
           if (location) {
             setFormData({

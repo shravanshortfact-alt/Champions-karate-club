@@ -26,7 +26,7 @@ export default function AdminSettings() {
   useEffect(() => {
     fetch('/api/settings', { cache: 'no-store' })
       .then(res => res.json())
-      .then(data => {
+      .then((data: any) => {
         setUpiId(data.upiId || '');
         setLogoUrl(data.logoUrl || '');
         setWhatsappNumber(data.whatsappNumber || '');
@@ -110,7 +110,7 @@ export default function AdminSettings() {
         method: 'POST',
         body: formData,
       });
-      const data = await res.json();
+      const data: any = await res.json();
       if (data.url) setLogoUrl(data.url);
     } catch (error) {
       alert("Error uploading file.");
@@ -129,7 +129,7 @@ export default function AdminSettings() {
         method: 'POST',
         body: formData,
       });
-      const data = await res.json();
+      const data: any = await res.json();
       if (data.url) handleInstructorChange(index, 'photoUrl', data.url);
     } catch (error) {
       alert("Error uploading file.");
@@ -167,7 +167,7 @@ export default function AdminSettings() {
         method: 'POST',
         body: formData,
       });
-      const data = await res.json();
+      const data: any = await res.json();
       if (data.url) {
         const newVideos = [...videos];
         newVideos[index].url = data.url;

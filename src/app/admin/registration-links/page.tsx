@@ -20,7 +20,7 @@ export default function RegistrationLinksAdmin() {
   useEffect(() => {
     fetch('/api/settings')
       .then(res => res.json())
-      .then(data => {
+      .then((data: any) => {
         setFullSettings(data);
         setLinks(data.registrationLinks || []);
         setIsLoading(false);
@@ -74,7 +74,7 @@ export default function RegistrationLinksAdmin() {
         method: 'POST',
         body: formData,
       });
-      const data = await res.json();
+      const data: any = await res.json();
       if (data.url) {
         handleLinkChange(index, 'qrCodeUrl', data.url);
         alert("QR Code uploaded successfully!");
@@ -113,7 +113,7 @@ export default function RegistrationLinksAdmin() {
     formData.append('file', file);
     try {
       const res = await fetch('/api/upload', { method: 'POST', body: formData });
-      const data = await res.json();
+      const data: any = await res.json();
       if (data.url) {
         const newLinks = [...links];
         newLinks[linkIndex].branches![branchIndex].qrCodeUrl = data.url;

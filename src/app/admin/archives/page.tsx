@@ -8,7 +8,7 @@ export default function AdminArchives() {
   useEffect(() => {
     fetch('/api/students?status=Archived')
       .then(res => res.json())
-      .then(data => {
+      .then((data: any) => {
         if (Array.isArray(data)) {
           setStudents(data);
         }
@@ -23,7 +23,7 @@ export default function AdminArchives() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id, status: 'Active' })
         });
-        const data = await res.json();
+        const data: any = await res.json();
         if (data.success) {
           setStudents(students.filter(s => s.id !== id));
         } else {
@@ -40,7 +40,7 @@ export default function AdminArchives() {
     if (confirm("Are you sure you want to permanently delete this student? All related data will be lost.")) {
       try {
         const res = await fetch(`/api/students/${id}`, { method: 'DELETE' });
-        const data = await res.json();
+        const data: any = await res.json();
         if (data.success) {
           setStudents(students.filter(s => s.id !== id));
         } else {

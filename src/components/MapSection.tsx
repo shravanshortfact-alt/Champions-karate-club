@@ -14,7 +14,7 @@ export default function MapSection() {
       try {
         const res = await fetch("/api/map-locations");
         if (res.ok) {
-          const data = await res.json();
+          const data: any = await res.json();
           const validLocations = data.filter((l: any) => l.latitude && l.longitude);
           setLocations(validLocations);
         }

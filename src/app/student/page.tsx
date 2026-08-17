@@ -28,7 +28,7 @@ export default function StudentDashboard() {
     // Fetch available events for the medal claim form
     fetch('/api/events')
       .then(res => res.json())
-      .then(data => {
+      .then((data: any) => {
         if(Array.isArray(data)) setEvents(data);
       });
   }, []);
@@ -46,7 +46,7 @@ export default function StudentDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ studentName, password })
       });
-      const data = await res.json();
+      const data: any = await res.json();
       
       if (res.ok) {
         localStorage.setItem('studentPortal_name', data.studentName);
@@ -172,7 +172,7 @@ export default function StudentDashboard() {
     
     try {
       const res = await fetch(`/api/student/${encodeURIComponent(name)}`);
-      const data = await res.json();
+      const data: any = await res.json();
       
       if (res.ok) {
         setRecords(data.registrations || []);
@@ -208,7 +208,7 @@ export default function StudentDashboard() {
           medal: claimMedal
         })
       });
-      const data = await res.json();
+      const data: any = await res.json();
       if (data.success) {
         alert("Medal claim submitted successfully! It is now pending Admin approval.");
         fetchStudentData(studentName); // Refresh to show pending status if I update the UI
@@ -237,7 +237,7 @@ export default function StudentDashboard() {
           newPassword: newPasswordInput
         })
       });
-      const data = await res.json();
+      const data: any = await res.json();
       if (data.success) {
         alert("Password updated successfully!");
         setCurrentPasswordInput('');

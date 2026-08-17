@@ -15,7 +15,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     fetch('/api/settings')
       .then(res => res.json())
-      .then(data => {
+      .then((data: any) => {
         const uniqueBranches = new Set<string>();
         if (data.registrationLinks) {
           data.registrationLinks.forEach((link: any) => {
@@ -29,7 +29,7 @@ export default function AdminDashboard() {
 
     fetch('/api/registrations')
       .then(res => res.json())
-      .then(data => {
+      .then((data: any) => {
         if (Array.isArray(data)) setRegistrations(data);
       });
   }, []);

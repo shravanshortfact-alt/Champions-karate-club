@@ -13,7 +13,7 @@ export default function AdminCompetitions() {
   useEffect(() => {
     fetch('/api/settings')
       .then(res => res.json())
-      .then(data => {
+      .then((data: any) => {
         const uniqueBranches = new Set<string>();
         if (data.registrationLinks) {
           data.registrationLinks.forEach((link: any) => {
@@ -27,7 +27,7 @@ export default function AdminCompetitions() {
 
     fetch('/api/registrations')
       .then(res => res.json())
-      .then(data => {
+      .then((data: any) => {
         if (Array.isArray(data)) {
           setComps(data.filter(r => r.category === 'Competition'));
         }
@@ -37,7 +37,7 @@ export default function AdminCompetitions() {
   const handleVerify = async (id: string) => {
     try {
       const res = await fetch(`/api/registrations/${id}`, { method: 'PATCH' });
-      const data = await res.json();
+      const data: any = await res.json();
       if (data.success) {
         setComps(comps.map(c => c.id === id ? { ...c, status: 'Verified' } : c));
       } else {

@@ -11,7 +11,7 @@ export default function AdminNotificationsPage() {
     setLoading(true);
     try {
       const res = await fetch('/api/admin/notifications');
-      const data = await res.json();
+      const data: any = await res.json();
       if (data.success) {
         setNotifications(data.notifications);
       }
@@ -31,7 +31,7 @@ export default function AdminNotificationsPage() {
     
     try {
       const res = await fetch(`/api/admin/notifications/${id}`, { method: 'DELETE' });
-      const data = await res.json();
+      const data: any = await res.json();
       if (data.success) {
         fetchNotifications();
       } else {

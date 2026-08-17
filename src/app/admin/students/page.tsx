@@ -12,7 +12,7 @@ export default function AdminStudents() {
     // Fetch branches from DB if available, for now using settings logic or Prisma
     fetch('/api/settings')
       .then(res => res.json())
-      .then(data => {
+      .then((data: any) => {
         const uniqueBranches = new Set<string>();
         if (data.registrationLinks) {
           data.registrationLinks.forEach((link: any) => {
@@ -26,7 +26,7 @@ export default function AdminStudents() {
 
     fetch('/api/students?status=Active')
       .then(res => res.json())
-      .then(data => {
+      .then((data: any) => {
         if (Array.isArray(data)) {
           setStudents(data);
         }
@@ -41,7 +41,7 @@ export default function AdminStudents() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id, status: 'Archived' })
         });
-        const data = await res.json();
+        const data: any = await res.json();
         if (data.success) {
           setStudents(students.filter(s => s.id !== id));
         } else {
@@ -58,7 +58,7 @@ export default function AdminStudents() {
     if (confirm("Are you sure you want to permanently delete this student? All related data will be lost.")) {
       try {
         const res = await fetch(`/api/students/${id}`, { method: 'DELETE' });
-        const data = await res.json();
+        const data: any = await res.json();
         if (data.success) {
           setStudents(students.filter(s => s.id !== id));
         } else {

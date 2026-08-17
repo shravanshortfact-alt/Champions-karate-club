@@ -31,7 +31,7 @@ export default function SeminarForm() {
   useEffect(() => {
     fetch('/api/settings', { cache: 'no-store' })
       .then(res => res.json())
-      .then(data => {
+      .then((data: any) => {
         if (data.formLocks?.seminar === true || String(data.formLocks?.seminar) === 'true') {
           setIsLocked(true);
         } else {
@@ -99,7 +99,7 @@ export default function SeminarForm() {
         body: JSON.stringify(formData)
       });
       
-      const data = await res.json();
+      const data: any = await res.json();
       if (data.success) {
         alert(`Seminar Registration Successful! Your ID is ${data.id}`);
         window.location.href = "/";
@@ -119,7 +119,7 @@ export default function SeminarForm() {
       uploadData.append('file', file);
       try {
         const res = await fetch('/api/upload', { method: 'POST', body: uploadData });
-        const data = await res.json();
+        const data: any = await res.json();
         if (data.url) {
           setFormData({ ...formData, paymentScreenshot: data.url });
         }
@@ -138,7 +138,7 @@ export default function SeminarForm() {
       uploadData.append('file', file);
       try {
         const res = await fetch('/api/upload', { method: 'POST', body: uploadData });
-        const data = await res.json();
+        const data: any = await res.json();
         if (data.url) {
           setFormData({ ...formData, profilePhotoUrl: data.url });
         }
@@ -157,7 +157,7 @@ export default function SeminarForm() {
     setStudentIdError('');
     try {
       const res = await fetch(`/api/student/${encodeURIComponent(studentIdInput)}`);
-      const data = await res.json();
+      const data: any = await res.json();
       if (res.ok && data.profile) {
         setFormData(prev => ({
           ...prev,

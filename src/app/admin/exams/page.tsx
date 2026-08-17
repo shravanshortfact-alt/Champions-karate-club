@@ -13,7 +13,7 @@ export default function AdminExams() {
   useEffect(() => {
     fetch('/api/settings')
       .then(res => res.json())
-      .then(data => {
+      .then((data: any) => {
         const uniqueBranches = new Set<string>();
         if (data.registrationLinks) {
           data.registrationLinks.forEach((link: any) => {
@@ -27,7 +27,7 @@ export default function AdminExams() {
 
     fetch('/api/registrations')
       .then(res => res.json())
-      .then(data => {
+      .then((data: any) => {
         if (Array.isArray(data)) {
           setExams(data.filter(r => r.category === 'Belt Exam'));
         }
@@ -37,7 +37,7 @@ export default function AdminExams() {
   const handleVerify = async (id: string) => {
     try {
       const res = await fetch(`/api/registrations/${id}`, { method: 'PATCH' });
-      const data = await res.json();
+      const data: any = await res.json();
       if (data.success) {
         setExams(exams.map(e => e.id === id ? { ...e, status: 'Verified' } : e));
       } else {

@@ -23,7 +23,7 @@ export default function PayFee() {
       setUploadingScreenshot(true);
       try {
         const res = await fetch('/api/upload', { method: 'POST', body: uploadData });
-        const data = await res.json();
+        const data: any = await res.json();
         if (data.url) {
           setScreenshotUrl(data.url);
         }
@@ -49,7 +49,7 @@ export default function PayFee() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ studentName })
       });
-      const data = await res.json();
+      const data: any = await res.json();
       
       if (res.ok) {
         setFeeData(data);
@@ -89,7 +89,7 @@ export default function PayFee() {
           screenshotUrl
         })
       });
-      const data = await res.json();
+      const data: any = await res.json();
       
       if (res.ok) {
         setSuccess(true);

@@ -46,7 +46,7 @@ export default function MapEditorPage() {
     try {
       const res = await fetch("/api/admin/map-locations");
       if (res.ok) {
-        const data = await res.json();
+        const data: any = await res.json();
         // Filter out those without coords
         setLocations(data.filter((l: any) => l.latitude && l.longitude));
       }

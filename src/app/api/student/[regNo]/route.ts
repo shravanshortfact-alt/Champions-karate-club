@@ -14,11 +14,11 @@ export async function GET(
     const searchTerm = decodeURIComponent(regNo).trim();
 
     // First find the Student
-    const student = await prisma.student.findFirst({
+    const student: any = await prisma.student.findFirst({
       where: {
         OR: [
-          { name: { equals: searchTerm, mode: 'insensitive' } },
-          { registrationNumber: { equals: searchTerm, mode: 'insensitive' } }
+          { name: { equals: searchTerm } },
+          { registrationNumber: { equals: searchTerm } }
         ]
       },
       include: {
@@ -38,7 +38,7 @@ export async function GET(
     // Now fetch all registrations for this student's name
     const allRecords = await prisma.registration.findMany({
       where: {
-        name: { equals: student.name, mode: 'insensitive' }
+        name: { equals: student.name }
       }
     });
 

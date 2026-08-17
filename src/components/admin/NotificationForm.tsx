@@ -16,7 +16,7 @@ export default function NotificationForm({ onSuccess }: { onSuccess: () => void 
     if (targetAudience === 'Specific' && students.length === 0) {
       fetch('/api/students?status=Active')
         .then(res => res.json())
-        .then(data => setStudents(data))
+        .then((data: any) => setStudents(data))
         .catch(err => console.error("Error fetching students:", err));
     }
   }, [targetAudience, students.length]);
@@ -40,7 +40,7 @@ export default function NotificationForm({ onSuccess }: { onSuccess: () => void 
         })
       });
 
-      const data = await res.json();
+      const data: any = await res.json();
       if (data.success) {
         setTitle('');
         setMessage('');

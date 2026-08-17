@@ -13,7 +13,7 @@ export default function AdminFees() {
   const fetchPayments = async () => {
     try {
       const res = await fetch('/api/fee');
-      const data = await res.json();
+      const data: any = await res.json();
       if (Array.isArray(data)) {
         setPayments(data);
       }
@@ -31,7 +31,7 @@ export default function AdminFees() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, status: 'Verified' })
       });
-      const data = await res.json();
+      const data: any = await res.json();
       if (data.success) {
         setPayments(payments.map(p => p.id === id ? { ...p, status: 'Verified' } : p));
       } else {
