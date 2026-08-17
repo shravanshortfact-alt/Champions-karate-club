@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 
+export const runtime = 'edge';
+
+
 export default function AdminFees() {
   const [payments, setPayments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

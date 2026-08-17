@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 
+export const runtime = 'edge';
+
+
 
 
 const allMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];

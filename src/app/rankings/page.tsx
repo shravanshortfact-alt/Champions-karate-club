@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
+export const runtime = 'edge';
+
+
 export default function RankingsPage() {
   const router = useRouter();
   const [allStudents, setAllStudents] = useState<any[]>([]);

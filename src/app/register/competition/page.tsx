@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
+export const runtime = 'edge';
+
+
 export default function CompetitionForm() {
   const [step, setStep] = useState(1);
   const [isUploading, setIsUploading] = useState(false);

@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 
+export const runtime = 'edge';
+
+
 type Instructor = {
   name: string;
   rank: string;

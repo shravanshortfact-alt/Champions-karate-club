@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 
+export const runtime = 'edge';
+
+
 export default function AdminAdmissions() {
   const [branches, setBranches] = useState<{name: string}[]>([]);
   const [selectedBranch, setSelectedBranch] = useState('');

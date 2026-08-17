@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 
+export const runtime = 'edge';
+
+
 export default function PayFee() {
   const [step, setStep] = useState(1);
   const [studentName, setStudentName] = useState('');

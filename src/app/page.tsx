@@ -5,6 +5,9 @@ import MapSection from '@/components/MapSection';
 import { Medal, Flame, ShieldCheck, Lock } from 'lucide-react';
 import RegistrationLink from '@/components/RegistrationLink';
 
+export const runtime = 'edge';
+
+
 export default async function Home() {
   const settings = await getSiteSettings();
 

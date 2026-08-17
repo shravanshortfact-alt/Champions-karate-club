@@ -1,6 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
 
+export const runtime = 'edge';
+
+
 export default function MapBranchesPage() {
   const [locations, setLocations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

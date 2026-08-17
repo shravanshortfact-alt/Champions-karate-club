@@ -4,6 +4,9 @@ import { useState, useEffect, useCallback } from 'react';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '@/utils/cropImage';
 
+export const runtime = 'edge';
+
+
 export default function StudentDashboard() {
   const [studentName, setStudentName] = useState('');
   const [password, setPassword] = useState('');

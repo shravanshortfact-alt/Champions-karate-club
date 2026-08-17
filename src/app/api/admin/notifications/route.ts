@@ -4,6 +4,9 @@ import { NextResponse } from 'next/server';
 
 import webpush from 'web-push';
 
+export const runtime = 'edge';
+
+
 const prisma = getPrisma();
 
 export async function GET(request: Request) {

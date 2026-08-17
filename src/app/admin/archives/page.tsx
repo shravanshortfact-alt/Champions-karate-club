@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 
+export const runtime = 'edge';
+
+
 export default function AdminArchives() {
   const [students, setStudents] = useState<any[]>([]);
 
