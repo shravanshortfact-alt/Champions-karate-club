@@ -1,10 +1,5 @@
 import { getPrisma } from '@/lib/prisma';
 
-
-
-const prisma = getPrisma();
-
-
 const SETTINGS_KEY = 'site_settings';
 
 export const defaultSettings = {
@@ -54,6 +49,7 @@ export const defaultSettings = {
 
 export async function getSiteSettings() {
   try {
+    const prisma = getPrisma();
     const record = await prisma.systemSettings.findUnique({
       where: { key: SETTINGS_KEY }
     });
@@ -80,6 +76,7 @@ export async function getSiteSettings() {
 
 export async function updateSiteSettings(newSettings: any) {
   try {
+    const prisma = getPrisma();
     const existing = await getSiteSettings();
     const merged = { ...existing, ...newSettings };
     
