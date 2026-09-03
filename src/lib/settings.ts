@@ -89,12 +89,14 @@ export async function getSiteSettings() {
 
   try {
     const prisma = getPrisma();
-    const record = await prisma.systemSettings.findUnique({
-      where: { key: SETTINGS_KEY }
-    });
+    if (prisma && (prisma as any).systemSettings) {
+      const record = await (prisma as any).systemSettings.findUnique({
+        where: { key: SETTINGS_KEY }
+      });
 
-    if (record && record.value) {
-      parsed = JSON.parse(record.value);
+      if (record && record.value) {
+        parsed = JSON.parse(record.value);
+      }
     }
   } catch (error) {
     console.error("Failed to fetch settings from DB, using fallback store:", error);
@@ -129,11 +131,13 @@ export async function updateSiteSettings(newSettings: any) {
 
   try {
     const prisma = getPrisma();
-    await prisma.systemSettings.upsert({
-      where: { key: SETTINGS_KEY },
-      update: { value: JSON.stringify(merged) },
-      create: { id: 'site_settings_id', key: SETTINGS_KEY, value: JSON.stringify(merged) }
-    });
+    if (prisma && (prisma as any).systemSettings) {
+      await (prisma as any).systemSettings.upsert({
+        where: { key: SETTINGS_KEY },
+        update: { value: JSON.stringify(merged) },
+        create: { id: 'site_settings_id', key: SETTINGS_KEY, value: JSON.stringify(merged) }
+      });
+    }
   } catch (error) {
     console.error("Failed to update settings in DB (using fallback store):", error);
     // Fallback store saved it successfully, do not fail the request!
