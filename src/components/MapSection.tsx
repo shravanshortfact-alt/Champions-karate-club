@@ -66,6 +66,9 @@ export default function MapSection() {
           />
           
           <style dangerouslySetInnerHTML={{__html: `
+            .dark-map-tiles {
+              filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+            }
             .map-section {
               padding: 6rem 1rem;
             }

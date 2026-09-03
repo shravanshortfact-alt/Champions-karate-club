@@ -62,14 +62,15 @@ export default function DynamicMap({
       zoomControl={false}
     >
       <TileLayer
-        attribution='Ola Maps | &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
-        url="https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        className="dark-map-tiles"
       />
       <MapController center={mapCenter} zoom={mapZoom} />
       
       {locations.map((loc) => (
         <Marker 
-          key={loc.id} 
+          key={loc.id || loc.name} 
           position={[loc.latitude, loc.longitude]}
           icon={customIcon}
           eventHandlers={{
