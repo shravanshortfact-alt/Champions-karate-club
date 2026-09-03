@@ -55,21 +55,46 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Instructor Section */}
-      <section className="container" style={{ padding: '2rem 1rem 3rem' }}>
-        <h2 className="text-center text-primary section-title" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)', marginBottom: '2rem' }}>Meet Our Masters</h2>
-        <div className="grid masters-grid">
-          {(settings.instructors || []).sort((a: any, b: any) => (b.medals || 0) - (a.medals || 0)).map((instructor: any, i: number) => (
-            <div key={i} className="instructor-card" style={{ background: 'var(--bg-card)', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <div className="instructor-img" style={{ position: 'relative' }}>
-                <Image src={instructor.photoUrl || "/instructor.png"} alt={instructor.name} fill style={{ objectFit: 'cover', objectPosition: 'top center' }} />
+      {/* Main Master / Founder Section */}
+      <section className="container" style={{ padding: '2.5rem 1rem 3.5rem' }}>
+        <h2 className="text-center text-primary section-title" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)', marginBottom: '2rem' }}>Meet Our Master</h2>
+        <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+          {(() => {
+            const mainMaster = (settings.instructors && settings.instructors.length > 0 && settings.instructors[0]?.name)
+              ? settings.instructors[0]
+              : { name: "Sensei Kenjiro", rank: "Founder & Chief Instructor - 8th Dan Black Belt", photoUrl: "/instructor.png" };
+
+            return (
+              <div className="single-master-card" style={{ 
+                width: '100%', 
+                maxWidth: '420px', 
+                margin: '0 auto', 
+                background: 'linear-gradient(145deg, #18181b 0%, #09090b 100%)', 
+                borderRadius: '16px', 
+                overflow: 'hidden', 
+                border: '1px solid rgba(212, 175, 55, 0.35)',
+                boxShadow: '0 12px 35px rgba(0,0,0,0.6)',
+                textAlign: 'center'
+              }}>
+                <div style={{ position: 'relative', width: '100%', height: '380px', background: '#000' }}>
+                  <Image 
+                    src={mainMaster.photoUrl || "/instructor.png"} 
+                    alt={mainMaster.name || "Main Master"} 
+                    fill 
+                    style={{ objectFit: 'cover', objectPosition: 'top center' }} 
+                  />
+                </div>
+                <div style={{ padding: '1.5rem 1rem' }}>
+                  <h3 style={{ fontSize: '1.5rem', color: 'var(--secondary)', margin: '0 0 0.4rem 0', fontWeight: 800 }}>
+                    {mainMaster.name}
+                  </h3>
+                  <p style={{ fontSize: '0.95rem', color: 'var(--primary)', fontWeight: 600, margin: 0 }}>
+                    {mainMaster.rank}
+                  </p>
+                </div>
               </div>
-              <div className="instructor-info" style={{ padding: '1rem', textAlign: 'center' }}>
-                <h3 className="instructor-name" style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>{instructor.name}</h3>
-                <h4 className="instructor-rank" style={{ fontSize: '0.9rem', color: 'var(--primary)', margin: 0 }}>{instructor.rank}</h4>
-              </div>
-            </div>
-          ))}
+            );
+          })()}
         </div>
       </section>
 
