@@ -169,14 +169,6 @@ export default function AdminSettings() {
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
-    
-    // Check file size limit for serverless functions (4.5 MB)
-    const maxSizeBytes = 4.5 * 1024 * 1024;
-    if (file.size > maxSizeBytes) {
-      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
-      alert(`Selected video file (${fileSizeMB} MB) exceeds Vercel's file upload limit of 4.5 MB.\n\nFor videos larger than 4.5 MB (5MB, 10MB, 25MB, etc.):\nPlease paste the Video URL / Link in the field above!`);
-      return;
-    }
 
     setUploadingField(`video-${index}`);
     
@@ -184,13 +176,20 @@ export default function AdminSettings() {
     formData.append('file', file);
     
     try {
-      const res = await fetch('/api/upload', {
+      let res = await fetch('https://karate-club.shravanshortfact.workers.dev/api/upload', {
         method: 'POST',
         body: formData,
       });
 
       if (!res.ok) {
-        alert(`Video upload failed (${res.status} error). Please paste the Video URL / Link in the field above for videos larger than 4.5MB.`);
+        res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+      }
+
+      if (!res.ok) {
+        alert("Video file upload failed. Please try again.");
         return;
       }
 
@@ -199,10 +198,10 @@ export default function AdminSettings() {
         const newVideos = [...videos];
         newVideos[index].url = data.url;
         setVideos(newVideos);
-        alert("Video clip uploaded successfully! Click 'Save Homepage Videos' below to save changes permanently.");
+        alert("Video loaded & ready! Click 'SAVE HOMEPAGE VIDEOS' below to publish your video on the homepage.");
       }
     } catch (error: any) {
-      alert("Video upload failed. For videos larger than 4.5MB, please paste the Video URL / Link in the field above!");
+      alert("Error uploading video file. Please try again.");
     } finally {
       setUploadingField(null);
     }
