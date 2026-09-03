@@ -89,10 +89,14 @@ export default function AdminSettings() {
         method: 'POST',
         body: formData,
       });
-      const data: any = await res.json();
-      if (data.url) {
-        handleInstructorChange(index, 'photoUrl', data.url);
-        alert("Instructor photo uploaded! Please click 'Save Masters / Instructors' below to save changes.");
+      if (res.ok) {
+        const data: any = await res.json();
+        if (data.url) {
+          handleInstructorChange(index, 'photoUrl', data.url);
+          alert("Instructor photo uploaded! Please click 'Save Masters / Instructors' below to save changes.");
+        }
+      } else {
+        alert("Photo upload failed. Please try a smaller image.");
       }
     } catch (error) {
       alert("Error uploading photo.");
@@ -156,11 +160,11 @@ export default function AdminSettings() {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
     
-    // Check file size limit for video upload (10 MB)
-    const maxSizeBytes = 10 * 1024 * 1024;
+    // Check file size limit for serverless functions (4.5 MB)
+    const maxSizeBytes = 4.5 * 1024 * 1024;
     if (file.size > maxSizeBytes) {
       const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
-      alert(`Selected video file (${fileSizeMB} MB) exceeds upload limit of 10 MB.\n\nTo use videos larger than 10 MB:\nPlease paste the Video URL / Link in the field above!`);
+      alert(`Selected video file (${fileSizeMB} MB) exceeds Vercel's file upload limit of 4.5 MB.\n\nFor videos larger than 4.5 MB (5MB, 10MB, 25MB, etc.):\nPlease paste the Video URL / Link in the field above!`);
       return;
     }
 
@@ -174,17 +178,21 @@ export default function AdminSettings() {
         method: 'POST',
         body: formData,
       });
+
+      if (!res.ok) {
+        alert(`Video upload failed (${res.status} error). Please paste the Video URL / Link in the field above for videos larger than 4.5MB.`);
+        return;
+      }
+
       const data: any = await res.json();
-      if (res.ok && data.url) {
+      if (data.url) {
         const newVideos = [...videos];
         newVideos[index].url = data.url;
         setVideos(newVideos);
         alert("Video clip uploaded successfully! Click 'Save Homepage Videos' below to save changes permanently.");
-      } else {
-        alert("Error uploading video: " + (data?.error || "Upload failed. Please paste the Video URL instead."));
       }
     } catch (error: any) {
-      alert("Error uploading video: " + (error?.message || "File upload failed. Please paste Video URL instead."));
+      alert("Video upload failed. For videos larger than 4.5MB, please paste the Video URL / Link in the field above!");
     } finally {
       setUploadingField(null);
     }
@@ -418,7 +426,7 @@ export default function AdminSettings() {
                 />
               </div>
               <div className="form-group">
-                <label style={{ color: '#fff', display: 'block', marginBottom: '0.3rem' }}>OR Upload MP4 Video File (Max 10MB)</label>
+                <label style={{ color: '#fff', display: 'block', marginBottom: '0.3rem' }}>OR Upload Small MP4 Video File (Max 4.5MB)</label>
                 <input 
                   type="file" 
                   accept="video/*"
