@@ -58,11 +58,8 @@ export async function GET() {
   try {
     const prisma = getPrisma();
     if (prisma && (prisma as any).mapLocation) {
-      const locations = await (prisma as any).mapLocation.findMany({
-        where: { isActive: true },
-        orderBy: { createdAt: "asc" },
-      });
-      if (locations && locations.length > 0) {
+      const locations = await (prisma as any).mapLocation.findMany();
+      if (locations && Array.isArray(locations) && locations.length > 0) {
         return NextResponse.json(locations);
       }
     }
