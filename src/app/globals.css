@@ -997,26 +997,47 @@ a {
     font-size: 0.78rem !important;
   }
 
+  /* Smooth Horizontal Marquee Slider for Training Programs */
+  .programs-wrapper {
+    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+  }
+
   .programs-grid {
-    grid-template-columns: 1fr !important; /* Single vertical column */
-    gap: 1rem !important;
-    width: 100% !important;
+    display: flex !important;
+    flex-direction: row !important;
+    width: max-content !important;
+    gap: 1.2rem !important;
+    animation: smoothHorizontalMarquee 16s linear infinite !important;
+    will-change: transform;
+  }
+
+  .programs-wrapper:hover .programs-grid,
+  .programs-wrapper:active .programs-grid {
+    animation-play-state: paused !important;
+  }
+
+  .duplicate-for-marquee {
+    display: flex !important;
   }
 
   .program-card {
-    padding: 1.6rem 1rem !important;
-    border-radius: 14px !important;
-    width: 100% !important;
+    min-width: 260px !important;
+    max-width: 270px !important;
+    width: 260px !important;
+    flex-shrink: 0 !important;
+    padding: 2rem 1.2rem !important;
+    border-radius: 16px !important;
   }
 
   .program-icon-badge {
-    width: 48px !important;
-    height: 48px !important;
-    margin-bottom: 0.7rem !important;
+    width: 50px !important;
+    height: 50px !important;
+    margin-bottom: 0.8rem !important;
   }
 
   .program-card-title {
-    font-size: 1.05rem !important;
+    font-size: 1.1rem !important;
   }
 
   .stats-grid {
@@ -1036,6 +1057,16 @@ a {
     font-size: 0.72rem !important;
   }
 }
+
+@keyframes smoothHorizontalMarquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
 
 /* Hero Section */
 .hero-section {
