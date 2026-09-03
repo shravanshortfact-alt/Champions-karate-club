@@ -1037,12 +1037,96 @@ a {
   }
 }
 
+/* Hero Section */
+.hero-section {
+  position: relative;
+  padding: 6rem 1.5rem 5rem;
+  text-align: center;
+  background: linear-gradient(rgba(10,10,10,0.82), rgba(10,10,10,0.92)), url("https://images.unsplash.com/photo-1555597673-b21d5c935865?auto=format&fit=crop&q=80") center/cover no-repeat;
+  overflow: hidden;
+  width: 100%;
+}
+
+.hero-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(2rem, 6vw, 3.8rem);
+  font-weight: 900;
+  color: var(--secondary, #D4AF37);
+  letter-spacing: 1px;
+  line-height: 1.15;
+  margin-bottom: 1.2rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+.hero-subtitle {
+  font-size: clamp(0.95rem, 2.5vw, 1.25rem);
+  color: #e4e4e7;
+  max-width: 700px;
+  margin: 0 auto 2.2rem auto;
+  line-height: 1.6;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.hero-btn {
+  padding: 0.9rem 2rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 10px;
+}
+
+.hero-btn-secondary {
+  border-color: var(--primary) !important;
+  color: white !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+}
+
 /* Master Mobile Responsive & Zero Overflow System */
 @media (max-width: 640px) {
   html, body {
     overflow-x: hidden !important;
     max-width: 100vw !important;
     width: 100% !important;
+  }
+
+  .hero-section {
+    padding: 3.5rem 1rem 3rem !important;
+  }
+
+  .hero-title {
+    font-size: 1.75rem !important;
+    line-height: 1.25 !important;
+    margin-bottom: 0.8rem !important;
+    word-break: break-word !important;
+  }
+
+  .hero-subtitle {
+    font-size: 0.88rem !important;
+    margin-bottom: 1.5rem !important;
+    line-height: 1.5 !important;
+  }
+
+  .hero-buttons {
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 280px !important;
+    margin: 0 auto !important;
+    gap: 0.8rem !important;
+  }
+
+  .hero-btn {
+    width: 100% !important;
+    padding: 0.85rem 1rem !important;
+    font-size: 0.95rem !important;
+    text-align: center !important;
   }
 
   .container {
@@ -1115,6 +1199,7 @@ a {
     font-size: 0.68rem !important;
   }
 }
+
 
 
 

@@ -12,9 +12,7 @@ export default async function Home() {
   return (
     <div className="animate-fade-in">
       {/* Hero Section */}
-      <section className="hero-section" style={{ 
-        background: 'linear-gradient(rgba(10,10,10,0.8), rgba(10,10,10,0.9)), url("https://images.unsplash.com/photo-1555597673-b21d5c935865?auto=format&fit=crop&q=80") center/cover'
-      }}>
+      <section className="hero-section">
         <div className="container">
           <h1 className="hero-title">
             UNLEASH YOUR INNER CHAMPION
@@ -22,11 +20,11 @@ export default async function Home() {
           <p className="hero-subtitle">
             Join the most elite karate club. Train your mind, body, and spirit with world-class instructors.
           </p>
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+          <div className="hero-buttons">
             <a href="/register/admission" className="btn btn-primary hero-btn">
               JOIN NOW
             </a>
-            <a href="/student" className="btn btn-outline hero-btn" style={{ borderColor: 'var(--primary)', color: 'white', background: 'rgba(0,0,0,0.5)' }}>
+            <a href="/student" className="btn btn-outline hero-btn hero-btn-secondary">
               STUDENT PORTAL
             </a>
           </div>
