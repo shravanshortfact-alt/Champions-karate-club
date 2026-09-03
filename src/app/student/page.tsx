@@ -264,40 +264,36 @@ export default function StudentDashboard() {
   };
 
   return (
-    <div className="container animate-fade-in" style={{ padding: '2rem 1rem 6rem', minHeight: '80vh', maxWidth: '600px', margin: '0 auto' }}>
+    <div className="container animate-fade-in" style={{ padding: '4rem 2rem', minHeight: '80vh' }}>
       
       {loginStep !== 'dashboard' && (
-        <div style={{ textAlign: 'center', marginBottom: '2rem', position: 'relative', width: '100%' }}>
-          <button 
-            onClick={() => window.history.back()} 
-            style={{ 
-              position: 'absolute',
-              left: '0px',
-              top: '0px',
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              width: '38px', 
-              height: '38px', 
-              borderRadius: '50%', 
-              background: 'rgba(255, 255, 255, 0.1)', 
-              color: 'var(--text-main)', 
-              border: 'none',
-              cursor: 'pointer',
-              zIndex: 10
-            }}
-            title="Go Back"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          </button>
-
-          <h1 className="text-primary" style={{ margin: '0 0 0.5rem 0', fontSize: 'clamp(1.4rem, 5vw, 2rem)', fontWeight: 800, paddingLeft: '40px', paddingRight: '40px' }}>
-            Student Portal Login
-          </h1>
-          <p className="text-muted" style={{ margin: 0, fontSize: '0.9rem', color: '#a1a1aa' }}>
+        <>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
+            <button 
+              onClick={() => window.history.back()} 
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                width: '40px', 
+                height: '40px', 
+                borderRadius: '50%', 
+                background: 'rgba(255, 255, 255, 0.1)', 
+                color: 'var(--text-main)', 
+                border: 'none',
+                cursor: 'pointer',
+                marginRight: '1rem'
+              }}
+              title="Go Back"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <h1 className="text-primary" style={{ margin: 0, flex: 1, textAlign: 'center', paddingRight: '56px' }}>Student Portal Login</h1>
+          </div>
+          <p className="text-center text-muted" style={{ marginBottom: '3rem' }}>
             Login with your Student Name and Password to view records.
           </p>
-        </div>
+        </>
       )}
 
       {error && (

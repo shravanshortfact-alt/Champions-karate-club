@@ -313,72 +313,58 @@ export default function AdminSettings() {
         </button>
       </div>
 
-      {/* 3. Main Master / Founder Section */}
+      {/* 3. Instructors / Masters Section */}
       <div className="card" style={{ marginBottom: '2rem', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '1.5rem', background: '#18181b' }}>
-        <h2 style={{ color: 'var(--secondary)', marginBottom: '1.5rem', fontSize: '1.4rem' }}>Main Master / Founder Settings</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <h2 style={{ color: 'var(--secondary)', margin: 0, fontSize: '1.4rem' }}>Masters / Instructors</h2>
+          <button type="button" className="btn btn-outline" onClick={addInstructor}>+ Add Master</button>
+        </div>
         
-        {(() => {
-          const master = instructors[0] || { name: 'Sensei Kenjiro', rank: '8th Dan Black Belt', photoUrl: '/instructor.png' };
-          return (
-            <div style={{ background: '#09090b', padding: '1.25rem', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid var(--border-color)' }}>
-              <div className="form-group" style={{ marginBottom: '1rem' }}>
-                <label style={{ color: '#fff' }}>Master / Founder Name</label>
+        {instructors.map((instructor, i) => (
+          <div key={i} style={{ background: '#09090b', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+              <h3 style={{ color: 'white', margin: 0, fontSize: '1.1rem' }}>Master #{i + 1}</h3>
+              <button type="button" onClick={() => removeInstructor(i)} style={{ color: '#ef4444', background: 'transparent', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>Remove</button>
+            </div>
+            <div className="form-group" style={{ marginBottom: '1rem' }}>
+              <label style={{ color: '#fff' }}>Name</label>
+              <input type="text" value={instructor.name} onChange={(e) => handleInstructorChange(i, 'name', e.target.value)} style={{ padding: '0.6rem', background: '#18181b', border: '1px solid #333', color: 'white', borderRadius: '4px', width: '100%' }} />
+            </div>
+            <div className="form-group" style={{ marginBottom: '1rem' }}>
+              <label style={{ color: '#fff' }}>Rank / Title</label>
+              <input type="text" value={instructor.rank} onChange={(e) => handleInstructorChange(i, 'rank', e.target.value)} style={{ padding: '0.6rem', background: '#18181b', border: '1px solid #333', color: 'white', borderRadius: '4px', width: '100%' }} />
+            </div>
+            <div className="form-group" style={{ marginBottom: '1rem' }}>
+              <label style={{ color: '#fff' }}>Total Medals</label>
+              <input type="number" value={instructor.medals || 0} onChange={(e) => handleInstructorChange(i, 'medals', e.target.value)} style={{ padding: '0.6rem', background: '#18181b', border: '1px solid #333', color: 'white', borderRadius: '4px', width: '100%' }} />
+            </div>
+            <div className="form-group" style={{ marginBottom: '1rem' }}>
+              <label style={{ color: '#fff' }}>Experience (Bio)</label>
+              <textarea rows={3} value={instructor.experience} onChange={(e) => handleInstructorChange(i, 'experience', e.target.value)} style={{ padding: '0.6rem', background: '#18181b', border: '1px solid #333', color: 'white', borderRadius: '4px', width: '100%' }} />
+            </div>
+            <div className="form-group">
+              <label style={{ color: '#fff' }}>Instructor Photo</label>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                {instructor.photoUrl && <img src={instructor.photoUrl} alt="Preview" style={{ height: '50px', width: '50px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border-color)' }} />}
                 <input 
-                  type="text" 
-                  value={master.name || ''} 
-                  placeholder="e.g. Sensei Kenjiro"
-                  onChange={(e) => {
-                    const newInst = [{ ...master, name: e.target.value }];
-                    setInstructors(newInst);
-                  }} 
-                  style={{ padding: '0.8rem', background: '#18181b', border: '1px solid #333', color: 'white', borderRadius: '6px', width: '100%' }} 
+                  type="file" 
+                  accept="image/*"
+                  onChange={(e) => handleInstructorPhotoUpload(e, i)}
+                  style={{ color: '#fff' }}
                 />
-              </div>
-
-              <div className="form-group" style={{ marginBottom: '1rem' }}>
-                <label style={{ color: '#fff' }}>Rank / Designation / Title</label>
-                <input 
-                  type="text" 
-                  value={master.rank || ''} 
-                  placeholder="e.g. Founder & Chief Instructor - 8th Dan Black Belt"
-                  onChange={(e) => {
-                    const newInst = [{ ...master, rank: e.target.value }];
-                    setInstructors(newInst);
-                  }} 
-                  style={{ padding: '0.8rem', background: '#18181b', border: '1px solid #333', color: 'white', borderRadius: '6px', width: '100%' }} 
-                />
-              </div>
-
-              <div className="form-group">
-                <label style={{ color: '#fff', display: 'block', marginBottom: '0.5rem' }}>Master Photo</label>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                  {master.photoUrl && (
-                    <img 
-                      src={master.photoUrl} 
-                      alt="Master Preview" 
-                      style={{ height: '70px', width: '70px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--secondary)' }} 
-                    />
-                  )}
-                  <input 
-                    type="file" 
-                    accept="image/*"
-                    onChange={(e) => handleInstructorPhotoUpload(e, 0)}
-                    style={{ color: '#fff' }}
-                  />
-                </div>
               </div>
             </div>
-          );
-        })()}
+          </div>
+        ))}
 
         <button 
           type="button" 
           disabled={savingSection === 'instructors'}
-          onClick={() => saveSettingsPayload('instructors', 'Master / Founder details saved successfully!')}
+          onClick={() => saveSettingsPayload('instructors', 'Instructors saved successfully!')}
           className="btn btn-primary"
           style={{ width: '100%', padding: '0.8rem', fontWeight: 'bold' }}
         >
-          {savingSection === 'instructors' ? 'Saving Master Details...' : 'Save Master / Founder Details'}
+          {savingSection === 'instructors' ? 'Saving Instructors...' : 'Save Masters / Instructors'}
         </button>
       </div>
 

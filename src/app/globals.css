@@ -288,8 +288,8 @@ a {
 }
 
 @keyframes marqueeMobile {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(calc(-33.333% - 0.33rem)); }
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-50% - 0.5rem)); }
 }
 
 /* Video Gallery */
@@ -629,37 +629,20 @@ a {
   
   /* Programs & Register Section Mobile Tweaks */
   .register-grid {
-    display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.85rem;
-  }
-  /* 5th item (or last odd item) spans full width for perfect symmetry */
-  .register-grid > *:nth-child(5):last-child,
-  .register-grid > *:last-child:nth-child(odd) {
-    grid-column: 1 / -1;
+    gap: 0.75rem;
   }
   .register-grid .card {
-    padding: 1.25rem 1rem !important;
+    padding: 1rem 0.5rem;
   }
-
-  /* Universal container bottom padding so floating buttons never cover content */
-  .container {
-    padding-bottom: 5.5rem !important;
+  .register-grid h3 {
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
   }
-
-  /* Mobile floating icons tweaks */
-  .floating-social-container {
-    right: 12px !important;
-    bottom: 16px !important;
-    gap: 10px !important;
-  }
-  .floating-icon {
-    width: 38px !important;
-    height: 38px !important;
-  }
-  .floating-icon svg {
-    width: 18px !important;
-    height: 18px !important;
+  .register-grid p {
+    font-size: 0.75rem;
+    line-height: 1.2;
+    margin-top: 0.5rem !important;
   }
 
   .duplicate-for-marquee {
@@ -670,19 +653,19 @@ a {
     display: flex;
     overflow-x: hidden;
     gap: 1rem;
-    padding-bottom: 0.5rem;
+    padding-bottom: 1rem;
     scroll-snap-type: none;
     width: max-content;
-    animation: marqueeMobile 8s linear infinite;
+    animation: marqueeMobile 15s linear infinite;
   }
   .programs-grid:hover, .programs-grid:active {
     animation-play-state: paused;
   }
   .programs-grid > .card {
-    width: 250px !important;
-    flex: 0 0 auto !important;
+    min-width: 180px;
+    flex: 0 0 auto;
     scroll-snap-align: none;
-    padding: 1.25rem 1rem !important;
+    padding: 0.75rem;
   }
   .programs-grid h3 {
     font-size: 1rem !important;

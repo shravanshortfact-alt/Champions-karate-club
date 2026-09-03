@@ -62,11 +62,11 @@ export const defaultSettings = {
   videos: [
     {
       title: 'Training Sessions',
-      url: 'https://assets.mixkit.co/videos/preview/mixkit-karate-athlete-performing-kata-movements-42998-large.mp4'
+      url: ''
     },
     {
       title: 'Competition Highlights',
-      url: 'https://assets.mixkit.co/videos/preview/mixkit-two-karate-athletes-sparring-in-a-dojo-42999-large.mp4'
+      url: ''
     }
   ],
   branches: [
@@ -137,21 +137,6 @@ export async function getSiteSettings() {
     } else if (!parsed.branches) {
       parsed.branches = [];
     }
-
-    if (parsed.videos && Array.isArray(parsed.videos)) {
-      parsed.videos = parsed.videos.map((v: any, idx: number) => {
-        if (!v || !v.url || v.url.trim() === '') {
-          return {
-            title: v?.title || (idx === 0 ? 'Training Sessions' : 'Competition Highlights'),
-            url: idx === 0 
-              ? 'https://assets.mixkit.co/videos/preview/mixkit-karate-athlete-performing-kata-movements-42998-large.mp4'
-              : 'https://assets.mixkit.co/videos/preview/mixkit-two-karate-athletes-sparring-in-a-dojo-42999-large.mp4'
-          };
-        }
-        return v;
-      });
-    }
-
     return { ...defaultSettings, ...parsed, logoUrl: '/logo.png' };
   }
 
