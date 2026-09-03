@@ -9,6 +9,23 @@ declare global {
   var __SITE_SETTINGS__: any;
 }
 
+function getD1Binding(): any {
+  try {
+    if (typeof process !== 'undefined' && (process.env as any)?.DB) {
+      return (process.env as any).DB;
+    }
+    if (typeof globalThis !== 'undefined' && (globalThis as any)?.DB) {
+      return (globalThis as any).DB;
+    }
+    if (typeof globalThis !== 'undefined' && (globalThis as any)?.__env__?.DB) {
+      return (globalThis as any).__env__.DB;
+    }
+  } catch (e) {
+    // Ignore error
+  }
+  return null;
+}
+
 const getTmpSettingsPath = () => {
   return '/tmp/site_settings.json';
 };
@@ -91,20 +108,35 @@ export const defaultSettings = {
 export async function getSiteSettings() {
   let parsed: any = null;
 
-  // 1. Try Cloudflare D1 global store (synced across all Vercel serverless instances worldwide)
-  try {
-    const res = await fetch(WORKER_SETTINGS_URL, { cache: 'no-store' });
-    if (res.ok) {
-      const data = await res.json();
-      if (data && typeof data === 'object' && Object.keys(data).length > 0) {
-        parsed = data;
+  // 1. Direct D1 Binding Read (for Cloudflare Worker execution)
+  const d1 = getD1Binding();
+  if (d1) {
+    try {
+      const row: any = await d1.prepare("SELECT value FROM SystemSettings WHERE key = ?").bind(SETTINGS_KEY).first();
+      if (row && row.value && row.value !== '{}') {
+        parsed = JSON.parse(row.value);
       }
+    } catch (e) {
+      console.error("D1 direct read error:", e);
     }
-  } catch (e) {
-    // Ignore worker fetch errors
   }
 
-  // 2. Try Prisma DB if available
+  // 2. Try Cloudflare D1 global HTTP store (synced across all Vercel serverless instances worldwide)
+  if (!parsed) {
+    try {
+      const res = await fetch(WORKER_SETTINGS_URL, { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+          parsed = data;
+        }
+      }
+    } catch (e) {
+      // Ignore worker fetch errors
+    }
+  }
+
+  // 3. Try Prisma DB if available
   if (!parsed) {
     try {
       const prisma = getPrisma();
@@ -122,7 +154,7 @@ export async function getSiteSettings() {
     }
   }
 
-  // 3. Fallback to /tmp / memory
+  // 4. Fallback to /tmp / memory
   if (!parsed) {
     parsed = readFsSettings();
   }
@@ -169,7 +201,19 @@ export async function updateSiteSettings(newSettings: any) {
   // Always update in-memory / fs cache first
   writeFsSettings(merged);
 
-  // Sync settings to Cloudflare D1 global store
+  // 1. Direct D1 Binding Update (for Cloudflare Worker execution)
+  const d1 = getD1Binding();
+  if (d1) {
+    try {
+      await d1.prepare("INSERT INTO SystemSettings (id, key, value) VALUES ('site_settings_id', ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")
+        .bind(SETTINGS_KEY, JSON.stringify(merged))
+        .run();
+    } catch (e) {
+      console.error("D1 direct write error:", e);
+    }
+  }
+
+  // 2. Sync settings to Cloudflare D1 global store HTTP endpoint
   try {
     await fetch(WORKER_SETTINGS_URL, {
       method: 'POST',
