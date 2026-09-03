@@ -3,13 +3,12 @@ import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-// Custom component to handle flyTo map animation with offset
+// Custom component to handle flyTo map animation
 function MapController({ center, zoom }: { center: [number, number]; zoom: number }) {
   const map = useMap();
   useEffect(() => {
     if (map && typeof map.flyTo === 'function') {
       const mapHeight = map.getSize().y;
-      // Position marker near the bottom (60px from bottom edge) to leave max room for the popup above it
       const offsetY = (mapHeight / 2) - 60;
       
       const targetPoint = map.project(center, zoom);
@@ -17,7 +16,7 @@ function MapController({ center, zoom }: { center: [number, number]; zoom: numbe
       const targetLatLng = map.unproject(targetPoint, zoom);
       
       map.flyTo(targetLatLng, zoom, {
-        duration: 1.5,
+        duration: 1.2,
         easeLinearity: 0.25,
       });
     }
@@ -41,11 +40,12 @@ export default function DynamicMap({
 
   useEffect(() => {
     import("leaflet").then((leaflet) => {
+      // Premium Red & Gold Custom Marker Icon
       const icon = new leaflet.Icon({
-        iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23f97316"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>',
-        iconSize: [40, 40],
-        iconAnchor: [20, 40],
-        popupAnchor: [0, -40]
+        iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 38 48"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%25" stop-color="%23ff2e2e"/><stop offset="100%25" stop-color="%23990000"/></linearGradient><filter id="s" x="-20%25" y="-20%25" width="140%25" height="140%25"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="%23ff2e2e" flood-opacity="0.6"/></filter></defs><path d="M19 2C9.6 2 2 9.6 2 19c0 12.8 17 27 17 27s17-14.2 17-27C36 9.6 28.4 2 19 2z" fill="url(%23g)" filter="url(%23s)" stroke="%23ffd700" stroke-width="1.5"/><circle cx="19" cy="19" r="8" fill="%23ffffff"/><circle cx="19" cy="19" r="5" fill="%23ff2e2e"/></svg>',
+        iconSize: [38, 48],
+        iconAnchor: [19, 48],
+        popupAnchor: [0, -48]
       });
       setCustomIcon(icon);
       setL(leaflet);
@@ -58,13 +58,14 @@ export default function DynamicMap({
     <MapContainer 
       center={mapCenter} 
       zoom={mapZoom} 
-      style={{ height: "100%", width: "100%", background: "#1a1a1a" }}
+      style={{ height: "100%", width: "100%", background: "#0a0a0c" }}
       zoomControl={false}
+      attributionControl={false}
     >
+      {/* CartoDB Dark Matter Tile Layer - High End Native Dark Mode Map */}
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        className="dark-map-tiles"
+        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        maxZoom={19}
       />
       <MapController center={mapCenter} zoom={mapZoom} />
       
@@ -78,29 +79,40 @@ export default function DynamicMap({
           }}
         >
           <Popup className="custom-popup">
-            <div style={{ minWidth: "250px", paddingBottom: "1.2rem" }}>
+            <div style={{ minWidth: "250px", background: "#0d0d0f", color: "#fff", borderRadius: "14px", overflow: "hidden" }}>
               {loc.image && (
                 <img 
                   src={loc.image} 
                   alt={loc.name} 
-                  style={{ width: "100%", height: "140px", objectFit: "cover", borderTopLeftRadius: "12px", borderTopRightRadius: "12px", marginBottom: "1rem" }} 
+                  style={{ width: "100%", height: "130px", objectFit: "cover" }} 
                 />
               )}
-              <div style={{ padding: "0 1.2rem", paddingTop: loc.image ? "0" : "1.8rem" }}>
-                <h4 style={{ color: "var(--primary)", margin: "0 0 0.5rem 0", fontSize: "1.2rem", fontWeight: "bold" }}>{loc.name}</h4>
-                <p style={{ color: "#333", fontSize: "0.95rem", margin: "0 0 1rem 0", lineHeight: "1.4" }}>{loc.address}</p>
+              <div style={{ padding: "1rem" }}>
+                <h4 style={{ color: "#ef4444", margin: "0 0 0.4rem 0", fontSize: "1.1rem", fontWeight: "700" }}>{loc.name}</h4>
+                <p style={{ color: "#d4d4d8", fontSize: "0.85rem", margin: "0 0 0.8rem 0", lineHeight: "1.4" }}>{loc.address}</p>
                 
-                {loc.timings && <p style={{ fontSize: "0.85rem", margin: "0 0 0.5rem 0", color: "#555" }}><strong>Timings:</strong> {loc.timings}</p>}
-                {loc.phone && <p style={{ fontSize: "0.85rem", margin: "0 0 0.5rem 0", color: "#555" }}><strong>Phone:</strong> {loc.phone}</p>}
-                {loc.programs && <p style={{ fontSize: "0.85rem", margin: "0 0 1rem 0", color: "#555" }}><strong>Programs:</strong> {loc.programs}</p>}
+                {loc.timings && <p style={{ fontSize: "0.8rem", margin: "0 0 0.3rem 0", color: "#a1a1aa" }}><strong>Timings:</strong> {loc.timings}</p>}
+                {loc.phone && <p style={{ fontSize: "0.8rem", margin: "0 0 0.3rem 0", color: "#a1a1aa" }}><strong>Phone:</strong> {loc.phone}</p>}
                 
                 <a 
                   href={loc.googleMapsUrl || `https://www.google.com/maps/dir/?api=1&destination=${loc.latitude},${loc.longitude}`} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  style={{ display: "block", padding: "0.8rem", background: "var(--primary)", color: "#000", borderRadius: "6px", textAlign: "center", textDecoration: "none", fontWeight: "bold", fontSize: "0.95rem", marginTop: "1rem" }}
+                  style={{ 
+                    display: "block", 
+                    padding: "0.65rem", 
+                    background: "linear-gradient(135deg, #ef4444, #b91c1c)", 
+                    color: "#fff", 
+                    borderRadius: "8px", 
+                    textAlign: "center", 
+                    textDecoration: "none", 
+                    fontWeight: "bold", 
+                    fontSize: "0.88rem", 
+                    marginTop: "0.8rem",
+                    boxShadow: "0 4px 12px rgba(239, 68, 68, 0.4)"
+                  }}
                 >
-                  Get Directions
+                  Get Directions →
                 </a>
               </div>
             </div>

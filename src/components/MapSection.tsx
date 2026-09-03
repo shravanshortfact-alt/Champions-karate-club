@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
+import { MapPin } from "lucide-react";
 
 const DynamicMap = dynamic(() => import("./DynamicMap"), { ssr: false });
 
@@ -8,6 +9,7 @@ export default function MapSection() {
   const [locations, setLocations] = useState<any[]>([]);
   const [mapCenter, setMapCenter] = useState<[number, number]>([18.5204, 73.8567]);
   const [mapZoom, setMapZoom] = useState(11);
+  const [activeLocId, setActiveLocId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -28,35 +30,71 @@ export default function MapSection() {
   const handleBranchSelect = (loc: any) => {
     setMapCenter([loc.latitude, loc.longitude]);
     setMapZoom(15);
+    setActiveLocId(loc.id || loc.name);
   };
 
-
-
   return (
-    <section className="map-section" style={{ background: "var(--bg-main)", borderTop: "1px solid #222" }}>
-      <div className="container" style={{ maxWidth: "1200px", margin: "0 auto" }}>
+    <section className="map-section" style={{ background: "#09090b", padding: "5rem 1rem", position: "relative" }}>
+      <div className="container" style={{ maxWidth: "1100px", margin: "0 auto" }}>
         
-        <div className="map-header" style={{ textAlign: "center" }}>
-          <h2 className="text-primary map-title" style={{ fontWeight: "bold", textTransform: "uppercase", lineHeight: "1.3" }}>
-            Find Your Nearest<br/>Branch
+        <div className="map-header" style={{ textAlign: "center", marginBottom: "2rem" }}>
+          <h2 className="text-primary section-title" style={{ marginBottom: "0.8rem" }}>
+            Find Your Nearest Branch
           </h2>
-          <p className="text-muted map-subtitle" style={{ margin: "0 auto" }}>
-            Train with Champions Karate Club at a location near you. Search or use your location to find the perfect branch.
+          <p style={{ color: "#a1a1aa", fontSize: "1rem", maxWidth: "600px", margin: "0 auto 1.5rem" }}>
+            Train with Champions Karate Club at a location near you. Select a branch below or click on any map pin to view details.
           </p>
-          <p style={{ color: "var(--primary)", fontSize: "1rem", fontWeight: "bold", marginTop: "1rem" }}>
-            Click on Map Location to View details
-          </p>
+
+          {/* Quick Branch Selection Pills */}
+          {locations.length > 0 && (
+            <div style={{ 
+              display: "flex", 
+              gap: "0.8rem", 
+              justifyContent: "center", 
+              flexWrap: "wrap", 
+              marginBottom: "2rem" 
+            }}>
+              {locations.map((loc) => {
+                const isActive = activeLocId === (loc.id || loc.name);
+                return (
+                  <button
+                    key={loc.id || loc.name}
+                    type="button"
+                    onClick={() => handleBranchSelect(loc)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                      padding: "0.55rem 1.1rem",
+                      borderRadius: "20px",
+                      background: isActive ? "linear-gradient(135deg, #ef4444, #b91c1c)" : "#141417",
+                      border: isActive ? "1px solid #ef4444" : "1px solid rgba(255, 255, 255, 0.1)",
+                      color: isActive ? "#ffffff" : "#d4d4d8",
+                      fontSize: "0.88rem",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      transition: "all 0.3s ease",
+                      boxShadow: isActive ? "0 4px 15px rgba(239, 68, 68, 0.35)" : "none"
+                    }}
+                  >
+                    <MapPin size={15} color={isActive ? "#fff" : "#ef4444"} />
+                    {loc.name}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <div className="map-container" style={{ 
           width: "100%", 
           maxWidth: "1000px",
           margin: "0 auto",
-          borderRadius: "16px", 
+          borderRadius: "20px", 
           overflow: "hidden", 
-          border: "1px solid rgba(249, 115, 22, 0.3)", 
+          border: "1px solid rgba(239, 68, 68, 0.4)", 
           position: "relative", 
-          boxShadow: "0 0 40px rgba(249, 115, 22, 0.15), 0 15px 35px rgba(0,0,0,0.8)" 
+          boxShadow: "0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(239, 68, 68, 0.15)" 
         }}>
           <DynamicMap 
             locations={locations} 
@@ -66,80 +104,53 @@ export default function MapSection() {
           />
           
           <style dangerouslySetInnerHTML={{__html: `
-            .dark-map-tiles {
-              filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+            /* Hide Leaflet OpenStreetMap Attribution Text ("ola street") */
+            .leaflet-control-attribution {
+              display: none !important;
             }
-            .map-section {
-              padding: 6rem 1rem;
-            }
-            .map-header {
-              margin: 3rem 0;
-            }
-            .map-title {
-              font-size: 2.5rem;
-              margin-bottom: 1rem;
-            }
-            .map-subtitle {
-              font-size: 1.1rem;
-              max-width: 600px;
+            .leaflet-container {
+              background: #0a0a0c !important;
             }
             .map-container {
-              height: 600px;
+              height: 520px;
             }
             
             @media (max-width: 768px) {
               .map-section {
-                padding: 3rem 1rem;
-              }
-              .map-header {
-                margin: 1.5rem 0;
-              }
-              .map-title {
-                font-size: 1.6rem;
-                margin-bottom: 1rem;
-              }
-              .map-subtitle {
-                font-size: 0.95rem;
-                padding: 0 0.5rem;
+                padding: 3.5rem 0.8rem !important;
               }
               .map-container {
-                height: 400px;
+                height: 360px !important;
+                border-radius: 14px !important;
               }
             }
 
             .custom-popup .leaflet-popup-content-wrapper {
-              background: #fff;
-              border-radius: 12px;
-              box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-              padding: 0;
-              overflow: hidden;
+              background: transparent !important;
+              box-shadow: 0 10px 30px rgba(0,0,0,0.8) !important;
+              padding: 0 !important;
+              overflow: hidden !important;
             }
             .custom-popup .leaflet-popup-content {
-              margin: 0;
-              line-height: 1.5;
+              margin: 0 !important;
             }
             .custom-popup .leaflet-popup-close-button {
               top: 10px !important;
               right: 10px !important;
-              color: #333 !important;
-              background: rgba(255, 255, 255, 0.9) !important;
+              color: #fff !important;
+              background: rgba(0, 0, 0, 0.7) !important;
               border-radius: 50% !important;
               width: 26px !important;
               height: 26px !important;
               display: flex !important;
               align-items: center !important;
               justify-content: center !important;
-              box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
               z-index: 10 !important;
               font-size: 16px !important;
-              font-weight: bold !important;
               padding: 0 !important;
             }
-            .custom-popup .leaflet-popup-close-button:hover {
-              background: #f1f1f1 !important;
-            }
             .custom-popup .leaflet-popup-tip {
-              background: #fff;
+              background: #0d0d0f !important;
             }
           `}} />
         </div>
