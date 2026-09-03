@@ -12,9 +12,9 @@ type Instructor = {
 
 export default function AdminSettings() {
   const [upiId, setUpiId] = useState('');
-  const [logoUrl, setLogoUrl] = useState('');
+  const [logoUrl, setLogoUrl] = useState('/logo.png');
   const [whatsappNumber, setWhatsappNumber] = useState('');
-  const [instagramLink, setInstagramLink] = useState('');
+  const [instagramLink, setInstagramLink] = useState('https://www.instagram.com/karate_king_no1?igsi=Zmt2aGxqcDJiemk2');
   const [instructors, setInstructors] = useState<Instructor[]>([]);
   const [achievements, setAchievements] = useState<string[]>([]);
   const [videos, setVideos] = useState<{title: string, url: string}[]>([]);
@@ -31,9 +31,9 @@ export default function AdminSettings() {
       .then(res => res.json())
       .then((data: any) => {
         setUpiId(data.upiId || '');
-        setLogoUrl(data.logoUrl || '');
+        setLogoUrl('/logo.png');
         setWhatsappNumber(data.whatsappNumber || '');
-        setInstagramLink(data.instagramLink || '');
+        setInstagramLink(data.instagramLink || 'https://www.instagram.com/karate_king_no1?igsi=Zmt2aGxqcDJiemk2');
         setInstructors(data.instructors || []);
         setAchievements(data.achievements || []);
         setVideos(data.videos || []);
@@ -47,7 +47,7 @@ export default function AdminSettings() {
     setSavingSection(sectionName);
     const payload = {
       upiId,
-      logoUrl,
+      logoUrl: '/logo.png',
       whatsappNumber,
       instagramLink,
       instructors,
@@ -76,31 +76,6 @@ export default function AdminSettings() {
     }
   };
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
-    const file = e.target.files[0];
-    setUploadingField('logo');
-    
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    try {
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      const data: any = await res.json();
-      if (data.url) {
-        setLogoUrl(data.url);
-        alert("Logo uploaded successfully! Please click 'Save Academy General Settings' below to save it permanently.");
-      }
-    } catch (error) {
-      alert("Error uploading logo file.");
-    } finally {
-      setUploadingField(null);
-    }
-  };
-
   const handleInstructorPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
@@ -117,7 +92,7 @@ export default function AdminSettings() {
       const data: any = await res.json();
       if (data.url) {
         handleInstructorChange(index, 'photoUrl', data.url);
-        alert("Instructor photo uploaded! Please click 'Save Instructors' below to save changes.");
+        alert("Instructor photo uploaded! Please click 'Save Masters / Instructors' below to save changes.");
       }
     } catch (error) {
       alert("Error uploading photo.");
@@ -161,6 +136,12 @@ export default function AdminSettings() {
     setVideos(newVideos);
   };
 
+  const handleVideoUrlChange = (index: number, value: string) => {
+    const newVideos = [...videos];
+    newVideos[index].url = value;
+    setVideos(newVideos);
+  };
+
   const addVideo = () => {
     setVideos([...videos, { title: '', url: '' }]);
   };
@@ -174,6 +155,15 @@ export default function AdminSettings() {
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
+    
+    // Check file size limit for serverless functions (4.5 MB)
+    const maxSizeBytes = 4.5 * 1024 * 1024;
+    if (file.size > maxSizeBytes) {
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      alert(`Selected video file (${fileSizeMB} MB) exceeds Vercel serverless upload limit of 4.5 MB.\n\nTo use videos larger than 4.5 MB (like 5MB, 25MB, etc.):\nPlease paste the Video URL / Link in the field above!`);
+      return;
+    }
+
     setUploadingField(`video-${index}`);
     
     const formData = new FormData();
@@ -185,14 +175,16 @@ export default function AdminSettings() {
         body: formData,
       });
       const data: any = await res.json();
-      if (data.url) {
+      if (res.ok && data.url) {
         const newVideos = [...videos];
         newVideos[index].url = data.url;
         setVideos(newVideos);
-        alert("Video uploaded successfully! Please click 'Save Homepage Videos' below to save changes permanently.");
+        alert("Video clip uploaded successfully! Click 'Save Homepage Videos' below to save changes permanently.");
+      } else {
+        alert("Error uploading video: " + (data?.error || "Upload failed. Please paste the Video URL instead."));
       }
-    } catch (error) {
-      alert("Error uploading video.");
+    } catch (error: any) {
+      alert("Error uploading video: " + (error?.message || "File upload failed. Please paste Video URL instead."));
     } finally {
       setUploadingField(null);
     }
@@ -285,7 +277,7 @@ export default function AdminSettings() {
           <label style={{ color: '#fff', display: 'block', marginBottom: '0.5rem' }}>Instagram Link</label>
           <input 
             type="text" 
-            placeholder="e.g. https://instagram.com/karate_king_no1" 
+            placeholder="e.g. https://www.instagram.com/karate_king_no1?igsi=Zmt2aGxqcDJiemk2" 
             value={instagramLink}
             onChange={(e) => setInstagramLink(e.target.value)}
             style={{ padding: '0.8rem', background: '#09090b', border: '1px solid var(--border-color)', color: 'white', borderRadius: '6px', width: '100%' }}
@@ -415,8 +407,18 @@ export default function AdminSettings() {
                   style={{ padding: '0.6rem', background: '#18181b', border: '1px solid #333', color: 'white', borderRadius: '4px', width: '100%' }}
                 />
               </div>
+              <div className="form-group" style={{ marginBottom: '1rem' }}>
+                <label style={{ color: '#fff', display: 'block', marginBottom: '0.3rem' }}>Video URL / Link (YouTube, Drive, or Direct Link)</label>
+                <input 
+                  type="text" 
+                  value={vid.url || ''} 
+                  onChange={(e) => handleVideoUrlChange(i, e.target.value)} 
+                  placeholder="Paste Video URL (e.g., https://...)"
+                  style={{ padding: '0.6rem', background: '#18181b', border: '1px solid #333', color: 'white', borderRadius: '4px', width: '100%' }}
+                />
+              </div>
               <div className="form-group">
-                <label style={{ color: '#fff', display: 'block', marginBottom: '0.3rem' }}>Upload Vertical Video (.mp4)</label>
+                <label style={{ color: '#fff', display: 'block', marginBottom: '0.3rem' }}>OR Upload MP4 Video File (Max 4.5MB)</label>
                 <input 
                   type="file" 
                   accept="video/*"
@@ -424,10 +426,10 @@ export default function AdminSettings() {
                   disabled={uploadingField === `video-${i}`}
                   style={{ padding: '0.6rem', border: '1px solid #333', borderRadius: '4px', width: '100%', color: '#fff' }}
                 />
-                {uploadingField === `video-${i}` && <p style={{ color: 'var(--primary)', fontSize: '0.85rem', marginTop: '0.3rem' }}>Processing video file...</p>}
+                {uploadingField === `video-${i}` && <p style={{ color: 'var(--primary)', fontSize: '0.85rem', marginTop: '0.3rem' }}>Uploading video file...</p>}
                 {vid.url && (
                   <p style={{ fontSize: '0.75rem', color: '#a1a1aa', marginTop: '0.5rem', wordBreak: 'break-all' }}>
-                    Current Video: {vid.url.startsWith('data:') ? '[Base64 Encoded Video Loaded]' : vid.url}
+                    Current Video Link: {vid.url.startsWith('data:') ? '[Base64 Video File Loaded]' : vid.url}
                   </p>
                 )}
               </div>

@@ -118,16 +118,39 @@ export default async function Home() {
       <section className="container" style={{ padding: '6rem 2rem' }}>
         <h2 className="text-center text-primary section-title">See Us in Action</h2>
         <div className="videos-grid">
-          {(settings.videos || []).map((video: any, i: number) => (
-            <div key={i} className="video-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <h3 className="video-title">{video.title}</h3>
-              <video 
-                src={video.url || undefined} 
-                controls 
-                className="video-player"
-              />
-            </div>
-          ))}
+          {(settings.videos || []).map((video: any, i: number) => {
+            const isYouTube = video.url && (video.url.includes('youtube.com') || video.url.includes('youtu.be'));
+            let embedUrl = video.url;
+            if (isYouTube) {
+              if (video.url.includes('shorts/')) {
+                embedUrl = video.url.replace('shorts/', 'embed/');
+              } else if (video.url.includes('watch?v=')) {
+                embedUrl = video.url.replace('watch?v=', 'embed/');
+              } else if (video.url.includes('youtu.be/')) {
+                embedUrl = video.url.replace('youtu.be/', 'www.youtube.com/embed/');
+              }
+            }
+            return (
+              <div key={i} className="video-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <h3 className="video-title">{video.title}</h3>
+                {isYouTube ? (
+                  <iframe
+                    src={embedUrl}
+                    title={video.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    style={{ width: '100%', height: '350px', borderRadius: '12px', border: '1px solid var(--border-color)' }}
+                  />
+                ) : (
+                  <video 
+                    src={video.url || undefined} 
+                    controls 
+                    className="video-player"
+                  />
+                )}
+              </div>
+            );
+          })}
         </div>
       </section>
 
