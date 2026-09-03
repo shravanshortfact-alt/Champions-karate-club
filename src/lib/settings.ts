@@ -147,6 +147,25 @@ export async function updateSiteSettings(newSettings: any) {
   const existing = await getSiteSettings();
   const merged = { ...existing, ...newSettings, logoUrl: '/logo.png' };
 
+  // Sanitize any large base64 video or image URLs to file URLs to prevent D1 payload errors
+  if (merged.videos && Array.isArray(merged.videos)) {
+    merged.videos = merged.videos.map((v: any) => {
+      if (v && v.url && typeof v.url === 'string' && v.url.startsWith('data:')) {
+        return { ...v, url: saveBase64ToDisk(v.url) };
+      }
+      return v;
+    });
+  }
+
+  if (merged.instructors && Array.isArray(merged.instructors)) {
+    merged.instructors = merged.instructors.map((ins: any) => {
+      if (ins && ins.photoUrl && typeof ins.photoUrl === 'string' && ins.photoUrl.startsWith('data:')) {
+        return { ...ins, photoUrl: saveBase64ToDisk(ins.photoUrl) };
+      }
+      return ins;
+    });
+  }
+
   // Always update in-memory / fs cache first
   writeFsSettings(merged);
 
