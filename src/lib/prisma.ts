@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaD1 } from '@prisma/adapter-d1';
-import { getCloudflareContext } from '@opennextjs/cloudflare';
 
 let cachedPrisma: PrismaClient | undefined;
 
@@ -8,18 +7,24 @@ function createPrismaClient(): PrismaClient {
   if (cachedPrisma) return cachedPrisma;
   
   try {
-    const env = (getCloudflareContext() as any)?.env;
+    const opennext = require('@opennextjs/cloudflare');
+    const env = opennext?.getCloudflareContext?.()?.env;
     if (env && env.DB) {
       const adapter = new PrismaD1(env.DB);
       cachedPrisma = new PrismaClient({ adapter });
       return cachedPrisma;
     }
   } catch (e) {
-    console.warn("Cloudflare environment not found, falling back to local PrismaClient without adapter if possible");
+    // Cloudflare context not available (e.g. Vercel or local Node dev)
   }
 
-  cachedPrisma = new PrismaClient();
-  return cachedPrisma;
+  try {
+    cachedPrisma = new PrismaClient();
+    return cachedPrisma;
+  } catch (e) {
+    console.error("PrismaClient initialization error:", e);
+    throw e;
+  }
 }
 
 const prismaProxy = new Proxy({} as PrismaClient, {

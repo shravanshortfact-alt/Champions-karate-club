@@ -10,10 +10,15 @@ const noCacheHeaders = {
 };
 
 export async function GET() {
-  const settings = await getSiteSettings();
-  return NextResponse.json(settings, {
-    headers: noCacheHeaders,
-  });
+  try {
+    const settings = await getSiteSettings();
+    return NextResponse.json(settings, {
+      headers: noCacheHeaders,
+    });
+  } catch (err: any) {
+    console.error("GET SETTINGS ERROR:", err);
+    return NextResponse.json({ error: String(err?.message || err) }, { status: 500, headers: noCacheHeaders });
+  }
 }
 
 export async function POST(request: Request) {
@@ -24,11 +29,11 @@ export async function POST(request: Request) {
       headers: noCacheHeaders,
     });
   } catch (error: any) {
-    console.error("API SETTINGS ERROR:", error);
+    const errText = error?.stack || error?.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+    console.error("API SETTINGS ERROR:", errText);
     return NextResponse.json(
-      { success: false, error: error?.message || String(error) || "Failed to save settings" }, 
+      { success: false, error: errText }, 
       { status: 500, headers: noCacheHeaders }
     );
   }
 }
-
