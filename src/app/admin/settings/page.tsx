@@ -415,18 +415,8 @@ export default function AdminSettings() {
                   style={{ padding: '0.6rem', background: '#18181b', border: '1px solid #333', color: 'white', borderRadius: '4px', width: '100%' }}
                 />
               </div>
-              <div className="form-group" style={{ marginBottom: '1rem' }}>
-                <label style={{ color: '#fff', display: 'block', marginBottom: '0.3rem' }}>Video URL / Link (YouTube, Drive, or Direct Link)</label>
-                <input 
-                  type="text" 
-                  value={vid.url || ''} 
-                  onChange={(e) => handleVideoUrlChange(i, e.target.value)} 
-                  placeholder="Paste Video URL (e.g., https://...)"
-                  style={{ padding: '0.6rem', background: '#18181b', border: '1px solid #333', color: 'white', borderRadius: '4px', width: '100%' }}
-                />
-              </div>
               <div className="form-group">
-                <label style={{ color: '#fff', display: 'block', marginBottom: '0.3rem' }}>OR Upload Small MP4 Video File (Max 4.5MB)</label>
+                <label style={{ color: '#fff', display: 'block', marginBottom: '0.3rem' }}>Upload MP4 Video File (Max 4.5MB)</label>
                 <input 
                   type="file" 
                   accept="video/*"
@@ -435,9 +425,13 @@ export default function AdminSettings() {
                   style={{ padding: '0.6rem', border: '1px solid #333', borderRadius: '4px', width: '100%', color: '#fff' }}
                 />
                 {uploadingField === `video-${i}` && <p style={{ color: 'var(--primary)', fontSize: '0.85rem', marginTop: '0.3rem' }}>Uploading video file...</p>}
-                {vid.url && (
-                  <p style={{ fontSize: '0.75rem', color: '#a1a1aa', marginTop: '0.5rem', wordBreak: 'break-all' }}>
-                    Current Video Link: {vid.url.startsWith('data:') ? '[Base64 Video File Loaded]' : vid.url}
+                {vid.url ? (
+                  <p style={{ fontSize: '0.8rem', color: '#22c55e', marginTop: '0.5rem', fontWeight: 'bold' }}>
+                    ✓ Video File Loaded & Ready to Save
+                  </p>
+                ) : (
+                  <p style={{ fontSize: '0.75rem', color: '#a1a1aa', marginTop: '0.5rem' }}>
+                    No video uploaded yet. Choose an MP4 file (Max 4.5MB).
                   </p>
                 )}
               </div>
