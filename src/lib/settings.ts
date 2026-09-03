@@ -1,6 +1,5 @@
 import { getPrisma } from '@/lib/prisma';
 import fs from 'fs';
-import path from 'path';
 
 const SETTINGS_KEY = 'site_settings';
 
@@ -9,11 +8,7 @@ declare global {
 }
 
 const getTmpSettingsPath = () => {
-  try {
-    return path.join(process.cwd(), '.site_settings.json');
-  } catch (e) {
-    return '/tmp/site_settings.json';
-  }
+  return '/tmp/site_settings.json';
 };
 
 function readFsSettings() {
@@ -35,16 +30,12 @@ function readFsSettings() {
 }
 
 function writeFsSettings(settings: any) {
+  globalThis.__SITE_SETTINGS__ = settings;
   try {
-    globalThis.__SITE_SETTINGS__ = settings;
     const tmpPath = getTmpSettingsPath();
     fs.writeFileSync(tmpPath, JSON.stringify(settings, null, 2), 'utf8');
   } catch (e) {
-    try {
-      fs.writeFileSync('/tmp/site_settings.json', JSON.stringify(settings, null, 2), 'utf8');
-    } catch (err) {
-      // Ignore
-    }
+    console.warn("Could not write settings to /tmp:", e);
   }
 }
 
