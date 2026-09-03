@@ -21,6 +21,7 @@ export default function AdminSettings() {
   const [videos, setVideos] = useState<{title: string, url: string}[]>([]);
   const [formLocks, setFormLocks] = useState({ competition: false, seminar: false, beltExam: false });
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [newAchievement, setNewAchievement] = useState('');
 
@@ -37,11 +38,13 @@ export default function AdminSettings() {
         setVideos(data.videos || []);
         setFormLocks(data.formLocks || { competition: false, seminar: false, beltExam: false });
         setIsLoading(false);
-      });
+      })
+      .catch(() => setIsLoading(false));
   }, []);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSaving(true);
     const payload = {
       upiId,
       logoUrl,
@@ -53,17 +56,23 @@ export default function AdminSettings() {
       formLocks
     };
     
-    const res = await fetch('/api/settings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    
-    if (res.ok) {
-      alert("Settings saved successfully! The Home page is now updated.");
-    } else {
-      const errData = await res.json().catch(() => ({}));
-      alert("Error saving settings! " + (errData.error || "Please check the server logs."));
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      if (res.ok) {
+        alert("Settings saved successfully! The form lock settings and Home page are now updated.");
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        alert("Error saving settings! " + (errData.error || "Please check the server logs."));
+      }
+    } catch (err: any) {
+      alert("Network or server error while saving settings: " + (err?.message || "Please check connection."));
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -363,8 +372,13 @@ export default function AdminSettings() {
           </div>
         </div>
 
-        <button type="submit" className="btn btn-primary" style={{ width: '100%', fontSize: '1.2rem', marginBottom: '4rem' }}>
-          Save All Settings
+        <button 
+          type="submit" 
+          disabled={isSaving}
+          className="btn btn-primary" 
+          style={{ width: '100%', fontSize: '1.2rem', marginBottom: '4rem', opacity: isSaving ? 0.7 : 1, cursor: isSaving ? 'not-allowed' : 'pointer' }}
+        >
+          {isSaving ? 'Saving Settings...' : 'Save All Settings'}
         </button>
       </form>
     </div>

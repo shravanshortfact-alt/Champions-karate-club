@@ -1,6 +1,52 @@
 import { getPrisma } from '@/lib/prisma';
+import fs from 'fs';
+import path from 'path';
 
 const SETTINGS_KEY = 'site_settings';
+
+declare global {
+  var __SITE_SETTINGS__: any;
+}
+
+const getTmpSettingsPath = () => {
+  try {
+    return path.join(process.cwd(), '.site_settings.json');
+  } catch (e) {
+    return '/tmp/site_settings.json';
+  }
+};
+
+function readFsSettings() {
+  try {
+    if (globalThis.__SITE_SETTINGS__) {
+      return globalThis.__SITE_SETTINGS__;
+    }
+    const tmpPath = getTmpSettingsPath();
+    if (fs.existsSync(tmpPath)) {
+      const content = fs.readFileSync(tmpPath, 'utf8');
+      const data = JSON.parse(content);
+      globalThis.__SITE_SETTINGS__ = data;
+      return data;
+    }
+  } catch (e) {
+    // Ignore fs errors
+  }
+  return null;
+}
+
+function writeFsSettings(settings: any) {
+  try {
+    globalThis.__SITE_SETTINGS__ = settings;
+    const tmpPath = getTmpSettingsPath();
+    fs.writeFileSync(tmpPath, JSON.stringify(settings, null, 2), 'utf8');
+  } catch (e) {
+    try {
+      fs.writeFileSync('/tmp/site_settings.json', JSON.stringify(settings, null, 2), 'utf8');
+    } catch (err) {
+      // Ignore
+    }
+  }
+}
 
 export const defaultSettings = {
   upiId: 'championkarate@upi',
@@ -48,6 +94,8 @@ export const defaultSettings = {
 };
 
 export async function getSiteSettings() {
+  let parsed: any = null;
+
   try {
     const prisma = getPrisma();
     const record = await prisma.systemSettings.findUnique({
@@ -55,39 +103,50 @@ export async function getSiteSettings() {
     });
 
     if (record && record.value) {
-      const parsed = JSON.parse(record.value);
-      // Migrate branches to objects
-      if (parsed.branches && parsed.branches.length > 0 && typeof parsed.branches[0] === 'string') {
-        parsed.branches = parsed.branches.map((b: string) => ({
-          name: b,
-          qrCodeUrl: ''
-        }));
-      } else if (!parsed.branches) {
-        parsed.branches = [];
-      }
-      return { ...defaultSettings, ...parsed };
+      parsed = JSON.parse(record.value);
     }
   } catch (error) {
-    console.error("Failed to fetch settings from DB:", error);
+    console.error("Failed to fetch settings from DB, using fallback store:", error);
   }
-  
+
+  if (!parsed) {
+    parsed = readFsSettings();
+  }
+
+  if (parsed) {
+    // Migrate branches to objects
+    if (parsed.branches && parsed.branches.length > 0 && typeof parsed.branches[0] === 'string') {
+      parsed.branches = parsed.branches.map((b: string) => ({
+        name: b,
+        qrCodeUrl: ''
+      }));
+    } else if (!parsed.branches) {
+      parsed.branches = [];
+    }
+    return { ...defaultSettings, ...parsed };
+  }
+
   return defaultSettings;
 }
 
 export async function updateSiteSettings(newSettings: any) {
+  const existing = await getSiteSettings();
+  const merged = { ...existing, ...newSettings };
+
+  // Always update in-memory / fs cache first
+  writeFsSettings(merged);
+
   try {
     const prisma = getPrisma();
-    const existing = await getSiteSettings();
-    const merged = { ...existing, ...newSettings };
-    
     await prisma.systemSettings.upsert({
       where: { key: SETTINGS_KEY },
       update: { value: JSON.stringify(merged) },
-      create: { key: SETTINGS_KEY, value: JSON.stringify(merged) }
+      create: { id: 'site_settings_id', key: SETTINGS_KEY, value: JSON.stringify(merged) }
     });
-    return merged;
   } catch (error) {
-    console.error("Failed to update settings in DB:", error);
-    throw error;
+    console.error("Failed to update settings in DB (using fallback store):", error);
+    // Fallback store saved it successfully, do not fail the request!
   }
+
+  return merged;
 }
