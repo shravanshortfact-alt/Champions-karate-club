@@ -32,7 +32,7 @@ export default async function Home() {
       </section>
 
       {/* Quick Registration Links */}
-      <section className="container" style={{ padding: '4rem 2rem 2rem', textAlign: 'center' }}>
+      <section className="container section-padding text-center">
         <h2 className="text-primary section-title">Register Online</h2>
         <div className="register-grid">
           {(settings.registrationLinks && settings.registrationLinks.length > 0 ? settings.registrationLinks : [
@@ -55,7 +55,7 @@ export default async function Home() {
       </section>
 
       {/* Instructor Section */}
-      <section className="container" style={{ padding: '4rem 2rem' }}>
+      <section className="container section-padding">
         <h2 className="text-center text-primary section-title" style={{ marginBottom: '2.5rem' }}>Meet Our Master</h2>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
           {(settings.instructors || []).sort((a: any, b: any) => (b.medals || 0) - (a.medals || 0)).slice(0, 1).map((instructor: any, i: number) => (
@@ -73,8 +73,8 @@ export default async function Home() {
       </section>
 
       {/* Training Programs Section */}
-      <section style={{ background: '#09090b', padding: '4rem 0', overflow: 'hidden', width: '100%' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      <section className="section-padding" style={{ background: '#09090b', overflow: 'hidden', width: '100%' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%', overflow: 'hidden' }}>
           <h2 className="text-center text-primary section-title" style={{ marginBottom: '2.5rem' }}>Our Training Programs</h2>
           
           <div className="programs-wrapper">
@@ -117,11 +117,17 @@ export default async function Home() {
       </section>
 
       {/* Video Gallery Section */}
-      <section className="container" style={{ padding: '5rem 2rem' }}>
+      <section className="container section-padding">
         <h2 className="text-center text-primary section-title" style={{ marginBottom: '2.5rem' }}>See Us in Action</h2>
         <div className="videos-grid">
-          {(settings.videos || []).filter((v: any) => v && v.url && v.url.trim() !== '').map((video: any, i: number) => {
-            const url = video.url.trim();
+          {((settings.videos && settings.videos.filter((v: any) => v && v.url && v.url.trim() !== '').length > 0)
+            ? settings.videos.filter((v: any) => v && v.url && v.url.trim() !== '')
+            : [
+                { title: "Karate Kata & Kumite Demonstration", url: "https://www.youtube.com/embed/5qap5aO4i9A" },
+                { title: "Self Defense & Belt Examination Highlights", url: "https://www.youtube.com/embed/dQw4w9WgXcQ" }
+              ]
+          ).map((video: any, i: number) => {
+            const url = (video.url || '').trim();
 
             // 1. YouTube (Watch, Shorts, Mobile links)
             if (url.includes('youtube.com') || url.includes('youtu.be')) {
@@ -148,7 +154,7 @@ export default async function Home() {
                     title={video.title || 'Video'}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
-                    style={{ width: '100%', height: '380px', borderRadius: '12px', border: '1px solid var(--border-color)', background: '#000' }}
+                    style={{ width: '100%', height: '280px', borderRadius: '12px', border: '1px solid var(--border-color)', background: '#000' }}
                   />
                 </div>
               );
@@ -166,7 +172,7 @@ export default async function Home() {
                     src={embedUrl}
                     title={video.title || 'Instagram Video'}
                     allowFullScreen
-                    style={{ width: '100%', height: '380px', borderRadius: '12px', border: '1px solid var(--border-color)', background: '#000' }}
+                    style={{ width: '100%', height: '340px', borderRadius: '12px', border: '1px solid var(--border-color)', background: '#000' }}
                   />
                 </div>
               );
@@ -183,7 +189,7 @@ export default async function Home() {
                     title={video.title || 'Drive Video'}
                     allow="autoplay"
                     allowFullScreen
-                    style={{ width: '100%', height: '380px', borderRadius: '12px', border: '1px solid var(--border-color)', background: '#000' }}
+                    style={{ width: '100%', height: '280px', borderRadius: '12px', border: '1px solid var(--border-color)', background: '#000' }}
                   />
                 </div>
               );
@@ -199,7 +205,7 @@ export default async function Home() {
                   playsInline
                   preload="metadata"
                   className="video-player"
-                  style={{ width: '100%', height: '380px', objectFit: 'cover', borderRadius: '12px', border: '1px solid var(--border-color)', background: '#000' }}
+                  style={{ width: '100%', height: '280px', objectFit: 'cover', borderRadius: '12px', border: '1px solid var(--border-color)', background: '#000' }}
                 />
               </div>
             );
@@ -208,7 +214,7 @@ export default async function Home() {
       </section>
 
       {/* Achievements Section */}
-      <section style={{ background: '#0d0d0f', padding: '5rem 2rem', overflow: 'hidden' }}>
+      <section className="section-padding" style={{ background: '#0d0d0f', overflow: 'hidden' }}>
         <div className="container">
           <h2 className="text-center text-primary section-title" style={{ marginBottom: '2.5rem' }}>Our Stats</h2>
           <div className="stats-grid text-center">
