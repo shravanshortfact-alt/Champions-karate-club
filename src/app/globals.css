@@ -767,6 +767,90 @@ a {
   }
 }
 
+/* Quick Registration Links Card Component */
+.reg-link-card {
+  background: #0d0d0f;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 2.2rem 1.2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.reg-link-card.locked {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.reg-link-card.hovered {
+  background: #161619;
+  border-color: rgba(239, 68, 68, 0.5);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px -8px rgba(239, 68, 68, 0.25), 0 0 15px rgba(239, 68, 68, 0.12);
+}
+
+.reg-link-icon-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+  color: #ef4444;
+  transition: all 0.3s ease;
+}
+
+.reg-link-card.hovered .reg-link-icon-badge {
+  background: rgba(239, 68, 68, 0.22);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+}
+
+.reg-link-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.4rem 0;
+  letter-spacing: 0.01em;
+  font-family: 'Outfit', sans-serif;
+}
+
+.reg-link-desc {
+  font-size: 0.88rem;
+  color: #9ca3af;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.reg-link-lock-tag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  border-radius: 20px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.reg-link-lock-tag span {
+  font-size: 0.68rem;
+  color: #ef4444;
+  font-weight: bold;
+}
+
 /* Quick Registration Links Grid */
 .register-grid {
   display: grid;
@@ -777,12 +861,34 @@ a {
 @media (max-width: 1024px) {
   .register-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.2rem;
+    gap: 1rem;
   }
 
   /* Card 5 (Fee Payment) full width on 2-column mobile layout */
   .register-grid > div:last-child {
     grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .reg-link-card {
+    padding: 1.4rem 0.8rem 1.2rem;
+    border-radius: 14px;
+  }
+
+  .reg-link-icon-badge {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 0.8rem;
+  }
+
+  .reg-link-title {
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .reg-link-desc {
+    font-size: 0.8rem;
   }
 }
 
@@ -801,6 +907,21 @@ a {
   .programs-grid {
     grid-template-columns: 1fr;
     gap: 1.2rem;
+  }
+
+  .program-card {
+    padding: 1.8rem 1.2rem;
+    border-radius: 14px;
+  }
+
+  .program-icon-badge {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 0.8rem;
+  }
+
+  .program-card-title {
+    font-size: 1.1rem;
   }
 }
 
@@ -913,6 +1034,7 @@ a {
     font-size: 0.75rem;
   }
 }
+
 
 
 
