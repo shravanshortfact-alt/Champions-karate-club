@@ -57,16 +57,26 @@ export default function AdminSettings() {
     };
     
     try {
-      const res = await fetch('/api/settings', {
+      // 1. Try Cloudflare Worker direct sync endpoint (bypasses Vercel 4.5MB payload limit for multi-video uploads)
+      let res = await fetch('https://karate-club.shravanshortfact.workers.dev/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
-      });
+      }).catch(() => null);
+
+      // 2. Fallback to local Vercel /api/settings if worker request is unavailable
+      if (!res || !res.ok) {
+        res = await fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      }
       
-      if (res.ok) {
+      if (res && res.ok) {
         alert(successMessage);
       } else {
-        const errData = await res.json().catch(() => ({}));
+        const errData = res ? await res.json().catch(() => ({})) : {};
         alert("Error saving " + sectionName + "! " + (errData.error || "Please try again."));
       }
     } catch (err: any) {
