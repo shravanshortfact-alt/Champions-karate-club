@@ -184,7 +184,7 @@ export default async function Home() {
                   playsInline
                   preload="metadata"
                   className="video-player"
-                  style={{ width: '100%', maxH: '380px', borderRadius: '12px', border: '1px solid var(--border-color)', background: '#000' }}
+                  style={{ width: '100%', maxHeight: '380px', borderRadius: '12px', border: '1px solid var(--border-color)', background: '#000' }}
                 />
               </div>
             );
