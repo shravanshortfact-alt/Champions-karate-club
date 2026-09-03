@@ -1,4 +1,5 @@
 import { getPrisma } from '@/lib/prisma';
+import { saveBase64ToDisk } from '@/lib/upload-store';
 import fs from 'fs';
 
 const SETTINGS_KEY = 'site_settings';
@@ -127,6 +128,16 @@ export async function getSiteSettings() {
 export async function updateSiteSettings(newSettings: any) {
   const existing = await getSiteSettings();
   const merged = { ...existing, ...newSettings, logoUrl: '/logo.png' };
+
+  // Convert any Base64 video URLs to compact file paths to prevent 413 payload errors
+  if (Array.isArray(merged.videos)) {
+    merged.videos = merged.videos.map((v: any) => {
+      if (v && typeof v.url === 'string' && v.url.startsWith('data:')) {
+        return { ...v, url: saveBase64ToDisk(v.url) };
+      }
+      return v;
+    });
+  }
 
   // Always update in-memory / fs cache first
   writeFsSettings(merged);

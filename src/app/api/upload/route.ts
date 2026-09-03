@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-
+import { saveFileToDisk } from '@/lib/upload-store';
 
 export async function POST(request: Request) {
   try {
@@ -13,14 +13,12 @@ export async function POST(request: Request) {
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+    const mimeType = file.type || 'application/octet-stream';
 
-    // Convert to base64
-    const base64String = buffer.toString('base64');
-    const mimeType = file.type || 'image/jpeg';
-    const dataUri = `data:${mimeType};base64,${base64String}`;
+    // Save to disk and get small URL path (prevents 413 Payload Too Large on settings save)
+    const fileUrl = saveFileToDisk(buffer, file.name, mimeType);
 
-    // Return the base64 string directly as the URL
-    return NextResponse.json({ url: dataUri });
+    return NextResponse.json({ url: fileUrl });
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json({ error: "Failed to process file" }, { status: 500 });
