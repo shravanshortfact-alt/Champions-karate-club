@@ -75,41 +75,46 @@ export default async function Home() {
       </section>
 
       {/* Training Programs Section */}
-      <section style={{ background: 'var(--bg-card)', padding: '6rem 2rem', overflow: 'hidden' }}>
+      <section style={{ background: '#09090b', padding: '6rem 0', overflow: 'hidden', position: 'relative' }}>
         <div className="container">
-          <h2 className="text-center text-primary section-title">Our Training Programs</h2>
-          <div className="programs-grid" style={{ gap: '2rem' }}>
-            {(settings.programs && settings.programs.length > 0 ? settings.programs : [
-              { title: "Beginner Karate", icon: Medal },
-              { title: "Advanced Kata & Kumite", icon: Flame },
-              { title: "Self-Defense & Fitness", icon: ShieldCheck }
-            ]).map((prog: any, i: number) => {
-              const IconComp = prog.icon;
-              return (
-                <div key={i} className="card program-card text-center">
-                  <div className="premium-icon" style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem', color: 'var(--primary)' }}>
-                    {typeof prog.icon === 'string' ? prog.icon : <IconComp size={56} />}
+          <h2 className="text-center text-primary section-title" style={{ marginBottom: '3rem' }}>Our Training Programs</h2>
+          
+          {/* Desktop & Mobile Programs Container */}
+          <div className="programs-wrapper">
+            <div className="programs-grid">
+              {(settings.programs && settings.programs.length > 0 ? settings.programs : [
+                { title: "Beginner Karate", icon: Medal },
+                { title: "Advanced Kata & Kumite", icon: Flame },
+                { title: "Self-Defense & Fitness", icon: ShieldCheck }
+              ]).map((prog: any, i: number) => {
+                const IconComp = prog.icon;
+                return (
+                  <div key={i} className="program-card text-center">
+                    <div className="program-icon-badge">
+                      {typeof prog.icon === 'string' ? prog.icon : <IconComp size={30} color="#ef4444" />}
+                    </div>
+                    <h3 className="program-card-title">{prog.title}</h3>
                   </div>
-                  <h3 className="text-secondary" style={{ fontSize: '1.2rem', margin: 0 }}>{prog.title}</h3>
-                </div>
-              );
-            })}
-            {/* Duplicates for Marquee Animation on Mobile */}
-            {(settings.programs && settings.programs.length > 0 ? settings.programs : [
-              { title: "Beginner Karate", icon: Medal },
-              { title: "Advanced Kata & Kumite", icon: Flame },
-              { title: "Self-Defense & Fitness", icon: ShieldCheck }
-            ]).map((prog: any, i: number) => {
-              const IconComp = prog.icon;
-              return (
-                <div key={`dup-${i}`} className="card program-card duplicate-for-marquee text-center">
-                  <div className="premium-icon" style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem', color: 'var(--primary)' }}>
-                    {typeof prog.icon === 'string' ? prog.icon : <IconComp size={56} />}
+                );
+              })}
+
+              {/* Duplicates for Infinite Smooth Marquee on Mobile */}
+              {(settings.programs && settings.programs.length > 0 ? settings.programs : [
+                { title: "Beginner Karate", icon: Medal },
+                { title: "Advanced Kata & Kumite", icon: Flame },
+                { title: "Self-Defense & Fitness", icon: ShieldCheck }
+              ]).map((prog: any, i: number) => {
+                const IconComp = prog.icon;
+                return (
+                  <div key={`dup-${i}`} className="program-card text-center duplicate-for-marquee">
+                    <div className="program-icon-badge">
+                      {typeof prog.icon === 'string' ? prog.icon : <IconComp size={30} color="#ef4444" />}
+                    </div>
+                    <h3 className="program-card-title">{prog.title}</h3>
                   </div>
-                  <h3 className="text-secondary" style={{ fontSize: '1.2rem', margin: 0 }}>{prog.title}</h3>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>

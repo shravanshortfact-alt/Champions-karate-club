@@ -787,4 +787,119 @@ a {
   }
 }
 
+/* Training Programs Section */
+.programs-wrapper {
+  width: 100%;
+  overflow: hidden;
+}
+
+.programs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.duplicate-for-marquee {
+  display: none;
+}
+
+.program-card {
+  background: linear-gradient(145deg, #121215 0%, #0d0d0f 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 2.8rem 1.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  position: relative;
+  cursor: pointer;
+}
+
+.program-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: 0 15px 35px -5px rgba(239, 68, 68, 0.25), 0 0 20px rgba(239, 68, 68, 0.12);
+  background: linear-gradient(145deg, #16161a 0%, #0f0f12 100%);
+}
+
+.program-icon-badge {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+  color: #ef4444;
+  transition: all 0.3s ease;
+}
+
+.program-card:hover .program-icon-badge {
+  background: rgba(239, 68, 68, 0.25);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
+  transform: scale(1.08);
+}
+
+.program-card-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--secondary, #D4AF37);
+  margin: 0;
+  letter-spacing: 0.02em;
+  transition: color 0.3s ease;
+}
+
+.program-card:hover .program-card-title {
+  color: #ffffff;
+}
+
+/* Mobile Responsive Smooth Infinite Marquee */
+@media (max-width: 768px) {
+  .programs-wrapper {
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  }
+
+  .programs-grid {
+    display: flex;
+    width: max-content;
+    gap: 1.2rem;
+    animation: smoothMarquee 15s linear infinite;
+    will-change: transform;
+  }
+
+  .programs-wrapper:hover .programs-grid,
+  .programs-wrapper:active .programs-grid {
+    animation-play-state: paused;
+  }
+
+  .duplicate-for-marquee {
+    display: flex;
+  }
+
+  .program-card {
+    min-width: 260px;
+    max-width: 280px;
+    padding: 2.2rem 1.4rem;
+    flex-shrink: 0;
+  }
+}
+
+@keyframes smoothMarquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+
 
