@@ -251,24 +251,12 @@ export default function AdminSettings() {
       <div className="card" style={{ marginBottom: '2rem', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '1.5rem', background: '#18181b' }}>
         <h2 style={{ color: 'var(--secondary)', marginBottom: '1.5rem', fontSize: '1.4rem' }}>Academy General</h2>
         
-        <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-          <label style={{ color: '#fff', display: 'block', marginBottom: '0.5rem' }}>Upload Logo</label>
+        <div className="form-group" style={{ marginBottom: '1.5rem', background: '#09090b', padding: '1rem', borderRadius: '8px', border: '1px solid #27272a' }}>
+          <label style={{ color: '#fff', display: 'block', marginBottom: '0.5rem' }}>Official Academy Logo (Permanent)</label>
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            {logoUrl && <img src={logoUrl} alt="Logo Preview" style={{ height: '60px', width: '60px', objectFit: 'contain', borderRadius: '8px', border: '1px solid var(--border-color)', background: '#000' }} />}
-            <input 
-              type="file" 
-              accept="image/*"
-              onChange={handleLogoUpload}
-              disabled={uploadingField === 'logo'}
-              style={{ color: '#fff' }}
-            />
-            {uploadingField === 'logo' && <span style={{ color: 'var(--primary)', fontSize: '0.9rem' }}>Uploading logo...</span>}
+            <img src="/logo.png" alt="Official Academy Logo" style={{ height: '70px', objectFit: 'contain', borderRadius: '8px', background: '#fff', padding: '6px' }} />
+            <span style={{ color: '#a1a1aa', fontSize: '0.9rem' }}>Logo is permanently configured on the landing page and website.</span>
           </div>
-          {logoUrl && (
-            <p style={{ fontSize: '0.75rem', color: '#a1a1aa', marginTop: '0.5rem', wordBreak: 'break-all' }}>
-              Current Logo: {logoUrl.startsWith('data:') ? '[Base64 Encoded Image Loaded]' : logoUrl}
-            </p>
-          )}
         </div>
         
         <div className="form-group" style={{ marginBottom: '1.5rem' }}>

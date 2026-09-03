@@ -41,7 +41,9 @@ function writeFsSettings(settings: any) {
 
 export const defaultSettings = {
   upiId: 'championkarate@upi',
-  logoUrl: '',
+  logoUrl: '/logo.png',
+  instagramLink: 'https://www.instagram.com/karate_king_no1?igsi=Zmt2aGxqcDJiemk2',
+  whatsappNumber: '',
   instructors: [
     {
       name: 'Sensei Kenjiro',
@@ -116,15 +118,15 @@ export async function getSiteSettings() {
     } else if (!parsed.branches) {
       parsed.branches = [];
     }
-    return { ...defaultSettings, ...parsed };
+    return { ...defaultSettings, ...parsed, logoUrl: '/logo.png' };
   }
 
-  return defaultSettings;
+  return { ...defaultSettings, logoUrl: '/logo.png' };
 }
 
 export async function updateSiteSettings(newSettings: any) {
   const existing = await getSiteSettings();
-  const merged = { ...existing, ...newSettings };
+  const merged = { ...existing, ...newSettings, logoUrl: '/logo.png' };
 
   // Always update in-memory / fs cache first
   writeFsSettings(merged);
