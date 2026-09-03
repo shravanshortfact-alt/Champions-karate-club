@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 
-
 export default function AdminRankings() {
   const [events, setEvents] = useState<any[]>([]);
   const [students, setStudents] = useState<any[]>([]);
@@ -23,15 +22,24 @@ export default function AdminRankings() {
   const fetchData = async () => {
     try {
       const resEvents = await fetch('/api/events');
-      setEvents(await resEvents.json());
+      if (resEvents.ok) {
+        const data = await resEvents.json();
+        if (Array.isArray(data)) setEvents(data);
+      }
 
       const resStudents = await fetch('/api/students?status=Active');
-      setStudents(await resStudents.json());
+      if (resStudents.ok) {
+        const data = await resStudents.json();
+        if (Array.isArray(data)) setStudents(data);
+      }
 
       const resAch = await fetch('/api/achievements');
-      setAchievements(await resAch.json());
+      if (resAch.ok) {
+        const data = await resAch.json();
+        if (Array.isArray(data)) setAchievements(data);
+      }
     } catch (error) {
-      console.error(error);
+      console.error("fetchData error:", error);
     }
   };
 
@@ -80,6 +88,10 @@ export default function AdminRankings() {
     }
   };
 
+  const safeEvents = Array.isArray(events) ? events : [];
+  const safeStudents = Array.isArray(students) ? students : [];
+  const safeAchievements = Array.isArray(achievements) ? achievements : [];
+
   return (
     <div className="animate-fade-in">
       <h1 className="text-primary" style={{ marginBottom: '2rem' }}>Rankings & Medals Management</h1>
@@ -113,12 +125,12 @@ export default function AdminRankings() {
 
           <h3 style={{ marginTop: '2rem', marginBottom: '1rem' }}>Existing Events</h3>
           <ul style={{ listStyle: 'none' }}>
-            {events.map((ev, i) => (
+            {safeEvents.map((ev, i) => (
               <li key={i} style={{ padding: '0.5rem', borderBottom: '1px solid var(--border-color)' }}>
                 <strong>{ev.name}</strong> (G: {ev.goldPoints}, S: {ev.silverPoints}, B: {ev.bronzePoints})
               </li>
             ))}
-            {events.length === 0 && <li style={{ color: 'var(--text-muted)' }}>No events created yet.</li>}
+            {safeEvents.length === 0 && <li style={{ color: 'var(--text-muted)' }}>No events created yet.</li>}
           </ul>
         </div>
 
@@ -130,14 +142,14 @@ export default function AdminRankings() {
               <label>Select Student</label>
               <select value={studentId} onChange={e => setStudentId(e.target.value)} required>
                 <option value="">-- Choose Student --</option>
-                {students.map(s => <option key={s.id} value={s.id}>{s.name} ({s.registrationNumber})</option>)}
+                {safeStudents.map(s => <option key={s.id} value={s.id}>{s.name} ({s.registrationNumber})</option>)}
               </select>
             </div>
             <div className="form-group">
               <label>Select Event</label>
               <select value={eventId} onChange={e => setEventId(e.target.value)} required>
                 <option value="">-- Choose Event --</option>
-                {events.map(ev => <option key={ev.id} value={ev.id}>{ev.name}</option>)}
+                {safeEvents.map(ev => <option key={ev.id} value={ev.id}>{ev.name}</option>)}
               </select>
             </div>
             <div className="grid grid-cols-2" style={{ gap: '1rem' }}>
@@ -180,11 +192,11 @@ export default function AdminRankings() {
             </tr>
           </thead>
           <tbody>
-            {achievements.filter(a => a.status === 'Pending').map((ach, i) => (
+            {safeAchievements.filter(a => a.status === 'Pending').map((ach, i) => (
               <tr key={i} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                <td style={{ padding: '0.8rem' }}>{new Date(ach.createdAt).toLocaleDateString()}</td>
-                <td style={{ padding: '0.8rem' }}>{ach.student?.name}</td>
-                <td style={{ padding: '0.8rem' }}>{ach.event?.name}</td>
+                <td style={{ padding: '0.8rem' }}>{ach.createdAt ? new Date(ach.createdAt).toLocaleDateString() : 'N/A'}</td>
+                <td style={{ padding: '0.8rem' }}>{ach.student?.name || 'Unknown'}</td>
+                <td style={{ padding: '0.8rem' }}>{ach.event?.name || 'Unknown'}</td>
                 <td style={{ padding: '0.8rem' }}>{ach.level}</td>
                 <td style={{ padding: '0.8rem' }}>{ach.medal}</td>
                 <td style={{ padding: '0.8rem' }}>
@@ -221,7 +233,7 @@ export default function AdminRankings() {
                 </td>
               </tr>
             ))}
-            {achievements.filter(a => a.status === 'Pending').length === 0 && (
+            {safeAchievements.filter(a => a.status === 'Pending').length === 0 && (
               <tr><td colSpan={6} style={{ padding: '1rem', color: 'var(--text-muted)' }}>No pending claims.</td></tr>
             )}
           </tbody>
@@ -242,19 +254,19 @@ export default function AdminRankings() {
             </tr>
           </thead>
           <tbody>
-            {achievements.map((ach, i) => (
+            {safeAchievements.map((ach, i) => (
               <tr key={i} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                <td style={{ padding: '1rem' }}>{ach.student?.name}</td>
-                <td style={{ padding: '1rem' }}>{ach.event?.name}</td>
+                <td style={{ padding: '1rem' }}>{ach.student?.name || 'Unknown'}</td>
+                <td style={{ padding: '1rem' }}>{ach.event?.name || 'Unknown'}</td>
                 <td style={{ padding: '1rem' }}>{ach.level}</td>
                 <td style={{ padding: '1rem', color: ach.medal === 'Gold' ? 'gold' : ach.medal === 'Silver' ? 'silver' : '#cd7f32' }}>
                   {ach.medal === 'Gold' ? 'Rank 1 (Gold)' : ach.medal === 'Silver' ? 'Rank 2 (Silver)' : ach.medal === 'Bronze' ? 'Rank 3 (Bronze)' : ach.medal}
                 </td>
-                <td style={{ padding: '1rem' }}>+{ach.pointsEarned}</td>
-                <td style={{ padding: '1rem' }}>{new Date(ach.createdAt).toLocaleDateString()}</td>
+                <td style={{ padding: '1rem' }}>+{ach.pointsEarned || 0}</td>
+                <td style={{ padding: '1rem' }}>{ach.createdAt ? new Date(ach.createdAt).toLocaleDateString() : 'N/A'}</td>
               </tr>
             ))}
-            {achievements.length === 0 && (
+            {safeAchievements.length === 0 && (
               <tr>
                 <td colSpan={6} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No achievements recorded yet.</td>
               </tr>
