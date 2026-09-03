@@ -75,8 +75,8 @@ export default async function Home() {
       </section>
 
       {/* Training Programs Section */}
-      <section style={{ background: '#09090b', padding: '5rem 0', overflow: 'hidden' }}>
-        <div className="container">
+      <section style={{ background: '#09090b', padding: '4rem 1.5rem', overflow: 'hidden' }}>
+        <div className="container" style={{ padding: 0 }}>
           <h2 className="text-center text-primary section-title" style={{ marginBottom: '2.5rem' }}>Our Training Programs</h2>
           
           <div className="programs-wrapper">
@@ -90,7 +90,7 @@ export default async function Home() {
                 return (
                   <div key={i} className="program-card text-center">
                     <div className="program-icon-badge">
-                      {typeof prog.icon === 'string' ? prog.icon : <IconComp size={30} color="#ef4444" />}
+                      {typeof prog.icon === 'string' ? prog.icon : <IconComp size={28} color="#ef4444" />}
                     </div>
                     <h3 className="program-card-title">{prog.title}</h3>
                   </div>
