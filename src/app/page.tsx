@@ -99,21 +99,50 @@ export default async function Home() {
       </section>
 
       {/* Training Programs Section */}
-      <section style={{ background: 'var(--bg-card)', padding: '3.5rem 1rem', overflow: 'hidden' }}>
+      <section style={{ background: 'var(--bg-card)', padding: '3.5rem 1rem', overflow: 'hidden', borderTop: '1px solid rgba(255, 46, 46, 0.15)', borderBottom: '1px solid rgba(255, 46, 46, 0.15)' }}>
         <div className="container">
           <h2 className="text-center text-primary section-title" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)', marginBottom: '2rem' }}>Our Training Programs</h2>
           <div className="programs-grid">
-            {[
-              { title: "Kata (Form)", desc: "Master detailed choreography of martial movements.", icon: <Flame className="text-primary" size={32} /> },
-              { title: "Kumite (Sparring)", desc: "Controlled, tactical combat training for real scenario application.", icon: <ShieldCheck className="text-secondary" size={32} /> },
-              { title: "Self Defense", desc: "Practical techniques designed for real-world personal protection.", icon: <Medal className="text-primary" size={32} /> }
-            ].map((program, i) => (
-              <div key={i} className="card program-card" style={{ textAlign: 'center', padding: '1.5rem 1rem', borderRadius: '12px' }}>
-                <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>{program.icon}</div>
-                <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{program.title}</h3>
-                <p className="text-muted" style={{ fontSize: '0.875rem' }}>{program.desc}</p>
-              </div>
-            ))}
+            {(() => {
+              const basePrograms = [
+                { title: "Kata (Form)", desc: "Master detailed choreography of martial movements.", icon: <Flame className="text-primary" size={26} /> },
+                { title: "Kumite (Sparring)", desc: "Controlled, tactical combat training for real scenario application.", icon: <ShieldCheck className="text-secondary" size={26} /> },
+                { title: "Self Defense", desc: "Practical techniques designed for real-world personal protection.", icon: <Medal className="text-primary" size={26} /> }
+              ];
+              // Repeat 3 times for seamless 100% infinite marquee loop on mobile
+              const marqueeItems = [...basePrograms, ...basePrograms, ...basePrograms];
+
+              return marqueeItems.map((program, i) => (
+                <div key={i} className="card program-card" style={{ 
+                  textAlign: 'center', 
+                  padding: '1.75rem 1.25rem', 
+                  borderRadius: '16px',
+                  background: 'linear-gradient(145deg, #18181b 0%, #09090b 100%)',
+                  border: '1px solid rgba(255, 46, 46, 0.3)',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.6)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center'
+                }}>
+                  <div style={{ 
+                    marginBottom: '1rem', 
+                    width: '56px', 
+                    height: '56px', 
+                    borderRadius: '50%', 
+                    background: 'rgba(255, 46, 46, 0.12)', 
+                    border: '1px solid rgba(255, 46, 46, 0.3)',
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    boxShadow: '0 0 15px rgba(255, 46, 46, 0.2)'
+                  }}>
+                    {program.icon}
+                  </div>
+                  <h3 style={{ fontSize: '1.25rem', color: 'var(--secondary)', fontWeight: 700, marginBottom: '0.5rem' }}>{program.title}</h3>
+                  <p style={{ fontSize: '0.875rem', color: '#a1a1aa', margin: 0, lineHeight: '1.5' }}>{program.desc}</p>
+                </div>
+              ));
+            })()}
           </div>
         </div>
       </section>
@@ -124,9 +153,15 @@ export default async function Home() {
         <div className="videos-grid">
           {((settings.videos && settings.videos.filter((v: any) => v && v.url && v.url.trim() !== '').length > 0)
             ? settings.videos.filter((v: any) => v && v.url && v.url.trim() !== '')
-            : []
+            : defaultSettings.videos
           ).map((video: any, i: number) => {
             let url = (video.url || '').trim();
+
+            if (!url) {
+              url = i % 2 === 0 
+                ? 'https://assets.mixkit.co/videos/preview/mixkit-karate-athlete-performing-kata-movements-42998-large.mp4'
+                : 'https://assets.mixkit.co/videos/preview/mixkit-two-karate-athletes-sparring-in-a-dojo-42999-large.mp4';
+            }
 
             // Prefix relative API URLs with Worker domain so it streams directly from Cloudflare D1
             if (url.startsWith('/')) {
@@ -218,7 +253,7 @@ export default async function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="container" style={{ padding: '2rem 1rem 3.5rem', textAlign: 'center' }}>
+      <section className="container" style={{ padding: '3.5rem 1rem', textAlign: 'center' }}>
         <h2 className="text-primary section-title" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)', marginBottom: '2rem' }}>Our Stats</h2>
         <div className="stats-grid">
           {[
@@ -226,9 +261,30 @@ export default async function Home() {
             { num: "12", label: "International Champions" },
             { num: "500+", label: "Active Students" }
           ].map((stat, i) => (
-            <div key={i} className="card stat-card" style={{ padding: '1.5rem 0.5rem', borderRadius: '12px' }}>
-              <div className="stat-number" style={{ fontSize: 'clamp(1.8rem, 6vw, 2.5rem)', color: 'var(--secondary)', fontWeight: 800 }}>{stat.num}</div>
-              <div className="stat-label" style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{stat.label}</div>
+            <div key={i} className="card stat-card" style={{ 
+              padding: '1.75rem 1rem', 
+              borderRadius: '16px',
+              background: 'linear-gradient(145deg, #18181b 0%, #09090b 100%)',
+              border: '1px solid rgba(212, 175, 55, 0.35)',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.6), 0 0 20px rgba(212, 175, 55, 0.1)'
+            }}>
+              <div className="stat-number" style={{ 
+                fontSize: 'clamp(2rem, 6vw, 2.8rem)', 
+                color: 'var(--secondary)', 
+                fontWeight: 800,
+                textShadow: '0 0 15px rgba(255, 215, 0, 0.3)'
+              }}>
+                {stat.num}
+              </div>
+              <div className="stat-label" style={{ 
+                fontSize: '0.95rem', 
+                color: '#e4e4e7', 
+                fontWeight: 600,
+                marginTop: '0.4rem',
+                letterSpacing: '0.5px'
+              }}>
+                {stat.label}
+              </div>
             </div>
           ))}
         </div>

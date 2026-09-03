@@ -288,8 +288,8 @@ a {
 }
 
 @keyframes marqueeMobile {
-  from { transform: translateX(0); }
-  to { transform: translateX(calc(-50% - 0.5rem)); }
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(-33.333% - 0.33rem)); }
 }
 
 /* Video Gallery */
@@ -670,19 +670,19 @@ a {
     display: flex;
     overflow-x: hidden;
     gap: 1rem;
-    padding-bottom: 1rem;
+    padding-bottom: 0.5rem;
     scroll-snap-type: none;
     width: max-content;
-    animation: marqueeMobile 15s linear infinite;
+    animation: marqueeMobile 8s linear infinite;
   }
   .programs-grid:hover, .programs-grid:active {
     animation-play-state: paused;
   }
   .programs-grid > .card {
-    min-width: 180px;
-    flex: 0 0 auto;
+    width: 250px !important;
+    flex: 0 0 auto !important;
     scroll-snap-align: none;
-    padding: 0.75rem;
+    padding: 1.25rem 1rem !important;
   }
   .programs-grid h3 {
     font-size: 1rem !important;
