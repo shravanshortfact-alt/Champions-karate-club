@@ -57,17 +57,17 @@ export default async function Home() {
       </section>
 
       {/* Instructor Section */}
-      <section className="container" style={{ padding: '2rem 2rem 4rem' }}>
-        <h2 className="text-center text-primary section-title">Meet Our Masters</h2>
-        <div className="grid masters-grid">
-          {(settings.instructors || []).sort((a: any, b: any) => (b.medals || 0) - (a.medals || 0)).map((instructor: any, i: number) => (
-            <div key={i} className="instructor-card" style={{ background: 'var(--bg-card)', borderRadius: 'var(--border-radius)', overflow: 'hidden' }}>
-              <div className="instructor-img" style={{ position: 'relative' }}>
+      <section className="container" style={{ padding: '4rem 2rem' }}>
+        <h2 className="text-center text-primary section-title" style={{ marginBottom: '2.5rem' }}>Meet Our Master</h2>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+          {(settings.instructors || []).sort((a: any, b: any) => (b.medals || 0) - (a.medals || 0)).slice(0, 1).map((instructor: any, i: number) => (
+            <div key={i} className="instructor-card" style={{ background: 'linear-gradient(145deg, #141418 0%, #0d0d0f 100%)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', overflow: 'hidden', maxWidth: '380px', width: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
+              <div className="instructor-img" style={{ position: 'relative', width: '100%', height: '340px' }}>
                 <Image src={instructor.photoUrl || "/instructor.png"} alt={instructor.name} fill style={{ objectFit: 'cover', objectPosition: 'top center' }} />
               </div>
-              <div className="instructor-info">
-                <h3 className="instructor-name">{instructor.name}</h3>
-                <h4 className="instructor-rank">{instructor.rank}</h4>
+              <div className="instructor-info" style={{ padding: '1.5rem', textAlign: 'center' }}>
+                <h3 className="instructor-name" style={{ fontSize: '1.3rem', fontWeight: '700', color: '#fff', margin: '0 0 0.3rem 0' }}>{instructor.name}</h3>
+                <h4 className="instructor-rank" style={{ fontSize: '0.95rem', color: '#D4AF37', margin: 0 }}>{instructor.rank}</h4>
               </div>
             </div>
           ))}
@@ -75,11 +75,10 @@ export default async function Home() {
       </section>
 
       {/* Training Programs Section */}
-      <section style={{ background: '#09090b', padding: '6rem 0', overflow: 'hidden', position: 'relative' }}>
+      <section style={{ background: '#09090b', padding: '5rem 0', overflow: 'hidden' }}>
         <div className="container">
-          <h2 className="text-center text-primary section-title" style={{ marginBottom: '3rem' }}>Our Training Programs</h2>
+          <h2 className="text-center text-primary section-title" style={{ marginBottom: '2.5rem' }}>Our Training Programs</h2>
           
-          {/* Desktop & Mobile Programs Container */}
           <div className="programs-wrapper">
             <div className="programs-grid">
               {(settings.programs && settings.programs.length > 0 ? settings.programs : [
@@ -97,31 +96,14 @@ export default async function Home() {
                   </div>
                 );
               })}
-
-              {/* Duplicates for Infinite Smooth Marquee on Mobile */}
-              {(settings.programs && settings.programs.length > 0 ? settings.programs : [
-                { title: "Beginner Karate", icon: Medal },
-                { title: "Advanced Kata & Kumite", icon: Flame },
-                { title: "Self-Defense & Fitness", icon: ShieldCheck }
-              ]).map((prog: any, i: number) => {
-                const IconComp = prog.icon;
-                return (
-                  <div key={`dup-${i}`} className="program-card text-center duplicate-for-marquee">
-                    <div className="program-icon-badge">
-                      {typeof prog.icon === 'string' ? prog.icon : <IconComp size={30} color="#ef4444" />}
-                    </div>
-                    <h3 className="program-card-title">{prog.title}</h3>
-                  </div>
-                );
-              })}
             </div>
           </div>
         </div>
       </section>
 
       {/* Video Gallery Section */}
-      <section className="container" style={{ padding: '6rem 2rem' }}>
-        <h2 className="text-center text-primary section-title">See Us in Action</h2>
+      <section className="container" style={{ padding: '5rem 2rem' }}>
+        <h2 className="text-center text-primary section-title" style={{ marginBottom: '2.5rem' }}>See Us in Action</h2>
         <div className="videos-grid">
           {(settings.videos || []).filter((v: any) => v && v.url && v.url.trim() !== '').map((video: any, i: number) => {
             const url = video.url.trim();
@@ -211,32 +193,20 @@ export default async function Home() {
       </section>
 
       {/* Achievements Section */}
-      <section style={{ background: 'var(--bg-card)', padding: '6rem 2rem', overflow: 'hidden' }}>
+      <section style={{ background: '#0d0d0f', padding: '5rem 2rem', overflow: 'hidden' }}>
         <div className="container">
-          <h2 className="text-center text-primary section-title">Our Stats</h2>
+          <h2 className="text-center text-primary section-title" style={{ marginBottom: '2.5rem' }}>Our Stats</h2>
           <div className="stats-grid text-center">
-            <div className="card">
-              <h3 className="stat-number text-secondary">50+</h3>
+            <div className="stat-card">
+              <h3 className="stat-number">50+</h3>
               <p className="stat-text">National Medals</p>
             </div>
-            <div className="card">
-              <h3 className="stat-number text-secondary">12</h3>
+            <div className="stat-card">
+              <h3 className="stat-number">12</h3>
               <p className="stat-text">International Champions</p>
             </div>
-            <div className="card">
-              <h3 className="stat-number text-secondary">500+</h3>
-              <p className="stat-text">Active Students</p>
-            </div>
-            <div className="card duplicate-for-marquee">
-              <h3 className="stat-number text-secondary">50+</h3>
-              <p className="stat-text">National Medals</p>
-            </div>
-            <div className="card duplicate-for-marquee">
-              <h3 className="stat-number text-secondary">12</h3>
-              <p className="stat-text">International Champions</p>
-            </div>
-            <div className="card duplicate-for-marquee">
-              <h3 className="stat-number text-secondary">500+</h3>
+            <div className="stat-card">
+              <h3 className="stat-number">500+</h3>
               <p className="stat-text">Active Students</p>
             </div>
           </div>

@@ -777,20 +777,18 @@ a {
 @media (max-width: 1024px) {
   .register-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 1.2rem;
   }
-}
 
-@media (max-width: 640px) {
-  .register-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+  /* Card 5 (Fee Payment) full width on 2-column mobile layout */
+  .register-grid > div:last-child {
+    grid-column: 1 / -1;
   }
 }
 
 /* Training Programs Section */
 .programs-wrapper {
   width: 100%;
-  overflow: hidden;
 }
 
 .programs-grid {
@@ -799,8 +797,11 @@ a {
   gap: 2rem;
 }
 
-.duplicate-for-marquee {
-  display: none;
+@media (max-width: 768px) {
+  .programs-grid {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
 }
 
 .program-card {
@@ -860,44 +861,56 @@ a {
   color: #ffffff;
 }
 
-/* Mobile Responsive Smooth Infinite Marquee */
-@media (max-width: 768px) {
-  .programs-wrapper {
-    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
-    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
-  }
-
-  .programs-grid {
-    display: flex;
-    width: max-content;
-    gap: 1.2rem;
-    animation: smoothMarquee 15s linear infinite;
-    will-change: transform;
-  }
-
-  .programs-wrapper:hover .programs-grid,
-  .programs-wrapper:active .programs-grid {
-    animation-play-state: paused;
-  }
-
-  .duplicate-for-marquee {
-    display: flex;
-  }
-
-  .program-card {
-    min-width: 260px;
-    max-width: 280px;
-    padding: 2.2rem 1.4rem;
-    flex-shrink: 0;
-  }
+/* Our Stats Section */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
 }
 
-@keyframes smoothMarquee {
-  0% {
-    transform: translateX(0);
+.stat-card {
+  background: linear-gradient(145deg, #141418 0%, #0d0d0f 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 2.2rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.stat-number {
+  font-family: 'Outfit', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--secondary, #D4AF37);
+  margin: 0 0 0.3rem 0;
+}
+
+.stat-text {
+  font-size: 0.95rem;
+  color: #a1a1aa;
+  margin: 0;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
   }
-  100% {
-    transform: translateX(-50%);
+
+  .stat-card {
+    padding: 1.4rem 0.5rem;
+  }
+
+  .stat-number {
+    font-size: 1.6rem;
+  }
+
+  .stat-text {
+    font-size: 0.75rem;
   }
 }
 
