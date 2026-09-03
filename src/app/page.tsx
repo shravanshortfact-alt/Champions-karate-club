@@ -118,36 +118,87 @@ export default async function Home() {
       <section className="container" style={{ padding: '6rem 2rem' }}>
         <h2 className="text-center text-primary section-title">See Us in Action</h2>
         <div className="videos-grid">
-          {(settings.videos || []).map((video: any, i: number) => {
-            const isYouTube = video.url && (video.url.includes('youtube.com') || video.url.includes('youtu.be'));
-            let embedUrl = video.url;
-            if (isYouTube) {
-              if (video.url.includes('shorts/')) {
-                embedUrl = video.url.replace('shorts/', 'embed/');
-              } else if (video.url.includes('watch?v=')) {
-                embedUrl = video.url.replace('watch?v=', 'embed/');
-              } else if (video.url.includes('youtu.be/')) {
-                embedUrl = video.url.replace('youtu.be/', 'www.youtube.com/embed/');
+          {(settings.videos || []).filter((v: any) => v && v.url && v.url.trim() !== '').map((video: any, i: number) => {
+            const url = video.url.trim();
+
+            // 1. YouTube (Watch, Shorts, Mobile links)
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+              let embedUrl = url;
+              try {
+                if (url.includes('youtube.com/shorts/')) {
+                  const id = url.split('shorts/')[1]?.split('?')[0];
+                  embedUrl = `https://www.youtube.com/embed/${id}`;
+                } else if (url.includes('watch?v=')) {
+                  const id = url.split('watch?v=')[1]?.split('&')[0];
+                  embedUrl = `https://www.youtube.com/embed/${id}`;
+                } else if (url.includes('youtu.be/')) {
+                  const id = url.split('youtu.be/')[1]?.split('?')[0];
+                  embedUrl = `https://www.youtube.com/embed/${id}`;
+                }
+              } catch (e) {
+                embedUrl = url;
               }
-            }
-            return (
-              <div key={i} className="video-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <h3 className="video-title">{video.title}</h3>
-                {isYouTube ? (
+              return (
+                <div key={i} className="video-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <h3 className="video-title">{video.title || `Video #${i + 1}`}</h3>
                   <iframe
                     src={embedUrl}
-                    title={video.title}
+                    title={video.title || 'Video'}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
-                    style={{ width: '100%', height: '350px', borderRadius: '12px', border: '1px solid var(--border-color)' }}
+                    style={{ width: '100%', height: '380px', borderRadius: '12px', border: '1px solid var(--border-color)', background: '#000' }}
                   />
-                ) : (
-                  <video 
-                    src={video.url || undefined} 
-                    controls 
-                    className="video-player"
+                </div>
+              );
+            }
+
+            // 2. Instagram (Reels & Posts)
+            if (url.includes('instagram.com/reel/') || url.includes('instagram.com/p/')) {
+              let embedUrl = url.split('?')[0];
+              if (!embedUrl.endsWith('/')) embedUrl += '/';
+              embedUrl += 'embed';
+              return (
+                <div key={i} className="video-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <h3 className="video-title">{video.title || `Video #${i + 1}`}</h3>
+                  <iframe
+                    src={embedUrl}
+                    title={video.title || 'Instagram Video'}
+                    allowFullScreen
+                    style={{ width: '100%', height: '380px', borderRadius: '12px', border: '1px solid var(--border-color)', background: '#000' }}
                   />
-                )}
+                </div>
+              );
+            }
+
+            // 3. Google Drive
+            if (url.includes('drive.google.com')) {
+              let embedUrl = url.replace('/view', '/preview');
+              return (
+                <div key={i} className="video-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <h3 className="video-title">{video.title || `Video #${i + 1}`}</h3>
+                  <iframe
+                    src={embedUrl}
+                    title={video.title || 'Drive Video'}
+                    allow="autoplay"
+                    allowFullScreen
+                    style={{ width: '100%', height: '380px', borderRadius: '12px', border: '1px solid var(--border-color)', background: '#000' }}
+                  />
+                </div>
+              );
+            }
+
+            // 4. Direct MP4 / WebM / Base64 Video File
+            return (
+              <div key={i} className="video-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <h3 className="video-title">{video.title || `Video #${i + 1}`}</h3>
+                <video 
+                  src={url} 
+                  controls 
+                  playsInline
+                  preload="metadata"
+                  className="video-player"
+                  style={{ width: '100%', height: '380px', objectFit: 'cover', borderRadius: '12px', border: '1px solid var(--border-color)', background: '#000' }}
+                />
               </div>
             );
           })}
