@@ -210,21 +210,37 @@ export default async function Home() {
       </section>
 
       {/* Achievements Section */}
-      <section className="section-padding" style={{ background: '#0d0d0f', overflow: 'hidden' }}>
-        <div className="container">
+      <section className="section-padding" style={{ background: '#0d0d0f', overflow: 'hidden', width: '100%' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%', overflow: 'hidden' }}>
           <h2 className="text-center text-primary section-title" style={{ marginBottom: '2.5rem' }}>Our Stats</h2>
-          <div className="stats-grid text-center">
-            <div className="stat-card">
-              <h3 className="stat-number">50+</h3>
-              <p className="stat-text">National Medals</p>
-            </div>
-            <div className="stat-card">
-              <h3 className="stat-number">12</h3>
-              <p className="stat-text">International Champions</p>
-            </div>
-            <div className="stat-card">
-              <h3 className="stat-number">500+</h3>
-              <p className="stat-text">Active Students</p>
+          <div className="stats-wrapper">
+            <div className="stats-grid text-center">
+              <div className="stat-card">
+                <h3 className="stat-number">50+</h3>
+                <p className="stat-text">National Medals</p>
+              </div>
+              <div className="stat-card">
+                <h3 className="stat-number">12</h3>
+                <p className="stat-text">International Champions</p>
+              </div>
+              <div className="stat-card">
+                <h3 className="stat-number">500+</h3>
+                <p className="stat-text">Active Students</p>
+              </div>
+
+              {/* Duplicates for Continuous Infinite Marquee Loop on Mobile (Zero Blank Space) */}
+              <div className="stat-card duplicate-stat-marquee">
+                <h3 className="stat-number">50+</h3>
+                <p className="stat-text">National Medals</p>
+              </div>
+              <div className="stat-card duplicate-stat-marquee">
+                <h3 className="stat-number">12</h3>
+                <p className="stat-text">International Champions</p>
+              </div>
+              <div className="stat-card duplicate-stat-marquee">
+                <h3 className="stat-number">500+</h3>
+                <p className="stat-text">Active Students</p>
+              </div>
             </div>
           </div>
         </div>
