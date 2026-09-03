@@ -2,9 +2,8 @@ export const dynamic = 'force-dynamic';
 import Image from 'next/image';
 import { getSiteSettings } from '@/lib/settings';
 import MapSection from '@/components/MapSection';
-import { Medal, Flame, ShieldCheck, Lock } from 'lucide-react';
+import { Medal, Flame, ShieldCheck } from 'lucide-react';
 import RegistrationLink from '@/components/RegistrationLink';
-
 
 export default async function Home() {
   const settings = await getSiteSettings();
@@ -13,20 +12,20 @@ export default async function Home() {
     <div className="animate-fade-in">
       {/* Hero Section */}
       <section className="hero-section" style={{ 
-        background: 'linear-gradient(rgba(10,10,10,0.8), rgba(10,10,10,0.9)), url("https://images.unsplash.com/photo-1555597673-b21d5c935865?auto=format&fit=crop&q=80") center/cover'
+        background: 'linear-gradient(rgba(10,10,10,0.85), rgba(10,10,10,0.92)), url("https://images.unsplash.com/photo-1555597673-b21d5c935865?auto=format&fit=crop&q=80") center/cover'
       }}>
-        <div className="container">
-          <h1 className="hero-title">
+        <div className="container" style={{ textAlign: 'center', padding: '2rem 1rem' }}>
+          <h1 className="hero-title" style={{ fontSize: 'clamp(2rem, 7vw, 4rem)', lineHeight: 1.15 }}>
             UNLEASH YOUR INNER CHAMPION
           </h1>
-          <p className="hero-subtitle">
+          <p className="hero-subtitle" style={{ fontSize: 'clamp(0.95rem, 3.5vw, 1.2rem)', margin: '0 auto 2rem', color: '#e4e4e7' }}>
             Join the most elite karate club. Train your mind, body, and spirit with world-class instructors.
           </p>
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-            <a href="/register/admission" className="btn btn-primary hero-btn">
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <a href="/register/admission" className="btn btn-primary hero-btn" style={{ padding: '0.8rem 1.8rem', fontSize: '1rem' }}>
               JOIN NOW
             </a>
-            <a href="/student" className="btn btn-outline hero-btn" style={{ borderColor: 'var(--primary)', color: 'white', background: 'rgba(0,0,0,0.5)' }}>
+            <a href="/student" className="btn btn-outline hero-btn" style={{ borderColor: 'var(--primary)', color: 'white', background: 'rgba(0,0,0,0.5)', padding: '0.8rem 1.8rem', fontSize: '1rem' }}>
               STUDENT PORTAL
             </a>
           </div>
@@ -34,8 +33,8 @@ export default async function Home() {
       </section>
 
       {/* Quick Registration Links */}
-      <section className="container" style={{ padding: '4rem 2rem 2rem', textAlign: 'center' }}>
-        <h2 className="text-primary section-title">Register Online</h2>
+      <section className="container" style={{ padding: '3rem 1rem 2rem', textAlign: 'center' }}>
+        <h2 className="text-primary section-title" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)', marginBottom: '2rem' }}>Register Online</h2>
         <div className="register-grid">
           {(settings.registrationLinks && settings.registrationLinks.length > 0 ? settings.registrationLinks : [
             { title: "Admission", description: "Join the academy", link: "/register/admission" },
@@ -57,17 +56,17 @@ export default async function Home() {
       </section>
 
       {/* Instructor Section */}
-      <section className="container" style={{ padding: '2rem 2rem 4rem' }}>
-        <h2 className="text-center text-primary section-title">Meet Our Masters</h2>
+      <section className="container" style={{ padding: '2rem 1rem 3rem' }}>
+        <h2 className="text-center text-primary section-title" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)', marginBottom: '2rem' }}>Meet Our Masters</h2>
         <div className="grid masters-grid">
           {(settings.instructors || []).sort((a: any, b: any) => (b.medals || 0) - (a.medals || 0)).map((instructor: any, i: number) => (
-            <div key={i} className="instructor-card" style={{ background: 'var(--bg-card)', borderRadius: 'var(--border-radius)', overflow: 'hidden' }}>
+            <div key={i} className="instructor-card" style={{ background: 'var(--bg-card)', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
               <div className="instructor-img" style={{ position: 'relative' }}>
                 <Image src={instructor.photoUrl || "/instructor.png"} alt={instructor.name} fill style={{ objectFit: 'cover', objectPosition: 'top center' }} />
               </div>
-              <div className="instructor-info">
-                <h3 className="instructor-name">{instructor.name}</h3>
-                <h4 className="instructor-rank">{instructor.rank}</h4>
+              <div className="instructor-info" style={{ padding: '1rem', textAlign: 'center' }}>
+                <h3 className="instructor-name" style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>{instructor.name}</h3>
+                <h4 className="instructor-rank" style={{ fontSize: '0.9rem', color: 'var(--primary)', margin: 0 }}>{instructor.rank}</h4>
               </div>
             </div>
           ))}
@@ -75,51 +74,39 @@ export default async function Home() {
       </section>
 
       {/* Training Programs Section */}
-      <section style={{ background: 'var(--bg-card)', padding: '6rem 2rem', overflow: 'hidden' }}>
+      <section style={{ background: 'var(--bg-card)', padding: '3.5rem 1rem', overflow: 'hidden' }}>
         <div className="container">
-          <h2 className="text-center text-primary section-title">Our Training Programs</h2>
-          <div className="programs-grid" style={{ gap: '2rem' }}>
-            {(settings.programs && settings.programs.length > 0 ? settings.programs : [
-              { title: "Beginner Karate", icon: Medal },
-              { title: "Advanced Kata & Kumite", icon: Flame },
-              { title: "Self-Defense & Fitness", icon: ShieldCheck }
-            ]).map((prog: any, i: number) => {
-              const IconComp = prog.icon;
-              return (
-                <div key={i} className="card program-card text-center">
-                  <div className="premium-icon" style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem', color: 'var(--primary)' }}>
-                    {typeof prog.icon === 'string' ? prog.icon : <IconComp size={56} />}
-                  </div>
-                  <h3 className="text-secondary" style={{ fontSize: '1.2rem', margin: 0 }}>{prog.title}</h3>
-                </div>
-              );
-            })}
-            {/* Duplicates for Marquee Animation on Mobile */}
-            {(settings.programs && settings.programs.length > 0 ? settings.programs : [
-              { title: "Beginner Karate", icon: Medal },
-              { title: "Advanced Kata & Kumite", icon: Flame },
-              { title: "Self-Defense & Fitness", icon: ShieldCheck }
-            ]).map((prog: any, i: number) => {
-              const IconComp = prog.icon;
-              return (
-                <div key={`dup-${i}`} className="card program-card duplicate-for-marquee text-center">
-                  <div className="premium-icon" style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem', color: 'var(--primary)' }}>
-                    {typeof prog.icon === 'string' ? prog.icon : <IconComp size={56} />}
-                  </div>
-                  <h3 className="text-secondary" style={{ fontSize: '1.2rem', margin: 0 }}>{prog.title}</h3>
-                </div>
-              );
-            })}
+          <h2 className="text-center text-primary section-title" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)', marginBottom: '2rem' }}>Our Training Programs</h2>
+          <div className="programs-grid">
+            {[
+              { title: "Kata (Form)", desc: "Master detailed choreography of martial movements.", icon: <Flame className="text-primary" size={32} /> },
+              { title: "Kumite (Sparring)", desc: "Controlled, tactical combat training for real scenario application.", icon: <ShieldCheck className="text-secondary" size={32} /> },
+              { title: "Self Defense", desc: "Practical techniques designed for real-world personal protection.", icon: <Medal className="text-primary" size={32} /> }
+            ].map((program, i) => (
+              <div key={i} className="card program-card" style={{ textAlign: 'center', padding: '1.5rem 1rem', borderRadius: '12px' }}>
+                <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>{program.icon}</div>
+                <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{program.title}</h3>
+                <p className="text-muted" style={{ fontSize: '0.875rem' }}>{program.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Video Gallery Section */}
-      <section className="container" style={{ padding: '6rem 2rem' }}>
-        <h2 className="text-center text-primary section-title">See Us in Action</h2>
+      {/* Video Gallery Section ("See Us in Action") */}
+      <section className="container" style={{ padding: '3.5rem 1rem' }}>
+        <h2 className="text-center text-primary section-title" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)', marginBottom: '2rem' }}>See Us in Action</h2>
         <div className="videos-grid">
-          {(settings.videos || []).filter((v: any) => v && v.url && v.url.trim() !== '').map((video: any, i: number) => {
-            const url = video.url.trim();
+          {((settings.videos && settings.videos.filter((v: any) => v && v.url && v.url.trim() !== '').length > 0)
+            ? settings.videos.filter((v: any) => v && v.url && v.url.trim() !== '')
+            : []
+          ).map((video: any, i: number) => {
+            let url = (video.url || '').trim();
+
+            // Prefix relative API URLs with Worker domain so it streams directly from Cloudflare D1
+            if (url.startsWith('/')) {
+              url = `https://karate-club.shravanshortfact.workers.dev${url}`;
+            }
 
             // 1. YouTube (Watch, Shorts, Mobile links)
             if (url.includes('youtube.com') || url.includes('youtu.be')) {
@@ -139,14 +126,14 @@ export default async function Home() {
                 embedUrl = url;
               }
               return (
-                <div key={i} className="video-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <h3 className="video-title">{video.title || `Video #${i + 1}`}</h3>
+                <div key={i} className="video-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', width: '100%' }}>
+                  <h3 className="video-title" style={{ fontSize: '1.1rem', color: 'var(--secondary)', marginBottom: '0.5rem', textAlign: 'center' }}>{video.title || `Video #${i + 1}`}</h3>
                   <iframe
                     src={embedUrl}
                     title={video.title || 'Video'}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
-                    style={{ width: '100%', height: '380px', borderRadius: '12px', border: '1px solid var(--border-color)', background: '#000' }}
+                    style={{ width: '100%', height: '320px', borderRadius: '12px', border: '1px solid var(--border-color)', background: '#000' }}
                   />
                 </div>
               );
@@ -158,8 +145,8 @@ export default async function Home() {
               if (!embedUrl.endsWith('/')) embedUrl += '/';
               embedUrl += 'embed';
               return (
-                <div key={i} className="video-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <h3 className="video-title">{video.title || `Video #${i + 1}`}</h3>
+                <div key={i} className="video-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', width: '100%' }}>
+                  <h3 className="video-title" style={{ fontSize: '1.1rem', color: 'var(--secondary)', marginBottom: '0.5rem', textAlign: 'center' }}>{video.title || `Video #${i + 1}`}</h3>
                   <iframe
                     src={embedUrl}
                     title={video.title || 'Instagram Video'}
@@ -174,30 +161,30 @@ export default async function Home() {
             if (url.includes('drive.google.com')) {
               let embedUrl = url.replace('/view', '/preview');
               return (
-                <div key={i} className="video-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <h3 className="video-title">{video.title || `Video #${i + 1}`}</h3>
+                <div key={i} className="video-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', width: '100%' }}>
+                  <h3 className="video-title" style={{ fontSize: '1.1rem', color: 'var(--secondary)', marginBottom: '0.5rem', textAlign: 'center' }}>{video.title || `Video #${i + 1}`}</h3>
                   <iframe
                     src={embedUrl}
                     title={video.title || 'Drive Video'}
                     allow="autoplay"
                     allowFullScreen
-                    style={{ width: '100%', height: '380px', borderRadius: '12px', border: '1px solid var(--border-color)', background: '#000' }}
+                    style={{ width: '100%', height: '320px', borderRadius: '12px', border: '1px solid var(--border-color)', background: '#000' }}
                   />
                 </div>
               );
             }
 
-            // 4. Direct MP4 / WebM / Base64 Video File
+            // 4. Direct MP4 / WebM / Base64 / DB Media Stream
             return (
-              <div key={i} className="video-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <h3 className="video-title">{video.title || `Video #${i + 1}`}</h3>
+              <div key={i} className="video-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', width: '100%' }}>
+                <h3 className="video-title" style={{ fontSize: '1.1rem', color: 'var(--secondary)', marginBottom: '0.5rem', textAlign: 'center' }}>{video.title || `Video #${i + 1}`}</h3>
                 <video 
                   src={url} 
                   controls 
                   playsInline
                   preload="metadata"
                   className="video-player"
-                  style={{ width: '100%', height: '380px', objectFit: 'cover', borderRadius: '12px', border: '1px solid var(--border-color)', background: '#000' }}
+                  style={{ width: '100%', maxH: '380px', borderRadius: '12px', border: '1px solid var(--border-color)', background: '#000' }}
                 />
               </div>
             );
@@ -205,40 +192,27 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Achievements Section */}
-      <section style={{ background: 'var(--bg-card)', padding: '6rem 2rem', overflow: 'hidden' }}>
-        <div className="container">
-          <h2 className="text-center text-primary section-title">Our Stats</h2>
-          <div className="stats-grid text-center">
-            <div className="card">
-              <h3 className="stat-number text-secondary">50+</h3>
-              <p className="stat-text">National Medals</p>
+      {/* Stats Section */}
+      <section className="container" style={{ padding: '2rem 1rem 3.5rem', textAlign: 'center' }}>
+        <h2 className="text-primary section-title" style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)', marginBottom: '2rem' }}>Our Stats</h2>
+        <div className="stats-grid">
+          {[
+            { num: "50+", label: "National Medals" },
+            { num: "12", label: "International Champions" },
+            { num: "500+", label: "Active Students" }
+          ].map((stat, i) => (
+            <div key={i} className="card stat-card" style={{ padding: '1.5rem 0.5rem', borderRadius: '12px' }}>
+              <div className="stat-number" style={{ fontSize: 'clamp(1.8rem, 6vw, 2.5rem)', color: 'var(--secondary)', fontWeight: 800 }}>{stat.num}</div>
+              <div className="stat-label" style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{stat.label}</div>
             </div>
-            <div className="card">
-              <h3 className="stat-number text-secondary">12</h3>
-              <p className="stat-text">International Champions</p>
-            </div>
-            <div className="card">
-              <h3 className="stat-number text-secondary">500+</h3>
-              <p className="stat-text">Active Students</p>
-            </div>
-            <div className="card duplicate-for-marquee">
-              <h3 className="stat-number text-secondary">50+</h3>
-              <p className="stat-text">National Medals</p>
-            </div>
-            <div className="card duplicate-for-marquee">
-              <h3 className="stat-number text-secondary">12</h3>
-              <p className="stat-text">International Champions</p>
-            </div>
-            <div className="card duplicate-for-marquee">
-              <h3 className="stat-number text-secondary">500+</h3>
-              <p className="stat-text">Active Students</p>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
-      <MapSection />
+      {/* Interactive Map Section */}
+      <section className="container" style={{ padding: '2rem 1rem 5rem' }}>
+        <MapSection />
+      </section>
     </div>
   );
 }
