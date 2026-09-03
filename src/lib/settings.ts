@@ -3,6 +3,7 @@ import { saveBase64ToDisk } from '@/lib/upload-store';
 import fs from 'fs';
 
 const SETTINGS_KEY = 'site_settings';
+const WORKER_SETTINGS_URL = 'https://karate-club.shravanshortfact.workers.dev/api/settings';
 
 declare global {
   var __SITE_SETTINGS__: any;
@@ -90,21 +91,38 @@ export const defaultSettings = {
 export async function getSiteSettings() {
   let parsed: any = null;
 
+  // 1. Try Cloudflare D1 global store (synced across all Vercel serverless instances worldwide)
   try {
-    const prisma = getPrisma();
-    if (prisma && (prisma as any).systemSettings) {
-      const record = await (prisma as any).systemSettings.findUnique({
-        where: { key: SETTINGS_KEY }
-      });
-
-      if (record && record.value) {
-        parsed = JSON.parse(record.value);
+    const res = await fetch(WORKER_SETTINGS_URL, { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+        parsed = data;
       }
     }
-  } catch (error) {
-    console.error("Failed to fetch settings from DB, using fallback store:", error);
+  } catch (e) {
+    // Ignore worker fetch errors
   }
 
+  // 2. Try Prisma DB if available
+  if (!parsed) {
+    try {
+      const prisma = getPrisma();
+      if (prisma && (prisma as any).systemSettings) {
+        const record = await (prisma as any).systemSettings.findUnique({
+          where: { key: SETTINGS_KEY }
+        });
+
+        if (record && record.value) {
+          parsed = JSON.parse(record.value);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch settings from DB, using fallback store:", error);
+    }
+  }
+
+  // 3. Fallback to /tmp / memory
   if (!parsed) {
     parsed = readFsSettings();
   }
@@ -142,6 +160,17 @@ export async function updateSiteSettings(newSettings: any) {
   // Always update in-memory / fs cache first
   writeFsSettings(merged);
 
+  // Sync settings to Cloudflare D1 global store
+  try {
+    await fetch(WORKER_SETTINGS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(merged)
+    });
+  } catch (e) {
+    console.error("Failed to sync settings to Cloudflare Worker:", e);
+  }
+
   try {
     const prisma = getPrisma();
     if (prisma && (prisma as any).systemSettings) {
@@ -153,7 +182,6 @@ export async function updateSiteSettings(newSettings: any) {
     }
   } catch (error) {
     console.error("Failed to update settings in DB (using fallback store):", error);
-    // Fallback store saved it successfully, do not fail the request!
   }
 
   return merged;
