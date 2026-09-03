@@ -58,13 +58,14 @@ export default function DynamicMap({
     <MapContainer 
       center={mapCenter} 
       zoom={mapZoom} 
-      style={{ height: "100%", width: "100%", background: "#0a0a0c" }}
+      style={{ height: "100%", width: "100%", background: "#1a1a1a" }}
       zoomControl={false}
       attributionControl={false}
     >
-      {/* CartoDB Dark Matter Tile Layer - High End Native Dark Mode Map */}
+      {/* Free OpenStreetMap Tiles with CSS Dark Filter - 100% Free, NO API Key Required */}
       <TileLayer
-        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        className="dark-map-tiles"
         maxZoom={19}
       />
       <MapController center={mapCenter} zoom={mapZoom} />

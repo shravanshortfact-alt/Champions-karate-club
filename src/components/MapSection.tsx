@@ -104,6 +104,9 @@ export default function MapSection() {
           />
           
           <style dangerouslySetInnerHTML={{__html: `
+            .dark-map-tiles {
+              filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+            }
             /* Hide Leaflet OpenStreetMap Attribution Text ("ola street") */
             .leaflet-control-attribution {
               display: none !important;
