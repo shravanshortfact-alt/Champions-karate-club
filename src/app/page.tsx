@@ -43,6 +43,7 @@ export default async function Home() {
             { title: "Fee Payment", description: "Pay your monthly fees", link: "/pay-fee" }
           ]).map((linkItem: any, i: number) => {
             let isLocked = false;
+            if (linkItem.link.includes('admission') && (settings.formLocks?.admission === true || String(settings.formLocks?.admission) === 'true')) isLocked = true;
             if (linkItem.link.includes('competition') && (settings.formLocks?.competition === true || String(settings.formLocks?.competition) === 'true')) isLocked = true;
             if (linkItem.link.includes('seminar') && (settings.formLocks?.seminar === true || String(settings.formLocks?.seminar) === 'true')) isLocked = true;
             if (linkItem.link.includes('belt-exam') && (settings.formLocks?.beltExam === true || String(settings.formLocks?.beltExam) === 'true')) isLocked = true;

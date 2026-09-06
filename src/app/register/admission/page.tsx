@@ -24,6 +24,8 @@ export default function AdmissionForm() {
   const [baseFee, setBaseFee] = useState('2500');
   const [customQr, setCustomQr] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
 
   useEffect(() => {
     fetch('/api/settings')
@@ -41,7 +43,14 @@ export default function AdmissionForm() {
             setBranches(linkConfig.branches);
           }
         }
-      });
+        if (data.formLocks?.admission === true || String(data.formLocks?.admission) === 'true') {
+          setIsLocked(true);
+        } else {
+          setIsLocked(false);
+        }
+        setIsLoadingSettings(false);
+      })
+      .catch(() => setIsLoadingSettings(false));
   }, []);
   useEffect(() => {
     const selectedBranch = branches.find(b => b.name === formData.branch);
@@ -186,7 +195,16 @@ export default function AdmissionForm() {
       </div>
       
       <div className="card">
-        {step === 1 && (
+        {isLoadingSettings ? (
+          <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+            <h2 style={{ color: 'var(--text-muted)' }}>Loading...</h2>
+          </div>
+        ) : isLocked ? (
+          <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+            <h2 style={{ color: 'var(--danger-color, red)', marginBottom: '1rem' }}>Form Locked</h2>
+            <p style={{ color: 'var(--text-muted)' }}>This form has not started yet or is currently closed. Please check back later.</p>
+          </div>
+        ) : step === 1 ? (
           <form onSubmit={handleNext}>
             <h3 style={{ marginBottom: '1.5rem', color: 'var(--secondary)' }}>Step 1: Student Details</h3>
             
@@ -280,9 +298,7 @@ export default function AdmissionForm() {
               {isUploading ? 'Uploading Image...' : 'Proceed to Payment'}
             </button>
           </form>
-        )}
-
-        {step === 2 && (
+        ) : step === 2 ? (
           <form onSubmit={handleSubmit} style={{ textAlign: 'center' }}>
             <h3 style={{ marginBottom: '1.5rem', color: 'var(--secondary)' }}>Step 2: Payment Verification</h3>
             <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>
@@ -341,7 +357,7 @@ export default function AdmissionForm() {
               </button>
             </div>
           </form>
-        )}
+        ) : null}
       </div>
     </div>
   );

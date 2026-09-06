@@ -18,7 +18,7 @@ export default function AdminSettings() {
   const [instructors, setInstructors] = useState<Instructor[]>([]);
   const [achievements, setAchievements] = useState<string[]>([]);
   const [videos, setVideos] = useState<{title: string, url: string}[]>([]);
-  const [formLocks, setFormLocks] = useState({ competition: false, seminar: false, beltExam: false });
+  const [formLocks, setFormLocks] = useState({ admission: false, competition: false, seminar: false, beltExam: false });
   
   const [isLoading, setIsLoading] = useState(true);
   const [savingSection, setSavingSection] = useState<string | null>(null);
@@ -37,7 +37,7 @@ export default function AdminSettings() {
         setInstructors(data.instructors || []);
         setAchievements(data.achievements || []);
         setVideos(data.videos || []);
-        setFormLocks(data.formLocks || { competition: false, seminar: false, beltExam: false });
+        setFormLocks(data.formLocks || { admission: false, competition: false, seminar: false, beltExam: false });
         setIsLoading(false);
       })
       .catch(() => setIsLoading(false));
@@ -57,21 +57,12 @@ export default function AdminSettings() {
     };
     
     try {
-      // 1. Try Cloudflare Worker direct sync endpoint (bypasses Vercel 4.5MB payload limit for multi-video uploads)
-      let res = await fetch('https://karate-club.shravanshortfact.workers.dev/api/settings', {
+      // Hit local Vercel /api/settings which will update Prisma and sync to worker
+      let res = await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
-      }).catch(() => null);
-
-      // 2. Fallback to local Vercel /api/settings if worker request is unavailable
-      if (!res || !res.ok) {
-        res = await fetch('/api/settings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-      }
+      });
       
       if (res && res.ok) {
         alert(successMessage);
@@ -216,7 +207,16 @@ export default function AdminSettings() {
       {/* 1. Form Access Control (Locks) Section */}
       <div className="card" style={{ marginBottom: '2rem', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '1.5rem', background: '#18181b' }}>
         <h2 style={{ color: 'var(--secondary)', marginBottom: '1.5rem', fontSize: '1.4rem' }}>Form Access Control (Locks)</h2>
-        <div className="grid grid-cols-3" style={{ gap: '1rem', marginBottom: '1.5rem' }}>
+        <div className="grid grid-cols-2 md:grid-cols-4" style={{ gap: '1rem', marginBottom: '1.5rem' }}>
+          <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <input 
+              type="checkbox" 
+              checked={formLocks.admission} 
+              onChange={e => setFormLocks({...formLocks, admission: e.target.checked})} 
+              style={{ width: 'auto', transform: 'scale(1.2)', cursor: 'pointer' }} 
+            />
+            <label style={{ margin: 0, cursor: 'pointer', color: '#fff' }}>Lock Admission Form</label>
+          </div>
           <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <input 
               type="checkbox" 
@@ -402,48 +402,95 @@ export default function AdminSettings() {
 
       {/* 5. Homepage Vertical Videos Section */}
       <div className="card" style={{ marginBottom: '2rem', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '1.5rem', background: '#18181b' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-          <h2 style={{ color: 'var(--secondary)', margin: 0, fontSize: '1.4rem' }}>Homepage Videos (Vertical)</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <h2 style={{ color: 'var(--secondary)', margin: 0, fontSize: '1.4rem' }}>Homepage Videos (Vertical)</h2>
+            <p style={{ color: '#a1a1aa', fontSize: '0.85rem', margin: '0.3rem 0 0 0' }}>
+              Add YouTube Shorts, Instagram Reels, Google Drive videos, or direct MP4 links/files to show on the homepage.
+            </p>
+          </div>
           <button type="button" className="btn btn-outline" onClick={addVideo}>+ Add Video</button>
         </div>
+
+        {/* HD Video Guide Banner */}
+        <div style={{ background: '#27272a', borderRadius: '8px', padding: '1rem', marginBottom: '1.5rem', border: '1px solid #3f3f46' }}>
+          <h4 style={{ color: '#EAB308', margin: '0 0 0.5rem 0', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            💡 How to add 10MB–20MB+ HD Videos without losing quality:
+          </h4>
+          <ul style={{ margin: 0, paddingLeft: '1.2rem', color: '#d4d4d8', fontSize: '0.85rem', lineHeight: '1.5' }}>
+            <li><b>Option 1 (Recommended for 10-20MB+ HD Videos):</b> Upload your video as <b>YouTube Short</b> or <b>Instagram Reel</b> or on <b>Google Drive</b>, then paste the link below in the <b>"Video URL / Link"</b> box.</li>
+            <li><b>Option 2 (Direct Link):</b> Upload HD video on free video hosts (like <a href="https://catbox.moe" target="_blank" rel="noreferrer" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>Catbox.moe</a> or Cloudinary) and paste the <code>.mp4</code> link below.</li>
+            <li><b>Option 3 (Small MP4 File):</b> Upload small MP4 files (under 5MB) directly using the file upload button.</li>
+          </ul>
+        </div>
         
-        <div className="grid grid-cols-2" style={{ gap: '1.5rem', marginBottom: '1.5rem' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '1.5rem', marginBottom: '1.5rem' }}>
           {videos.map((vid, i) => (
-            <div key={i} style={{ background: '#09090b', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+            <div key={i} style={{ background: '#09090b', padding: '1.2rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
                 <h3 style={{ color: 'white', margin: 0, fontSize: '1rem' }}>Video #{i + 1}</h3>
                 <button type="button" onClick={() => removeVideo(i)} style={{ color: '#ef4444', background: 'transparent', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>Remove</button>
               </div>
+
               <div className="form-group" style={{ marginBottom: '1rem' }}>
-                <label style={{ color: '#fff', display: 'block', marginBottom: '0.3rem' }}>Video Title</label>
+                <label style={{ color: '#fff', display: 'block', marginBottom: '0.3rem', fontWeight: '500' }}>Video Title</label>
                 <input 
                   type="text" 
                   value={vid.title} 
                   onChange={(e) => handleVideoChange(i, e.target.value)} 
-                  placeholder="e.g. Training Session"
+                  placeholder="e.g. Training Session / Competition Highlights"
                   style={{ padding: '0.6rem', background: '#18181b', border: '1px solid #333', color: 'white', borderRadius: '4px', width: '100%' }}
                 />
               </div>
-              <div className="form-group">
-                <label style={{ color: '#fff', display: 'block', marginBottom: '0.3rem' }}>Upload MP4 Video File (Max 4.5MB)</label>
+
+              <div className="form-group" style={{ marginBottom: '1rem' }}>
+                <label style={{ color: '#fff', display: 'block', marginBottom: '0.3rem', fontWeight: '500' }}>
+                  Video URL / Link (YouTube Shorts / Reel / Drive / MP4 Link)
+                </label>
+                <input 
+                  type="text" 
+                  value={vid.url} 
+                  onChange={(e) => handleVideoUrlChange(i, e.target.value)} 
+                  placeholder="e.g. https://www.youtube.com/shorts/xyz OR https://instagram.com/reel/xyz"
+                  style={{ padding: '0.6rem', background: '#18181b', border: '1px solid #333', color: 'white', borderRadius: '4px', width: '100%', fontFamily: 'monospace', fontSize: '0.85rem' }}
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '1rem' }}>
+                <label style={{ color: '#a1a1aa', display: 'block', marginBottom: '0.3rem', fontSize: '0.85rem' }}>
+                  OR Upload Small MP4 Video File (Max 4.5MB)
+                </label>
                 <input 
                   type="file" 
                   accept="video/*"
                   onChange={(e) => handleVideoUpload(e, i)}
                   disabled={uploadingField === `video-${i}`}
-                  style={{ padding: '0.6rem', border: '1px solid #333', borderRadius: '4px', width: '100%', color: '#fff' }}
+                  style={{ padding: '0.5rem', border: '1px solid #333', borderRadius: '4px', width: '100%', color: '#fff', background: '#18181b' }}
                 />
                 {uploadingField === `video-${i}` && <p style={{ color: 'var(--primary)', fontSize: '0.85rem', marginTop: '0.3rem' }}>Uploading video file...</p>}
-                {vid.url ? (
-                  <p style={{ fontSize: '0.8rem', color: '#22c55e', marginTop: '0.5rem', fontWeight: 'bold' }}>
-                    ✓ Video File Loaded & Ready to Save
-                  </p>
-                ) : (
-                  <p style={{ fontSize: '0.75rem', color: '#a1a1aa', marginTop: '0.5rem' }}>
-                    No video uploaded yet. Choose an MP4 file (Max 4.5MB).
-                  </p>
-                )}
               </div>
+
+              {/* Video Live Preview */}
+              {vid.url && vid.url.trim() !== '' ? (
+                <div style={{ background: '#18181b', padding: '0.8rem', borderRadius: '6px', border: '1px solid #27272a' }}>
+                  <p style={{ fontSize: '0.8rem', color: '#22c55e', margin: '0 0 0.5rem 0', fontWeight: 'bold' }}>
+                    ✓ Live Video Link Active
+                  </p>
+                  {vid.url.includes('youtube.com') || vid.url.includes('youtu.be') ? (
+                    <p style={{ fontSize: '0.75rem', color: '#a1a1aa', margin: 0 }}>YouTube Video format detected</p>
+                  ) : vid.url.includes('instagram.com') ? (
+                    <p style={{ fontSize: '0.75rem', color: '#a1a1aa', margin: 0 }}>Instagram Reel format detected</p>
+                  ) : vid.url.includes('drive.google.com') ? (
+                    <p style={{ fontSize: '0.75rem', color: '#a1a1aa', margin: 0 }}>Google Drive Video format detected</p>
+                  ) : (
+                    <video src={vid.url} controls style={{ width: '100%', height: '140px', borderRadius: '4px', background: '#000', objectFit: 'cover' }} />
+                  )}
+                </div>
+              ) : (
+                <p style={{ fontSize: '0.75rem', color: '#a1a1aa', margin: 0 }}>
+                  No video link added yet. Paste a link or upload a file.
+                </p>
+              )}
             </div>
           ))}
         </div>

@@ -11,6 +11,14 @@ declare global {
 
 function getD1Binding(): any {
   try {
+    const opennext = require('@opennextjs/cloudflare');
+    const env = opennext?.getCloudflareContext?.()?.env;
+    if (env && env.DB) {
+      return env.DB;
+    }
+  } catch (e) {}
+
+  try {
     if (typeof process !== 'undefined' && (process.env as any)?.DB) {
       return (process.env as any).DB;
     }
@@ -99,6 +107,7 @@ export const defaultSettings = {
     { title: "Fee Payment", description: "Pay your monthly fees", link: "/pay-fee", fee: "700", qrCodeUrl: "" }
   ],
   formLocks: {
+    admission: false,
     competition: false,
     seminar: false,
     beltExam: false
@@ -114,7 +123,10 @@ export async function getSiteSettings() {
     try {
       const row: any = await d1.prepare("SELECT value FROM SystemSettings WHERE key = ?").bind(SETTINGS_KEY).first();
       if (row && row.value && row.value !== '{}') {
-        parsed = JSON.parse(row.value);
+        const d1Data = JSON.parse(row.value);
+        if (d1Data && typeof d1Data === 'object' && Object.keys(d1Data).length > 0) {
+          parsed = d1Data;
+        }
       }
     } catch (e) {
       console.error("D1 direct read error:", e);
@@ -137,27 +149,50 @@ export async function getSiteSettings() {
   }
 
   // 3. Try Prisma DB if available
-  if (!parsed) {
-    try {
-      const prisma = getPrisma();
-      if (prisma && (prisma as any).systemSettings) {
-        const record = await (prisma as any).systemSettings.findUnique({
-          where: { key: SETTINGS_KEY }
-        });
+  try {
+    const prisma = getPrisma();
+    if (prisma && (prisma as any).systemSettings) {
+      const record = await (prisma as any).systemSettings.findUnique({
+        where: { key: SETTINGS_KEY }
+      });
 
-        if (record && record.value) {
-          parsed = JSON.parse(record.value);
+      if (record && record.value && record.value !== '{}') {
+        const prismaSettings = JSON.parse(record.value);
+        if (prismaSettings && typeof prismaSettings === 'object' && Object.keys(prismaSettings).length > 0) {
+          if (parsed) {
+            const mergedFormLocks = {
+              ...(parsed.formLocks || {}),
+              ...(prismaSettings.formLocks || {})
+            };
+            parsed = { ...parsed, ...prismaSettings, formLocks: mergedFormLocks };
+          } else {
+            parsed = prismaSettings;
+          }
         }
       }
-    } catch (error) {
-      console.error("Failed to fetch settings from DB, using fallback store:", error);
     }
+  } catch (error) {
+    console.error("Failed to fetch settings from DB, using fallback store:", error);
   }
 
   // 4. Fallback to /tmp / memory
-  if (!parsed) {
-    parsed = readFsSettings();
+  const fsSettings = readFsSettings();
+  if (fsSettings) {
+    if (parsed) {
+      const mergedFormLocks = {
+        ...(parsed.formLocks || {}),
+        ...(fsSettings.formLocks || {})
+      };
+      parsed = { ...parsed, ...fsSettings, formLocks: mergedFormLocks };
+    } else {
+      parsed = fsSettings;
+    }
   }
+
+  const finalLocks = {
+    ...defaultSettings.formLocks,
+    ...(parsed?.formLocks || {})
+  };
 
   if (parsed) {
     // Migrate branches to objects
@@ -169,15 +204,27 @@ export async function getSiteSettings() {
     } else if (!parsed.branches) {
       parsed.branches = [];
     }
-    return { ...defaultSettings, ...parsed, logoUrl: '/logo.png' };
+    return { ...defaultSettings, ...parsed, formLocks: finalLocks, logoUrl: '/logo.png' };
   }
 
-  return { ...defaultSettings, logoUrl: '/logo.png' };
+  return { ...defaultSettings, formLocks: finalLocks, logoUrl: '/logo.png' };
 }
 
 export async function updateSiteSettings(newSettings: any) {
   const existing = await getSiteSettings();
-  const merged = { ...existing, ...newSettings, logoUrl: '/logo.png' };
+
+  const mergedFormLocks = {
+    ...defaultSettings.formLocks,
+    ...(existing.formLocks || {}),
+    ...(newSettings.formLocks || {})
+  };
+
+  const merged = { 
+    ...existing, 
+    ...newSettings, 
+    formLocks: mergedFormLocks, 
+    logoUrl: '/logo.png' 
+  };
 
   // Sanitize any large base64 video or image URLs to file URLs to prevent D1 payload errors
   if (merged.videos && Array.isArray(merged.videos)) {
@@ -215,11 +262,13 @@ export async function updateSiteSettings(newSettings: any) {
 
   // 2. Sync settings to Cloudflare D1 global store HTTP endpoint
   try {
-    await fetch(WORKER_SETTINGS_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(merged)
-    });
+    if (!d1) {
+      await fetch(WORKER_SETTINGS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(merged)
+      });
+    }
   } catch (e) {
     console.error("Failed to sync settings to Cloudflare Worker:", e);
   }
@@ -239,3 +288,4 @@ export async function updateSiteSettings(newSettings: any) {
 
   return merged;
 }
+

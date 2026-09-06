@@ -19,7 +19,7 @@ export async function OPTIONS() {
 export async function GET() {
   try {
     const settings = await getSiteSettings();
-    return NextResponse.json({ ...settings, _version: 'v3-cors-fix' }, {
+    return NextResponse.json({ ...settings, _version: 'v4-video-link-ui' }, {
       headers: corsHeaders,
     });
   } catch (err: any) {
@@ -32,14 +32,14 @@ export async function POST(request: Request) {
   try {
     const newSettings = await request.json();
     const saved = await updateSiteSettings(newSettings);
-    return NextResponse.json({ success: true, settings: saved, _version: 'v3-cors-fix' }, {
+    return NextResponse.json({ success: true, settings: saved, _version: 'v4-video-link-ui' }, {
       headers: corsHeaders,
     });
   } catch (error: any) {
     const errText = error?.stack || error?.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
     console.error("API SETTINGS ERROR:", errText);
     return NextResponse.json(
-      { success: false, error: errText, _version: 'v3-cors-fix' }, 
+      { success: false, error: errText, _version: 'v4-video-link-ui' }, 
       { status: 500, headers: corsHeaders }
     );
   }
