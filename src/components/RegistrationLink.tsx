@@ -37,6 +37,14 @@ export default function RegistrationLink({ linkItem, isLocked }: { linkItem: any
       onMouseLeave={() => setIsHovered(false)}
       className={`reg-link-card ${isHovered && !isLocked ? 'hovered' : ''} ${isLocked ? 'locked' : ''}`}
     >
+      {/* Lock Indicator Tag */}
+      {isLocked && (
+        <div className="reg-link-lock-tag">
+          <Lock size={10} color="#ef4444" />
+          <span>LOCKED</span>
+        </div>
+      )}
+
       {/* Red Circular Icon Badge */}
       <div className="reg-link-icon-badge">
         <IconComp size={24} color="#ef4444" />
@@ -51,14 +59,6 @@ export default function RegistrationLink({ linkItem, isLocked }: { linkItem: any
       <p className="reg-link-desc">
         {isLocked ? "Currently Locked" : linkItem.description}
       </p>
-
-      {/* Lock Indicator */}
-      {isLocked && (
-        <div className="reg-link-lock-tag">
-          <Lock size={12} color="#ef4444" />
-          <span>LOCKED</span>
-        </div>
-      )}
     </div>
   );
 }
