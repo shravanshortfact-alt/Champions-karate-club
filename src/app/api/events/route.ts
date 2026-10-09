@@ -1,8 +1,18 @@
-import { getPrisma } from '@/lib/prisma';
+import { getPrisma, getD1 } from '@/lib/prisma';
 export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
+  const d1 = getD1();
+  if (d1) {
+    try {
+      const { results } = await d1.prepare("SELECT * FROM EventConfig").all();
+      return NextResponse.json(results || []);
+    } catch (e) {
+      console.error("D1 error fetching events:", e);
+    }
+  }
+
   try {
     const prisma = getPrisma();
     if (prisma && (prisma as any).eventConfig) {
@@ -19,8 +29,16 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { name, goldPoints, silverPoints, bronzePoints } = body;
+    const d1 = getD1();
+
+    if (d1) {
+      const id = 'ev_' + Date.now();
+      await d1.prepare("INSERT INTO EventConfig (id, name, goldPoints, silverPoints, bronzePoints) VALUES (?, ?, ?, ?, ?)")
+        .bind(id, name, parseInt(goldPoints) || 1, parseInt(silverPoints) || 2, parseInt(bronzePoints) || 3).run();
+      return NextResponse.json({ success: true, event: { id, name, goldPoints, silverPoints, bronzePoints } });
+    }
+
     const prisma = getPrisma();
-    
     if (prisma && (prisma as any).eventConfig) {
       const newEvent = await (prisma as any).eventConfig.create({
         data: {
