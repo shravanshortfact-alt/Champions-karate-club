@@ -1,30 +1,45 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaD1 } from '@prisma/adapter-d1';
 
-let cachedPrisma: PrismaClient | undefined;
+let cachedD1Prisma: PrismaClient | undefined;
+let cachedNodePrisma: PrismaClient | undefined;
 
-function createPrismaClient(): PrismaClient {
-  if (cachedPrisma) return cachedPrisma;
-  
+export function getD1(): any {
   try {
     const opennext = require('@opennextjs/cloudflare');
     const env = opennext?.getCloudflareContext?.()?.env;
-    if (env && env.DB) {
-      const adapter = new PrismaD1(env.DB);
-      cachedPrisma = new PrismaClient({ adapter });
-      return cachedPrisma;
-    }
-  } catch (e) {
-    // Cloudflare context not available (e.g. Vercel or local Node dev)
-  }
+    if (env && env.DB) return env.DB;
+  } catch (e) {}
 
   try {
-    cachedPrisma = new PrismaClient();
-    return cachedPrisma;
-  } catch (e) {
-    console.error("PrismaClient initialization error:", e);
-    throw e;
+    if (typeof process !== 'undefined' && (process.env as any)?.DB) {
+      return (process.env as any).DB;
+    }
+    if (typeof globalThis !== 'undefined' && (globalThis as any)?.DB) {
+      return (globalThis as any).DB;
+    }
+    if (typeof globalThis !== 'undefined' && (globalThis as any)?.__env__?.DB) {
+      return (globalThis as any).__env__.DB;
+    }
+  } catch (e) {}
+
+  return null;
+}
+
+export function createPrismaClient(): PrismaClient {
+  const d1 = getD1();
+  if (d1) {
+    if (!cachedD1Prisma) {
+      const adapter = new PrismaD1(d1);
+      cachedD1Prisma = new PrismaClient({ adapter });
+    }
+    return cachedD1Prisma;
   }
+
+  if (!cachedNodePrisma) {
+    cachedNodePrisma = new PrismaClient();
+  }
+  return cachedNodePrisma;
 }
 
 const prismaProxy = new Proxy({} as PrismaClient, {
