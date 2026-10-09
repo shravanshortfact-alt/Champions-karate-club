@@ -10,6 +10,7 @@ export default function AdmissionForm() {
     name: '',
     age: '',
     dob: '',
+    currentBelt: '',
     whatsappNumber: '',
     branch: '',
     category: 'Admission',
@@ -18,6 +19,16 @@ export default function AdmissionForm() {
     profilePhotoUrl: ''
   });
   
+  const belts = [
+    "White Belt",
+    "Yellow Belt",
+    "Orange Belt",
+    "Green Belt",
+    "Blue Belt",
+    "Purple Belt",
+    "Brown Belt",
+    "Black Belt"
+  ];
   const [branches, setBranches] = useState<{name: string, fee?: string, qrCodeUrl: string}[]>([]);
   const [qrCodeUrl, setQrCodeUrl] = useState('/qr.png');
   const [fee, setFee] = useState('0');
@@ -74,7 +85,11 @@ export default function AdmissionForm() {
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.name && formData.age && formData.branch && formData.dob && formData.whatsappNumber) {
+    if (!formData.currentBelt) {
+      alert("Please select your current belt.");
+      return;
+    }
+    if (formData.name && formData.age && formData.branch && formData.dob && formData.whatsappNumber && formData.currentBelt) {
       if (formData.whatsappNumber.length !== 10) {
         alert("WhatsApp number must be exactly 10 digits.");
         return;
@@ -111,7 +126,11 @@ export default function AdmissionForm() {
       const res = await fetch('/api/registrations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          appearingBelt: formData.currentBelt,
+          belt: formData.currentBelt
+        })
       });
       
       const data: any = await res.json();
@@ -251,6 +270,18 @@ export default function AdmissionForm() {
                 onChange={(e) => setFormData({...formData, dob: e.target.value})}
                 required 
               />
+            </div>
+
+            <div className="form-group">
+              <label>Current Belt</label>
+              <select 
+                value={formData.currentBelt}
+                onChange={(e) => setFormData({...formData, currentBelt: e.target.value})}
+                required
+              >
+                <option value="">-- Choose Current Belt --</option>
+                {belts.map(b => <option key={b} value={b}>{b}</option>)}
+              </select>
             </div>
 
             <div className="form-group">

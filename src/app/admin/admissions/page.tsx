@@ -8,6 +8,19 @@ export default function AdminAdmissions() {
   const [selectedBranch, setSelectedBranch] = useState('');
   const [admissions, setAdmissions] = useState<any[]>([]);
   const [selectedAdmission, setSelectedAdmission] = useState<any>(null);
+  const [modalBelt, setModalBelt] = useState('White Belt');
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const belts = [
+    "White Belt",
+    "Yellow Belt",
+    "Orange Belt",
+    "Green Belt",
+    "Blue Belt",
+    "Purple Belt",
+    "Brown Belt",
+    "Black Belt"
+  ];
 
   useEffect(() => {
     fetch('/api/settings')
@@ -33,23 +46,45 @@ export default function AdminAdmissions() {
       });
   }, []);
 
-  const handleVerify = async (id: string) => {
+  const openModal = (admission: any) => {
+    setSelectedAdmission(admission);
+    setModalBelt(admission.currentBelt || admission.belt || 'White Belt');
+  };
+
+  const handleVerify = async (id: string, beltToUse?: string) => {
     try {
-      const res = await fetch(`/api/registrations/${id}`, { method: 'PATCH' });
+      setIsUpdating(true);
+      const targetBelt = beltToUse || modalBelt;
+      const res = await fetch(`/api/registrations/${id}`, { 
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentBelt: targetBelt, status: 'Verified' })
+      });
       const data: any = await res.json();
       if (data.success) {
-        setAdmissions(admissions.map(a => a.id === id ? { ...a, status: 'Verified' } : a));
+        setAdmissions(prev => prev.map(a => a.id === id ? { ...a, status: 'Verified', currentBelt: targetBelt, belt: targetBelt } : a));
+        if (selectedAdmission && selectedAdmission.id === id) {
+          setSelectedAdmission({ 
+            ...selectedAdmission, 
+            status: 'Verified', 
+            currentBelt: targetBelt, 
+            belt: targetBelt, 
+            generatedPassword: data.generatedPassword || selectedAdmission.generatedPassword 
+          });
+        }
         
         if (data.generatedPassword) {
-          const msg = `Welcome to Champions Karate Club! 🥋\n\nYour Student Portal credentials have been created:\n*Student Name:* ${data.studentName}\n*Password:* ${data.generatedPassword}\n*Student Id:* ${data.studentId}\n\nPlease login at our website to view your dashboard 🔥`;
+          const msg = `Welcome to Champions Karate Club! 🥋\n\nYour Student Portal credentials have been created:\n*Student Name:* ${data.studentName}\n*Belt:* ${targetBelt}\n*Password:* ${data.generatedPassword}\n*Student Id:* ${data.studentId}\n\nPlease login at our website to view your dashboard 🔥`;
           
           if (data.whatsappNumber) {
             const phone = data.whatsappNumber.replace(/[^0-9]/g, '');
             const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
             window.open(url, '_blank');
           } else {
-            alert(`Credentials Generated:\n\nStudent Name: ${data.studentName}\nPassword: ${data.generatedPassword}\nStudent Id: ${data.studentId}\n\nPlease share this with the student manually.`);
+            alert(`Credentials Generated:\n\nStudent Name: ${data.studentName}\nBelt: ${targetBelt}\nPassword: ${data.generatedPassword}\nStudent Id: ${data.studentId}\n\nPlease share this with the student manually.`);
           }
+        } else {
+          alert(`Registration verified successfully with ${targetBelt}!`);
         }
       } else {
         alert("Failed to verify registration");
@@ -57,6 +92,34 @@ export default function AdminAdmissions() {
     } catch (err) {
       console.error(err);
       alert("An error occurred");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleUpdateBeltOnly = async (id: string, newBelt: string) => {
+    try {
+      setIsUpdating(true);
+      const res = await fetch(`/api/registrations/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentBelt: newBelt, status: selectedAdmission?.status || 'Pending' })
+      });
+      const data: any = await res.json();
+      if (data.success) {
+        setAdmissions(prev => prev.map(a => a.id === id ? { ...a, currentBelt: newBelt, belt: newBelt } : a));
+        if (selectedAdmission && selectedAdmission.id === id) {
+          setSelectedAdmission({ ...selectedAdmission, currentBelt: newBelt, belt: newBelt });
+        }
+        alert(`Belt updated to ${newBelt} successfully!`);
+      } else {
+        alert("Failed to update belt");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("An error occurred while updating belt");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -65,13 +128,14 @@ export default function AdminAdmissions() {
     : admissions;
 
   const exportToGoogleSheet = () => {
-    const headers = ['ID', 'Name', 'Age', 'DOB', 'WhatsApp', 'Branch', 'Payment Status', 'UTR Number', 'Submission Date'];
+    const headers = ['ID', 'Name', 'Age', 'DOB', 'Current Belt', 'WhatsApp', 'Branch', 'Payment Status', 'UTR Number', 'Submission Date'];
     
     const rows = filteredAdmissions.map(a => [
       a.id,
       a.name,
       a.age,
       a.dob || '-',
+      a.currentBelt || a.belt || 'White Belt',
       a.whatsappNumber || '-',
       a.branch,
       a.status,
@@ -121,6 +185,7 @@ export default function AdminAdmissions() {
               <th style={{ padding: '1rem' }}>Name</th>
               <th style={{ padding: '1rem' }}>Age</th>
               <th style={{ padding: '1rem' }}>Branch</th>
+              <th style={{ padding: '1rem' }}>Current Belt</th>
               <th style={{ padding: '1rem' }}>Payment Status</th>
               <th style={{ padding: '1rem' }}>UTR / Proof</th>
               <th style={{ padding: '1rem' }}>Action</th>
@@ -133,6 +198,19 @@ export default function AdminAdmissions() {
                 <td data-label="Name" style={{ padding: '1rem' }}>{admission.name}</td>
                 <td data-label="Age" style={{ padding: '1rem' }}>{admission.age}</td>
                 <td data-label="Branch" style={{ padding: '1rem' }}>{admission.branch}</td>
+                <td data-label="Current Belt" style={{ padding: '1rem' }}>
+                  <span style={{ 
+                    display: 'inline-block',
+                    padding: '0.25rem 0.6rem',
+                    borderRadius: '4px',
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    color: '#ef4444',
+                    fontWeight: '600',
+                    fontSize: '0.85rem'
+                  }}>
+                    🥋 {admission.currentBelt || admission.belt || 'White Belt'}
+                  </span>
+                </td>
                 <td data-label="Payment Status" style={{ padding: '1rem', color: admission.status === 'Verified' ? 'green' : 'var(--secondary)' }}>{admission.status}</td>
                 <td data-label="UTR / Proof" style={{ padding: '1rem' }}>
                   <div style={{ fontSize: '0.85rem' }}>{admission.transactionId}</div>
@@ -144,22 +222,16 @@ export default function AdminAdmissions() {
                   <button 
                     className={admission.status === 'Verified' ? "btn btn-outline" : "btn btn-primary"} 
                     style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}
-                    onClick={() => {
-                      if (admission.status !== 'Verified') {
-                        handleVerify(admission.id);
-                      } else {
-                        setSelectedAdmission(admission);
-                      }
-                    }}
+                    onClick={() => openModal(admission)}
                   >
-                    {admission.status === 'Verified' ? 'View' : 'Verify'}
+                    {admission.status === 'Verified' ? 'View / Edit' : 'Verify'}
                   </button>
                 </td>
               </tr>
             ))}
             {filteredAdmissions.length === 0 && (
               <tr>
-                <td colSpan={7} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No admissions found for this branch.</td>
+                <td colSpan={8} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>No admissions found for this branch.</td>
               </tr>
             )}
           </tbody>
@@ -174,7 +246,7 @@ export default function AdminAdmissions() {
         backdropFilter: 'blur(4px)'
       }}>
         <div style={{ 
-          maxWidth: '600px', width: '90%', maxHeight: '85vh', overflowY: 'auto', position: 'relative',
+          maxWidth: '620px', width: '90%', maxHeight: '85vh', overflowY: 'auto', position: 'relative',
           background: '#18181b', borderRadius: '12px', border: '1px solid #3f3f46',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)', padding: '2rem'
         }}>
@@ -211,16 +283,88 @@ export default function AdminAdmissions() {
             })()}
           </div>
 
+          {/* Belt Verification & Edit Box */}
+          <div style={{ marginTop: '1.5rem', background: '#09090b', padding: '1.2rem', borderRadius: '8px', border: '1px solid #3b82f6' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <label style={{ color: '#60a5fa', fontSize: '0.9rem', fontWeight: 'bold', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span>🥋</span> Belt Verification & Edit
+              </label>
+              <span style={{ fontSize: '0.8rem', color: '#a1a1aa' }}>
+                Form Submitted: <strong style={{ color: '#fff' }}>{selectedAdmission.currentBelt || selectedAdmission.belt || 'White Belt'}</strong>
+              </span>
+            </div>
+            <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              <select
+                value={modalBelt}
+                onChange={(e) => setModalBelt(e.target.value)}
+                style={{
+                  flex: 1,
+                  minWidth: '200px',
+                  padding: '0.6rem 0.8rem',
+                  background: '#18181b',
+                  border: '1px solid #3f3f46',
+                  color: '#fff',
+                  borderRadius: '6px',
+                  fontSize: '0.95rem'
+                }}
+              >
+                {belts.map(b => (
+                  <option key={b} value={b}>{b}</option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className="btn btn-outline"
+                style={{ padding: '0.6rem 1rem', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
+                disabled={isUpdating}
+                onClick={() => handleUpdateBeltOnly(selectedAdmission.id, modalBelt)}
+              >
+                {isUpdating ? 'Saving...' : 'Save Belt'}
+              </button>
+            </div>
+            <small style={{ color: '#9ca3af', fontSize: '0.78rem', marginTop: '6px', display: 'block' }}>
+              Admin can correct the student's belt above. Saving updates both registration and student profile.
+            </small>
+          </div>
+
           {selectedAdmission.paymentScreenshot && (
-            <div style={{ marginTop: '2rem' }}>
+            <div style={{ marginTop: '1.5rem' }}>
               <strong style={{color: '#a1a1aa', fontSize: '0.85rem', textTransform: 'uppercase'}}>Payment Screenshot</strong>
               <div style={{ marginTop: '0.8rem', border: '1px solid #3f3f46', borderRadius: '8px', overflow: 'hidden', padding: '0.5rem', background: '#09090b' }}>
-                <img src={selectedAdmission.paymentScreenshot} alt="Payment Proof" style={{ width: '100%', maxHeight: '400px', objectFit: 'contain' }} />
+                <img src={selectedAdmission.paymentScreenshot} alt="Payment Proof" style={{ width: '100%', maxHeight: '350px', objectFit: 'contain' }} />
               </div>
             </div>
           )}
           
-          <button className="btn btn-outline" style={{ width: '100%', marginTop: '2rem', padding: '1rem', fontSize: '1rem' }} onClick={() => setSelectedAdmission(null)}>Close Window</button>
+          <div style={{ marginTop: '2rem' }}>
+            {selectedAdmission.status !== 'Verified' ? (
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <button 
+                  className="btn btn-primary" 
+                  style={{ flex: 2, padding: '0.9rem', fontSize: '1rem', fontWeight: 'bold' }}
+                  disabled={isUpdating}
+                  onClick={() => handleVerify(selectedAdmission.id, modalBelt)}
+                >
+                  {isUpdating ? 'Verifying...' : `Verify & Approve (${modalBelt})`}
+                </button>
+                <button 
+                  className="btn btn-outline" 
+                  style={{ flex: 1, padding: '0.9rem' }} 
+                  onClick={() => setSelectedAdmission(null)}
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button 
+                className="btn btn-outline" 
+                style={{ width: '100%', padding: '0.9rem', fontSize: '1rem' }} 
+                onClick={() => setSelectedAdmission(null)}
+              >
+                Close Window
+              </button>
+            )}
+          </div>
         </div>
       </div>
     )}

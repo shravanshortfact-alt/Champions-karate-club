@@ -8,12 +8,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Teacher {
+  id             String         @id @default(cuid())
+  name           String
+  username       String         @unique
+  password       String
+  upiId          String?
+  upiDisplayName String?
+  paymentEnabled Boolean        @default(true)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  branches       Branch[]
+  feePayments    FeePayment[]
+  paymentOrders  PaymentOrder[]
+}
+
 model Branch {
-  id         String    @id @default(cuid())
-  name       String
-  address    String
-  isArchived Boolean   @default(false)
-  students   Student[]
+  id            String         @id @default(cuid())
+  name          String
+  address       String
+  isArchived    Boolean        @default(false)
+  teacherId     String?
+  teacher       Teacher?       @relation(fields: [teacherId], references: [id])
+  students      Student[]
+  feePayments   FeePayment[]
+  paymentOrders PaymentOrder[]
 }
 
 model Student {
@@ -37,6 +56,7 @@ model Student {
   achievements       Achievement[]
   messageLogs        MessageLog[]
   feePayments        FeePayment[]
+  paymentOrders      PaymentOrder[]
   notifications      NotificationRecipient[]
   feeReminderLogs    FeeReminderLog[]
   pushSubscriptions  PushSubscription[]
@@ -44,19 +64,71 @@ model Student {
 }
 
 model FeePayment {
-  id               String   @id @default(cuid())
-  studentId        String
-  student          Student  @relation(fields: [studentId], references: [id])
-  month            String   // e.g. "July"
-  year             Int      // e.g. 2026
-  baseAmount       Float
-  lateFee          Float    @default(0)
-  totalAmount      Float
-  status           String   @default("Pending") // Pending, Verified
-  transactionId    String?
-  screenshotUrl    String?
-  createdAt        DateTime @default(now())
+  id                     String        @id @default(cuid())
+  studentId              String
+  student                Student       @relation(fields: [studentId], references: [id])
+  branchId               String?
+  branch                 Branch?       @relation(fields: [branchId], references: [id])
+  teacherId              String?
+  teacher                Teacher?      @relation(fields: [teacherId], references: [id])
+  month                  String        // e.g. "July"
+  year                   Int           // e.g. 2026
+  baseAmount             Float
+  lateFee                Float         @default(0)
+  totalAmount            Float
+  status                 String        @default("UNPAID") // UNPAID, PAYMENT_CREATED, AWAITING_CONFIRMATION, PAID, PAYMENT_NOT_VERIFIED, OVERDUE
+  paymentReference       String?
+  teacherUpiIdSnapshot   String?
+  teacherUpiNameSnapshot String?
+  utr                    String?
+  transactionId          String?
+  screenshotUrl          String?
+  cashfreeOrderId        String?
+  cashfreePaymentId      String?
+  paymentMethod          String        @default("DIRECT_UPI") // DIRECT_UPI, CASHFREE_UPI, ADMIN_MANUAL
+  paymentOrderId         String?
+  paymentOrder           PaymentOrder? @relation(fields: [paymentOrderId], references: [id])
+  lateFeeWaived          Boolean       @default(false)
+  waiverReason           String?
+  waivedBy               String?
+  waivedAt               DateTime?
+  confirmedBy            String?
+  confirmedAt            DateTime?
+  paidAt                 DateTime?
+  createdAt              DateTime      @default(now())
+
+  @@unique([studentId, month, year])
 }
+
+model PaymentOrder {
+  id                     String       @id @default(cuid())
+  orderNumber            String       @unique
+  studentId              String
+  student                Student      @relation(fields: [studentId], references: [id])
+  branchId               String?
+  branch                 Branch?      @relation(fields: [branchId], references: [id])
+  teacherId              String?
+  teacher                Teacher?     @relation(fields: [teacherId], references: [id])
+  paymentReference       String?      @unique
+  teacherUpiIdSnapshot   String?
+  teacherUpiNameSnapshot String?
+  utr                    String?
+  cashfreeOrderId        String?      @unique
+  cashfreePaymentId      String?
+  paymentSessionId       String?
+  amount                 Float
+  status                 String       @default("AWAITING_CONFIRMATION") // PAYMENT_CREATED, AWAITING_CONFIRMATION, PAID, PAYMENT_NOT_VERIFIED, FAILED
+  paymentMethod          String       @default("DIRECT_UPI") // DIRECT_UPI, CASHFREE_UPI, ADMIN_MANUAL
+  manualPaymentNote      String?
+  confirmedBy            String?
+  confirmedAt            DateTime?
+  paidAt                 DateTime?
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
+  feePayments            FeePayment[]
+}
+
+
 
 
 model MessageLog {

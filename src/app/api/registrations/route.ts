@@ -21,7 +21,22 @@ export async function GET() {
 
     const activeRegistrations = registrations.filter(r => !archivedRegNumbers.has(r.id));
 
-    return NextResponse.json(activeRegistrations);
+    const formatted = activeRegistrations.map((r: any) => {
+      let extra: any = {};
+      try {
+        if (r.extraData) extra = JSON.parse(r.extraData);
+      } catch (e) {}
+      const belt = extra.currentBelt || extra.belt || r.appearingBelt || 'White Belt';
+      return {
+        ...extra,
+        ...r,
+        currentBelt: belt,
+        belt: belt,
+        appearingBelt: r.appearingBelt || belt
+      };
+    });
+
+    return NextResponse.json(formatted);
   } catch (error) {
     console.error("Error fetching registrations:", error);
     return NextResponse.json({ error: "Failed to load registrations" }, { status: 500 });
@@ -50,7 +65,7 @@ export async function POST(request: Request) {
         profilePhotoUrl: newRegistration.profilePhotoUrl || '',
         dob: newRegistration.dob || '',
         whatsappNumber: newRegistration.whatsappNumber || '',
-        appearingBelt: newRegistration.appearingBelt || '',
+        appearingBelt: newRegistration.appearingBelt || newRegistration.currentBelt || newRegistration.belt || '',
         status: 'Pending',
         month,
         extraData: JSON.stringify(newRegistration)

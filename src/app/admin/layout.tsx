@@ -24,7 +24,9 @@ export default function AdminLayout({
           <li><a href="/admin/notifications">🔔 Notifications</a></li>
           <li><a href="/admin/messages">WhatsApp Msgs</a></li>
           <li><a href="/admin/map-branches">📍 Map & Branches</a></li>
+          <li><a href="/admin/teachers">👨‍🏫 Manage Teachers & UPI</a></li>
         </ul>
+
       </aside>
       <main className="admin-main">
         {children}

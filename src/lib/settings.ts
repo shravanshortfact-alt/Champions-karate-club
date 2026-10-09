@@ -71,6 +71,12 @@ export const defaultSettings = {
   logoUrl: '/logo.png',
   instagramLink: 'https://www.instagram.com/karate_king_no1?igsi=Zmt2aGxqcDJiemk2',
   whatsappNumber: '',
+  defaultMonthlyFee: 700,
+  lateFeeAmount: 100,
+  dueDay: 10,
+  cashfreeAppId: '',
+  cashfreeSecretKey: '',
+  cashfreeEnvironment: 'sandbox',
   instructors: [
     {
       name: 'Sensei Kenjiro',
@@ -113,6 +119,7 @@ export const defaultSettings = {
     beltExam: false
   }
 };
+
 
 export async function getSiteSettings() {
   let parsed: any = null;

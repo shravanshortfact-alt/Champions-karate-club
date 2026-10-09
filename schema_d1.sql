@@ -37,12 +37,45 @@ CREATE TABLE "FeePayment" (
     "baseAmount" REAL NOT NULL,
     "lateFee" REAL NOT NULL DEFAULT 0,
     "totalAmount" REAL NOT NULL,
-    "status" TEXT NOT NULL DEFAULT 'Pending',
+    "status" TEXT NOT NULL DEFAULT 'UNPAID',
     "transactionId" TEXT,
     "screenshotUrl" TEXT,
+    "cashfreeOrderId" TEXT,
+    "cashfreePaymentId" TEXT,
+    "paymentMethod" TEXT NOT NULL DEFAULT 'CASHFREE_UPI',
+    "paymentOrderId" TEXT,
+    "lateFeeWaived" BOOLEAN NOT NULL DEFAULT false,
+    "waiverReason" TEXT,
+    "waivedBy" TEXT,
+    "waivedAt" DATETIME,
+    "paidAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "FeePayment_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "FeePayment_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "FeePayment_paymentOrderId_fkey" FOREIGN KEY ("paymentOrderId") REFERENCES "PaymentOrder" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
+
+-- CreateTable
+CREATE TABLE "PaymentOrder" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "orderNumber" TEXT NOT NULL,
+    "studentId" TEXT NOT NULL,
+    "cashfreeOrderId" TEXT,
+    "cashfreePaymentId" TEXT,
+    "paymentSessionId" TEXT,
+    "amount" REAL NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "paymentMethod" TEXT NOT NULL DEFAULT 'CASHFREE_UPI',
+    "manualPaymentNote" TEXT,
+    "paidAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "PaymentOrder_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS "FeePayment_studentId_month_year_key" ON "FeePayment"("studentId", "month", "year");
+CREATE UNIQUE INDEX IF NOT EXISTS "PaymentOrder_orderNumber_key" ON "PaymentOrder"("orderNumber");
+CREATE UNIQUE INDEX IF NOT EXISTS "PaymentOrder_cashfreeOrderId_key" ON "PaymentOrder"("cashfreeOrderId");
+
 
 -- CreateTable
 CREATE TABLE "MessageLog" (

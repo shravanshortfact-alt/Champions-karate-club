@@ -11,16 +11,39 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const resolvedParams = await params;
     const { id } = resolvedParams;
     
+    // Safely parse body if present
+    let body: any = {};
+    try {
+      body = await request.json();
+    } catch (e) {
+      // Body may be empty
+    }
+
     // Find the registration
     const registration = await prisma.registration.findUnique({ where: { id } });
     if (!registration) {
       return NextResponse.json({ error: "Registration not found" }, { status: 404 });
     }
 
-    // Update status to verified
+    let extraData: any = {};
+    try {
+      extraData = JSON.parse(registration.extraData || '{}');
+    } catch(e) {}
+
+    const selectedBelt = body.currentBelt || body.belt || registration.appearingBelt || extraData.currentBelt || extraData.belt || 'White Belt';
+    extraData.currentBelt = selectedBelt;
+    extraData.belt = selectedBelt;
+
+    const newStatus = body.status || 'Verified';
+
+    // Update status and belt on registration
     await prisma.registration.update({
       where: { id },
-      data: { status: 'Verified' }
+      data: { 
+        status: newStatus,
+        appearingBelt: selectedBelt,
+        extraData: JSON.stringify(extraData)
+      }
     });
 
     // Extract fields safely
@@ -33,13 +56,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       profilePhotoUrl: registration.profilePhotoUrl,
       dob: registration.dob,
       whatsappNumber: registration.whatsappNumber,
-      appearingBelt: registration.appearingBelt,
-      generatedPassword: ''
+      appearingBelt: selectedBelt,
+      currentBelt: selectedBelt,
+      generatedPassword: extraData.generatedPassword || ''
     };
 
     try {
       if (reg.category === 'Admission' && reg.name) {
-        // Create new student
         const branch = await prisma.branch.findFirst({ where: { name: reg.branch || 'Main Branch' } });
         let branchId = branch?.id;
         if (!branchId) {
@@ -47,41 +70,54 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
           branchId = newBranch.id;
         }
 
-        const generatedPassword = Math.floor(100000 + Math.random() * 900000).toString();
-        reg.generatedPassword = generatedPassword; // Temporary store for response
-
-        // Save password in extraData so admin can see it later
-        let newExtraData: any = {};
-        try { newExtraData = JSON.parse(registration.extraData || '{}'); } catch(e){}
-        newExtraData.generatedPassword = generatedPassword;
-        await prisma.registration.update({
-          where: { id },
-          data: { extraData: JSON.stringify(newExtraData) }
+        const existingStudent = await prisma.student.findUnique({
+          where: { registrationNumber: reg.id }
         });
 
-        await prisma.student.create({
-          data: {
-            registrationNumber: reg.id,
-            name: reg.name,
-            age: parseInt(reg.age || '0') || 0,
-            branchId: branchId,
-            currentBelt: 'White Belt',
-            profilePhotoUrl: reg.profilePhotoUrl || null,
-            dob: reg.dob || null,
-            whatsappNumber: reg.whatsappNumber || null,
-            password: generatedPassword
-          }
-        });
+        if (existingStudent) {
+          // Update existing student's belt
+          await prisma.student.update({
+            where: { id: existingStudent.id },
+            data: {
+              currentBelt: selectedBelt,
+              ...(reg.profilePhotoUrl ? { profilePhotoUrl: reg.profilePhotoUrl } : {})
+            }
+          });
+        } else if (newStatus === 'Verified') {
+          // Create new student with the selected belt
+          const generatedPassword = Math.floor(100000 + Math.random() * 900000).toString();
+          reg.generatedPassword = generatedPassword; // Store for response
+
+          extraData.generatedPassword = generatedPassword;
+          await prisma.registration.update({
+            where: { id },
+            data: { extraData: JSON.stringify(extraData) }
+          });
+
+          await prisma.student.create({
+            data: {
+              registrationNumber: reg.id,
+              name: reg.name,
+              age: parseInt(reg.age || '0') || 0,
+              branchId: branchId,
+              currentBelt: selectedBelt,
+              profilePhotoUrl: reg.profilePhotoUrl || null,
+              dob: reg.dob || null,
+              whatsappNumber: reg.whatsappNumber || null,
+              password: generatedPassword
+            }
+          });
+        }
       } else if (reg.name) {
-        // For other forms, update profile photo if provided
+        // For other forms, update student record if found
         const student = await prisma.student.findFirst({
           where: { name: reg.name, status: 'Active' }
         });
         
         if (student) {
           const updateData: any = {};
-          if (reg.category === 'Belt Exam' && reg.appearingBelt) {
-            updateData.currentBelt = reg.appearingBelt;
+          if (reg.category === 'Belt Exam' && (body.currentBelt || reg.appearingBelt)) {
+            updateData.currentBelt = body.currentBelt || reg.appearingBelt;
           }
           if (reg.profilePhotoUrl) {
             updateData.profilePhotoUrl = reg.profilePhotoUrl;
@@ -101,11 +137,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
     return NextResponse.json({ 
       success: true, 
-      registration: { ...reg, status: 'Verified' },
+      registration: { ...reg, status: newStatus },
       generatedPassword: reg.generatedPassword,
       studentName: reg.name,
       whatsappNumber: reg.whatsappNumber,
-      studentId: reg.id
+      studentId: reg.id,
+      currentBelt: selectedBelt
     });
   } catch (error) {
     console.error("Error updating registration:", error);

@@ -1,98 +1,99 @@
 import { getPrisma } from '@/lib/prisma';
-export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
+import { generateStudentFeeTimeline } from '@/lib/fee-calculator';
+import { getSiteSettings } from '@/lib/settings';
 
-
+export const dynamic = 'force-dynamic';
 
 const prisma = getPrisma();
 
 export async function POST(request: Request) {
   try {
-    const { studentName } = await request.json();
+    const { studentName, registrationNumber } = await request.json();
 
-    if (!studentName) {
-      return NextResponse.json({ success: false, error: "Missing student name." }, { status: 400 });
+    if (!studentName && !registrationNumber) {
+      return NextResponse.json(
+        { success: false, error: "Please provide a Student Name or Registration Number." },
+        { status: 400 }
+      );
+    }
+
+    // Build search query
+    const whereClause: any = { status: 'Active' };
+    if (registrationNumber) {
+      whereClause.registrationNumber = { equals: registrationNumber.trim() };
+    } else if (studentName) {
+      whereClause.name = { equals: studentName.trim() };
     }
 
     const student = await prisma.student.findFirst({
-      where: {
-        name: { equals: studentName.trim() },
-        status: 'Active'
-      },
+      where: whereClause,
       include: {
-        branch: true
+        branch: true,
+        feePayments: {
+          orderBy: { createdAt: 'desc' }
+        }
       }
     });
 
     if (!student) {
-       return NextResponse.json({ success: false, error: "Student not found or inactive." }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "Active student record not found." },
+        { status: 404 }
+      );
     }
 
-    // Determine current month and year
-    const now = new Date();
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const currentMonth = monthNames[now.getMonth()];
-    const currentYear = now.getFullYear();
+    const settings = await getSiteSettings();
+    const defaultMonthlyFee = Number(settings.defaultMonthlyFee) || 700;
+    const lateFeeAmount = Number(settings.lateFeeAmount) || 100;
+    const dueDay = Number(settings.dueDay) || 10;
 
-    // Check if fee is already paid/pending for this month
-    const existingPayment = await prisma.feePayment.findFirst({
-      where: {
-        studentId: student.id,
-        month: currentMonth,
-        year: currentYear
-      }
-    });
-
-    if (existingPayment && existingPayment.status === "Verified") {
-      return NextResponse.json({ success: false, error: `Fee for ${currentMonth} ${currentYear} is already paid and verified.` }, { status: 400 });
-    }
-
-    if (existingPayment && existingPayment.status === "Pending") {
-      return NextResponse.json({ success: false, error: `Fee payment for ${currentMonth} ${currentYear} is currently pending admin verification.` }, { status: 400 });
-    }
-
-    // Calculate Late Fee
-    // If today's date is > 10, add late fee of 100
-    const currentDate = now.getDate();
-    let lateFee = 0;
-    if (currentDate > 10) {
-      lateFee = 100;
-    }
-
-    const baseAmount = student.monthlyFee;
-    const totalAmount = baseAmount + lateFee;
-
-    // Fetch UPI ID from settings
-    let upiId = 'championkarate@upi'; // Default fallback
-    try {
-      const { getSiteSettings } = await import('@/lib/settings');
-      const settings = await getSiteSettings();
-      if (settings.upiId) {
-        upiId = settings.upiId;
-      }
-    } catch (e) {
-      console.error("Could not fetch settings", e);
-    }
-
-    return NextResponse.json({ 
-      success: true, 
+    const timeline = generateStudentFeeTimeline({
       student: {
         id: student.id,
-        name: student.name,
-        branch: student.branch.name,
         monthlyFee: student.monthlyFee,
+        createdAt: student.createdAt,
+        status: student.status
       },
-      feeDetails: {
-        month: currentMonth,
-        year: currentYear,
-        baseAmount,
-        lateFee,
-        totalAmount
+      existingPayments: student.feePayments as any,
+      defaultMonthlyFee,
+      lateFeeAmount,
+      dueDay
+    });
+
+    // Summary calculations
+    const pendingMonths = timeline.filter((m) => m.status === 'UNPAID' || m.status === 'OVERDUE' || m.status === 'PAYMENT_PENDING');
+    const totalDueAmount = pendingMonths.reduce((acc, m) => acc + m.totalAmount, 0);
+
+    return NextResponse.json({
+      success: true,
+      student: {
+        id: student.id,
+        registrationNumber: student.registrationNumber,
+        name: student.name,
+        branch: student.branch?.name || 'Main Dojo',
+        currentBelt: student.currentBelt,
+        monthlyFee: student.monthlyFee || defaultMonthlyFee,
+        whatsappNumber: student.whatsappNumber,
+        profilePhotoUrl: student.profilePhotoUrl
       },
-      upiId
+      timeline,
+      summary: {
+        totalPendingMonths: pendingMonths.length,
+        totalDueAmount,
+        dueDay,
+        lateFeeAmount
+      },
+      settings: {
+        upiId: settings.upiId || 'championkarate@upi',
+        cashfreeEnvironment: settings.cashfreeEnvironment || 'sandbox'
+      }
     });
   } catch (error) {
-    console.error("Error looking up fee details:", error);
-    return NextResponse.json({ success: false, error: "Failed to look up fee details" }, { status: 500 });
+    console.error("Error looking up student fee history:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to fetch student fee details." },
+      { status: 500 }
+    );
   }
 }

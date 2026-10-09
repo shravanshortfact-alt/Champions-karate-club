@@ -15,11 +15,17 @@ export default function AdminSettings() {
   const [logoUrl, setLogoUrl] = useState('/logo.png');
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [instagramLink, setInstagramLink] = useState('https://www.instagram.com/karate_king_no1?igsi=Zmt2aGxqcDJiemk2');
+  const [defaultMonthlyFee, setDefaultMonthlyFee] = useState(700);
+  const [lateFeeAmount, setLateFeeAmount] = useState(100);
+  const [dueDay, setDueDay] = useState(10);
+  const [cashfreeAppId, setCashfreeAppId] = useState('');
+  const [cashfreeSecretKey, setCashfreeSecretKey] = useState('');
+  const [cashfreeEnvironment, setCashfreeEnvironment] = useState('sandbox');
   const [instructors, setInstructors] = useState<Instructor[]>([]);
   const [achievements, setAchievements] = useState<string[]>([]);
   const [videos, setVideos] = useState<{title: string, url: string}[]>([]);
   const [formLocks, setFormLocks] = useState({ admission: false, competition: false, seminar: false, beltExam: false });
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [savingSection, setSavingSection] = useState<string | null>(null);
   const [uploadingField, setUploadingField] = useState<string | null>(null);
@@ -34,6 +40,12 @@ export default function AdminSettings() {
         setLogoUrl('/logo.png');
         setWhatsappNumber(data.whatsappNumber || '');
         setInstagramLink(data.instagramLink || 'https://www.instagram.com/karate_king_no1?igsi=Zmt2aGxqcDJiemk2');
+        setDefaultMonthlyFee(Number(data.defaultMonthlyFee) || 700);
+        setLateFeeAmount(Number(data.lateFeeAmount) || 100);
+        setDueDay(Number(data.dueDay) || 10);
+        setCashfreeAppId(data.cashfreeAppId || '');
+        setCashfreeSecretKey(data.cashfreeSecretKey || '');
+        setCashfreeEnvironment(data.cashfreeEnvironment || 'sandbox');
         setInstructors(data.instructors || []);
         setAchievements(data.achievements || []);
         setVideos(data.videos || []);
@@ -50,11 +62,18 @@ export default function AdminSettings() {
       logoUrl: '/logo.png',
       whatsappNumber,
       instagramLink,
+      defaultMonthlyFee,
+      lateFeeAmount,
+      dueDay,
+      cashfreeAppId,
+      cashfreeSecretKey,
+      cashfreeEnvironment,
       instructors,
       achievements,
       videos,
       formLocks
     };
+
     
     try {
       // Hit local Vercel /api/settings which will update Prisma and sync to worker
@@ -311,6 +330,93 @@ export default function AdminSettings() {
           {savingSection === 'general' ? 'Saving General Settings...' : 'Save Academy General Settings'}
         </button>
       </div>
+
+      {/* Monthly Fee & Cashfree Payment Settings */}
+      <div className="card" style={{ marginBottom: '2rem', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '1.5rem', background: '#18181b' }}>
+        <h2 style={{ color: 'var(--secondary)', marginBottom: '1.5rem', fontSize: '1.4rem' }}>Monthly Fee & Cashfree UPI Settings</h2>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div className="form-group">
+            <label style={{ color: '#fff', display: 'block', marginBottom: '0.5rem' }}>Default Monthly Fee (₹)</label>
+            <input 
+              type="number" 
+              value={defaultMonthlyFee} 
+              onChange={(e) => setDefaultMonthlyFee(Number(e.target.value))}
+              style={{ padding: '0.8rem', background: '#09090b', border: '1px solid var(--border-color)', color: 'white', borderRadius: '6px', width: '100%' }}
+            />
+          </div>
+
+          <div className="form-group">
+            <label style={{ color: '#fff', display: 'block', marginBottom: '0.5rem' }}>Late Fee Amount (₹)</label>
+            <input 
+              type="number" 
+              value={lateFeeAmount} 
+              onChange={(e) => setLateFeeAmount(Number(e.target.value))}
+              style={{ padding: '0.8rem', background: '#09090b', border: '1px solid var(--border-color)', color: 'white', borderRadius: '6px', width: '100%' }}
+            />
+          </div>
+
+          <div className="form-group">
+            <label style={{ color: '#fff', display: 'block', marginBottom: '0.5rem' }}>Due Cutoff Day of Month</label>
+            <input 
+              type="number" 
+              value={dueDay} 
+              onChange={(e) => setDueDay(Number(e.target.value))}
+              placeholder="e.g. 10"
+              style={{ padding: '0.8rem', background: '#09090b', border: '1px solid var(--border-color)', color: 'white', borderRadius: '6px', width: '100%' }}
+            />
+          </div>
+        </div>
+
+        <div style={{ borderTop: '1px solid #27272a', paddingTop: '1.5rem', marginTop: '1rem' }}>
+          <h3 style={{ color: '#60a5fa', marginBottom: '1rem', fontSize: '1.1rem' }}>Cashfree Payment Gateway Integration</h3>
+
+          <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+            <label style={{ color: '#fff', display: 'block', marginBottom: '0.5rem' }}>Cashfree App ID (Client ID)</label>
+            <input 
+              type="text" 
+              value={cashfreeAppId} 
+              onChange={(e) => setCashfreeAppId(e.target.value)}
+              placeholder="e.g. 1010100abcdef12345"
+              style={{ padding: '0.8rem', background: '#09090b', border: '1px solid var(--border-color)', color: 'white', borderRadius: '6px', width: '100%' }}
+            />
+          </div>
+
+          <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+            <label style={{ color: '#fff', display: 'block', marginBottom: '0.5rem' }}>Cashfree Secret Key</label>
+            <input 
+              type="password" 
+              value={cashfreeSecretKey} 
+              onChange={(e) => setCashfreeSecretKey(e.target.value)}
+              placeholder="Enter Cashfree Secret Key"
+              style={{ padding: '0.8rem', background: '#09090b', border: '1px solid var(--border-color)', color: 'white', borderRadius: '6px', width: '100%' }}
+            />
+          </div>
+
+          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+            <label style={{ color: '#fff', display: 'block', marginBottom: '0.5rem' }}>Cashfree Environment</label>
+            <select
+              value={cashfreeEnvironment}
+              onChange={(e) => setCashfreeEnvironment(e.target.value)}
+              style={{ padding: '0.8rem', background: '#09090b', border: '1px solid var(--border-color)', color: 'white', borderRadius: '6px', width: '100%' }}
+            >
+              <option value="sandbox">Sandbox (Testing / Demo)</option>
+              <option value="production">Production (Live Payments)</option>
+            </select>
+          </div>
+        </div>
+
+        <button 
+          type="button" 
+          disabled={savingSection === 'feeSettings'}
+          onClick={() => saveSettingsPayload('feeSettings', 'Fee & Cashfree settings saved successfully!')}
+          className="btn btn-primary"
+          style={{ width: '100%', padding: '0.8rem', fontWeight: 'bold' }}
+        >
+          {savingSection === 'feeSettings' ? 'Saving Fee Settings...' : 'Save Monthly Fee & Cashfree Settings'}
+        </button>
+      </div>
+
 
       {/* 3. Instructors / Masters Section */}
       <div className="card" style={{ marginBottom: '2rem', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '1.5rem', background: '#18181b' }}>
