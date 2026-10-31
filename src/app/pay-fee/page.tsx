@@ -300,7 +300,7 @@ export default function PayFee() {
                               + ₹{m.lateFee} Late Fee (After 10th)
                             </span>
                           )}
-                          {m.lateFeeWaived && (
+                          {Boolean(m.lateFeeWaived) && (
                             <span style={{ color: '#60a5fa', marginLeft: '0.5rem' }}>
                               (Late Fee Waived)
                             </span>
