@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import BeltSelector, { BELT_NAMES } from '@/components/BeltSelector';
 
 
 export default function AdminAdmissions() {
@@ -11,16 +12,7 @@ export default function AdminAdmissions() {
   const [modalBelt, setModalBelt] = useState('White Belt');
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const belts = [
-    "White Belt",
-    "Yellow Belt",
-    "Orange Belt",
-    "Green Belt",
-    "Blue Belt",
-    "Purple Belt",
-    "Brown Belt",
-    "Black Belt"
-  ];
+  const belts = BELT_NAMES;
 
   useEffect(() => {
     fetch('/api/settings')
@@ -294,24 +286,12 @@ export default function AdminAdmissions() {
               </span>
             </div>
             <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center', flexWrap: 'wrap' }}>
-              <select
-                value={modalBelt}
-                onChange={(e) => setModalBelt(e.target.value)}
-                style={{
-                  flex: 1,
-                  minWidth: '200px',
-                  padding: '0.6rem 0.8rem',
-                  background: '#18181b',
-                  border: '1px solid #3f3f46',
-                  color: '#fff',
-                  borderRadius: '6px',
-                  fontSize: '0.95rem'
-                }}
-              >
-                {belts.map(b => (
-                  <option key={b} value={b}>{b}</option>
-                ))}
-              </select>
+              <div style={{ flex: 1, minWidth: '220px' }}>
+                <BeltSelector
+                  value={modalBelt}
+                  onChange={(val) => setModalBelt(val)}
+                />
+              </div>
               <button
                 type="button"
                 className="btn btn-outline"

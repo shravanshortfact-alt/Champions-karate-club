@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import UPIPaymentBlock from '@/components/UPIPaymentBlock';
+import BeltSelector, { BELT_NAMES } from '@/components/BeltSelector';
 
 
 export default function AdmissionForm() {
@@ -20,16 +21,7 @@ export default function AdmissionForm() {
     profilePhotoUrl: ''
   });
   
-  const belts = [
-    "White Belt",
-    "Yellow Belt",
-    "Orange Belt",
-    "Green Belt",
-    "Blue Belt",
-    "Purple Belt",
-    "Brown Belt",
-    "Black Belt"
-  ];
+  const belts = BELT_NAMES;
   const [branches, setBranches] = useState<{name: string, fee?: string, qrCodeUrl: string}[]>([]);
   const [qrCodeUrl, setQrCodeUrl] = useState('/qr.png');
   const [fee, setFee] = useState('0');
@@ -275,14 +267,11 @@ export default function AdmissionForm() {
 
             <div className="form-group">
               <label>Current Belt</label>
-              <select 
+              <BeltSelector
                 value={formData.currentBelt}
-                onChange={(e) => setFormData({...formData, currentBelt: e.target.value})}
+                onChange={(val) => setFormData({...formData, currentBelt: val})}
                 required
-              >
-                <option value="">-- Choose Current Belt --</option>
-                {belts.map(b => <option key={b} value={b}>{b}</option>)}
-              </select>
+              />
             </div>
 
             <div className="form-group">
