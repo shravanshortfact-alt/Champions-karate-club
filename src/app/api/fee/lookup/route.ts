@@ -113,7 +113,7 @@ export async function POST(request: Request) {
           lateFeeAmount
         },
         settings: {
-          upiId: settings.upiId || 'championkarate@upi',
+          upiId: settings.upiId || 'shendredipak518-1@okhdfcbank',
           cashfreeEnvironment: settings.cashfreeEnvironment || 'sandbox'
         }
       });
@@ -194,7 +194,7 @@ export async function POST(request: Request) {
         lateFeeAmount
       },
       settings: {
-        upiId: settings.upiId || 'championkarate@upi',
+        upiId: settings.upiId || 'shendredipak518-1@okhdfcbank',
         cashfreeEnvironment: settings.cashfreeEnvironment || 'sandbox'
       }
     });

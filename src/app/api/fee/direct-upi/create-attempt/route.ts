@@ -61,13 +61,13 @@ export async function POST(request: Request) {
       }
 
       let destinationUpiId = student?.teacherUpiId;
-      let destinationUpiName = student?.teacherUpiDisplayName || student?.teacherName || 'Karate Sensei';
+      let destinationUpiName = student?.teacherUpiDisplayName || student?.teacherName || 'Dipak Shendre';
       let teacherId = student?.teacherId || null;
 
       const settings = await getSiteSettings();
       if (!destinationUpiId) {
-        destinationUpiId = settings.upiId || 'championkarate@upi';
-        destinationUpiName = 'Champions Karate Club';
+        destinationUpiId = settings.upiId || 'shendredipak518-1@okhdfcbank';
+        destinationUpiName = 'Dipak Shendre';
       }
 
       const defaultMonthlyFee = Number(settings.defaultMonthlyFee) || 700;
@@ -209,14 +209,14 @@ export async function POST(request: Request) {
     const teacher = student.branch?.teacher;
 
     let destinationUpiId = teacher?.upiId;
-    let destinationUpiName = teacher?.upiDisplayName || teacher?.name || 'Karate Sensei';
+    let destinationUpiName = teacher?.upiDisplayName || teacher?.name || 'Dipak Shendre';
     let teacherId = teacher?.id || null;
 
     // Fallback to global UPI ID if branch has no teacher assigned
     if (!destinationUpiId) {
       const settings = await getSiteSettings();
-      destinationUpiId = settings.upiId || 'championkarate@upi';
-      destinationUpiName = 'Champions Karate Club';
+      destinationUpiId = settings.upiId || 'shendredipak518-1@okhdfcbank';
+      destinationUpiName = 'Dipak Shendre';
     }
 
     const settings = await getSiteSettings();

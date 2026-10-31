@@ -20,6 +20,14 @@ export default function PayFee() {
   const [utrInput, setUtrInput] = useState('');
   const [isSubmittingPaid, setIsSubmittingPaid] = useState(false);
   const [confirmationNotice, setConfirmationNotice] = useState<any>(null);
+  const [copiedUpi, setCopiedUpi] = useState(false);
+
+  const handleCopyUpi = (upi: string) => {
+    if (!upi) return;
+    navigator.clipboard.writeText(upi);
+    setCopiedUpi(true);
+    setTimeout(() => setCopiedUpi(false), 2500);
+  };
 
   const handleLookup = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -386,41 +394,81 @@ export default function PayFee() {
 
       {/* Step 3: DYNAMIC UPI QR PAYMENT SCREEN */}
       {paymentAttempt && (
-        <div className="card animate-fade-in" style={{ padding: '2rem', borderRadius: '16px', background: '#0f172a', border: '2px solid var(--primary)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
+        <div className="card animate-fade-in" style={{ padding: '2rem 1.5rem', borderRadius: '16px', background: '#0f172a', border: '2px solid var(--primary)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', maxWidth: '580px', margin: '0 auto' }}>
           
-          <div style={{ textAlign: 'center', borderBottom: '1px solid #1e293b', paddingBottom: '1.5rem', marginBottom: '1.5rem' }}>
+          <div style={{ textAlign: 'center', borderBottom: '1px solid #1e293b', paddingBottom: '1.25rem', marginBottom: '1.5rem' }}>
             <span style={{ fontSize: '0.85rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Direct UPI Fee Payment</span>
             <h2 style={{ color: 'white', margin: '0.25rem 0', fontSize: '1.6rem' }}>Scan QR or Open UPI App</h2>
-            <p style={{ color: '#60a5fa', margin: 0, fontSize: '0.95rem' }}>Reference: <strong>{paymentAttempt.paymentReference}</strong></p>
+            <p style={{ color: '#60a5fa', margin: 0, fontSize: '0.9rem' }}>Reference: <strong>{paymentAttempt.paymentReference}</strong></p>
           </div>
 
-          {/* Paying Details Grid */}
-          <div style={{ background: '#1e293b', padding: '1.25rem', borderRadius: '12px', marginBottom: '1.5rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', textAlign: 'left', fontSize: '0.95rem' }}>
-            <div>
-              <strong style={{ color: '#94a3b8', display: 'block', fontSize: '0.8rem', textTransform: 'uppercase' }}>Paying To (Teacher)</strong>
-              <span style={{ color: '#60a5fa', fontSize: '1.1rem', fontWeight: 'bold' }}>{paymentAttempt.teacher.name}</span>
-            </div>
-            <div>
-              <strong style={{ color: '#94a3b8', display: 'block', fontSize: '0.8rem', textTransform: 'uppercase' }}>Teacher UPI ID</strong>
-              <span style={{ color: '#4ade80', fontSize: '1rem', fontWeight: 'bold' }}>{paymentAttempt.teacher.upiId}</span>
-            </div>
-            <div>
-              <strong style={{ color: '#94a3b8', display: 'block', fontSize: '0.8rem', textTransform: 'uppercase' }}>Amount</strong>
-              <span style={{ color: 'var(--primary)', fontSize: '1.3rem', fontWeight: 'bold' }}>₹{paymentAttempt.amount}</span>
-            </div>
-            <div>
-              <strong style={{ color: '#94a3b8', display: 'block', fontSize: '0.8rem', textTransform: 'uppercase' }}>Branch</strong>
-              <span style={{ color: 'white' }}>{paymentAttempt.teacher.branchName}</span>
+          {/* Amount Badge Banner */}
+          <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.4)', borderRadius: '12px', padding: '0.75rem 1.75rem' }}>
+              <span style={{ fontSize: '0.85rem', color: '#fca5a5', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 'bold' }}>
+                {paymentAttempt.amount === 800 
+                  ? '⚠️ Monthly Fee + Late Fee (After 10th)' 
+                  : paymentAttempt.amount === 700 
+                  ? '✓ Regular Monthly Fee (₹700)' 
+                  : 'Total Payable Amount'}
+              </span>
+              <span style={{ fontSize: '2.4rem', fontWeight: '800', color: 'var(--primary)', lineHeight: '1.2' }}>
+                ₹{paymentAttempt.amount}
+              </span>
             </div>
           </div>
 
-          {/* Dynamic QR Code */}
-          <div style={{ textTransform: 'uppercase', textAlign: 'center', background: '#111827', padding: '1.5rem', borderRadius: '16px', marginBottom: '1.5rem', border: '1px solid #374151' }}>
-            <div style={{ background: 'white', padding: '1.25rem', display: 'inline-block', borderRadius: '14px', boxShadow: '0 10px 25px rgba(220,38,38,0.2)' }}>
-              <QRCodeSVG value={paymentAttempt.upiUri} size={200} />
+          {/* Clean Dynamic QR Code Container */}
+          <div style={{ textAlign: 'center', background: '#111827', padding: '1.5rem 1rem', borderRadius: '16px', marginBottom: '1.5rem', border: '1px solid #374151', boxShadow: '0 10px 25px rgba(0,0,0,0.4)' }}>
+            <div style={{ background: 'white', padding: '0.75rem', display: 'inline-block', borderRadius: '14px', boxShadow: '0 10px 25px rgba(220,38,38,0.2)' }}>
+              {paymentAttempt.amount === 700 ? (
+                <img 
+                  src="/qr-700-card.png" 
+                  alt="Fees Payment QR ₹700" 
+                  style={{ width: '250px', height: 'auto', display: 'block', borderRadius: '8px' }} 
+                />
+              ) : paymentAttempt.amount === 800 ? (
+                <img 
+                  src="/qr-800-card.png" 
+                  alt="Fees Payment QR ₹800" 
+                  style={{ width: '250px', height: 'auto', display: 'block', borderRadius: '8px' }} 
+                />
+              ) : (
+                <div style={{ padding: '0.75rem' }}>
+                  <QRCodeSVG value={paymentAttempt.upiUri} size={230} />
+                </div>
+              )}
             </div>
-            <p style={{ marginTop: '0.8rem', fontSize: '0.85rem', color: '#94a3b8', margin: '0.8rem 0 0 0' }}>
-              Scan with GPay, PhonePe, Paytm, BHIM, or any UPI App
+
+            {/* UPI ID with Copy Button */}
+            <div style={{ marginTop: '1.25rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem' }}>
+              <span style={{ fontSize: '0.8rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>UPI ID</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#1e293b', padding: '0.5rem 0.9rem', borderRadius: '8px', border: '1px solid #334155' }}>
+                <span style={{ color: '#4ade80', fontSize: '1rem', fontWeight: 'bold', fontFamily: 'monospace' }}>
+                  {paymentAttempt.teacher?.upiId || 'shendredipak518-1@okhdfcbank'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleCopyUpi(paymentAttempt.teacher?.upiId || 'shendredipak518-1@okhdfcbank')}
+                  style={{
+                    background: copiedUpi ? '#22c55e' : '#374151',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '0.3rem 0.65rem',
+                    fontSize: '0.8rem',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    transition: 'background 0.2s'
+                  }}
+                >
+                  {copiedUpi ? '✓ Copied' : 'Copy'}
+                </button>
+              </div>
+            </div>
+
+            <p style={{ marginTop: '0.9rem', fontSize: '0.82rem', color: '#94a3b8', margin: '0.9rem 0 0 0' }}>
+              Scan to pay with GPay, PhonePe, Paytm, BHIM, or any UPI App
             </p>
           </div>
 
@@ -433,9 +481,9 @@ export default function PayFee() {
                 display: 'block',
                 width: '100%',
                 padding: '1rem',
-                fontSize: '1.1rem',
+                fontSize: '1.05rem',
                 fontWeight: 'bold',
-                letterSpacing: '1px',
+                letterSpacing: '0.5px',
                 background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
                 borderColor: '#2563eb'
               }}

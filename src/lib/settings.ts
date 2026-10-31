@@ -67,7 +67,7 @@ function writeFsSettings(settings: any) {
 }
 
 export const defaultSettings = {
-  upiId: 'championkarate@upi',
+  upiId: 'shendredipak518-1@okhdfcbank',
   logoUrl: '/logo.png',
   instagramLink: 'https://www.instagram.com/karate_king_no1?igsi=Zmt2aGxqcDJiemk2',
   whatsappNumber: '',
@@ -103,14 +103,24 @@ export const defaultSettings = {
   branches: [
     { name: "Downtown Main Dojo", qrCodeUrl: "" },
     { name: "Westside Academy", qrCodeUrl: "" },
-    { name: "North Hills Training Center", qrCodeUrl: "" }
+    { name: "North Hills Training Center", qrCodeUrl: "" },
+    { name: "Lipane vasti", qrCodeUrl: "/qr-700-card.png" }
   ],
   registrationLinks: [
-    { title: "Admission", description: "Join the academy", link: "/register/admission", fee: "2500", qrCodeUrl: "" },
+    { 
+      title: "Admission", 
+      description: "Join the academy", 
+      link: "/register/admission", 
+      fee: "800", 
+      qrCodeUrl: "",
+      branches: [
+        { name: "Lipane vasti", fee: "700", qrCodeUrl: "/qr-700-card.png" }
+      ]
+    },
     { title: "Belt Exam", description: "Register for grading", link: "/register/belt-exam", fee: "1500", qrCodeUrl: "" },
     { title: "Competition", description: "Enter upcoming events", link: "/register/competition", fee: "1000", qrCodeUrl: "" },
     { title: "Seminar", description: "Special training camps", link: "/register/seminar", fee: "2000", qrCodeUrl: "" },
-    { title: "Fee Payment", description: "Pay your monthly fees", link: "/pay-fee", fee: "700", qrCodeUrl: "" }
+    { title: "Fee Payment", description: "Pay your monthly fees", link: "/pay-fee", fee: "700", qrCodeUrl: "/qr-700-card.png" }
   ],
   formLocks: {
     admission: false,
