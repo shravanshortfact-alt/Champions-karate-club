@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import UPIPaymentBlock from '@/components/UPIPaymentBlock';
 
 
 export default function CompetitionForm() {
@@ -360,16 +361,13 @@ export default function CompetitionForm() {
 
         {step === 2 && (
           <form onSubmit={handleSubmit} style={{ textAlign: 'center' }}>
-            <h3 style={{ marginBottom: '1.5rem', color: 'var(--secondary)' }}>Step 2: Payment Verification</h3>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>
-              Scan the QR Code below to pay the competition fees (₹ {fee}) via UPI.
-            </p>
+            <h3 style={{ marginBottom: '1.25rem', color: 'var(--secondary)' }}>Step 2: Payment Verification</h3>
             
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
-              <div style={{ border: '4px solid var(--primary)', borderRadius: '8px', overflow: 'hidden', display: 'flex' }}>
-                <img src={qrCodeUrl} alt="Payment QR Code" style={{ width: '250px', height: '250px', objectFit: 'cover' }} />
-              </div>
-            </div>
+            <UPIPaymentBlock 
+              amount={fee} 
+              qrCodeUrl={qrCodeUrl} 
+              purpose="Karate Competition Fee" 
+            />
 
             <div className="form-group" style={{ textAlign: 'left' }}>
               <label>Transaction ID / UTR Number</label>
