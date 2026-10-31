@@ -298,7 +298,7 @@ export default function AdminFees() {
 
                     <td data-label="Late Fee" style={{ padding: '1rem', color: r.lateFee > 0 ? '#ef4444' : '#94a3b8' }}>
                       {r.lateFee > 0 ? `+₹${r.lateFee}` : '₹0'}
-                      {r.lateFeeWaived && <span style={{ display: 'block', fontSize: '0.75rem', color: '#60a5fa' }}>(Waived)</span>}
+                      {Boolean(r.lateFeeWaived) && <span style={{ display: 'block', fontSize: '0.75rem', color: '#60a5fa' }}>(Waived)</span>}
                     </td>
 
                     <td data-label="Total" style={{ padding: '1rem', fontWeight: 'bold', fontSize: '1.05rem', color: isPaid ? '#4ade80' : isAwaiting ? '#fbbf24' : isOverdue ? '#ef4444' : 'white' }}>
