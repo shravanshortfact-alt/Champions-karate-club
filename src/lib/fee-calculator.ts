@@ -134,6 +134,8 @@ export function generateStudentFeeTimeline({
     lateFeeWaived?: boolean;
     waiverReason?: string | null;
     paymentMethod?: string;
+    paymentReference?: string | null;
+    utr?: string | null;
     paidAt?: Date | string | null;
     createdAt?: Date | string | null;
   }>;
@@ -187,6 +189,7 @@ export function generateStudentFeeTimeline({
     );
 
     const isPaid = existing ? (existing.status === "PAID" || existing.status === "Verified") : false;
+    const isAwaiting = existing ? (existing.status === "AWAITING_CONFIRMATION" || existing.status === "PAYMENT_CREATED") : false;
     const isPending = existing ? (existing.status === "PAYMENT_PENDING" || existing.status === "Pending") : false;
     const isWaived = existing?.lateFeeWaived ?? false;
 
@@ -198,11 +201,19 @@ export function generateStudentFeeTimeline({
       year: currYear,
       baseMonthlyFee: monthBaseFee,
       isPaid,
-      isPending,
+      isPending: isPending || isAwaiting,
       isWaived,
       dueDay,
       lateFeeAmount
     });
+
+    const finalStatus = isPaid 
+      ? "PAID" 
+      : isAwaiting 
+      ? (existing?.utr ? "AWAITING_CONFIRMATION" : "PAYMENT_CREATED")
+      : isPending 
+      ? "PAYMENT_PENDING" 
+      : details.status;
 
     timeline.push({
       id: existing?.id || null,
@@ -211,11 +222,13 @@ export function generateStudentFeeTimeline({
       baseAmount: isPaid && existing ? existing.baseAmount : details.baseAmount,
       lateFee: isPaid && existing ? existing.lateFee : details.lateFee,
       totalAmount: isPaid && existing ? existing.totalAmount : details.totalAmount,
-      status: details.status,
+      status: finalStatus,
       isOverdue: details.isOverdue,
       lateFeeWaived: isWaived,
       waiverReason: existing?.waiverReason || null,
       paymentMethod: existing?.paymentMethod || null,
+      paymentReference: (existing as any)?.paymentReference || null,
+      utr: (existing as any)?.utr || null,
       paidAt: existing?.paidAt || null,
       createdAt: existing?.createdAt || null
     });

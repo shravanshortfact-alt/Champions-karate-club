@@ -106,6 +106,51 @@ export default function AdminFees() {
     }
   };
 
+  const handleVerifyFee = async (record: any) => {
+    if (!confirm(`Verify fee payment of ₹${record.totalAmount} for ${record.studentName} (${record.month} ${record.year})?`)) {
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/admin/fee/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          feePaymentId: record.id?.startsWith('virtual_') ? null : record.id,
+          studentId: record.studentId,
+          month: record.month,
+          year: record.year,
+          paymentReference: record.paymentReference,
+          adminName: 'Admin'
+        })
+      });
+      const result = await res.json();
+      if (result.success) {
+        alert(result.message || "Fee payment verified successfully!");
+
+        // Open WhatsApp Receipt
+        const rawPhone = String(result.whatsappNumber || record.whatsappNumber || '').replace(/[^0-9]/g, '');
+        if (rawPhone) {
+          const phone = rawPhone.length === 10 ? `91${rawPhone}` : rawPhone;
+          const msg = `🥋 *Champions Karate Club — Fee Payment Receipt*\n\nDear Parent / Student,\nYour monthly fee payment has been successfully *VERIFIED*! ✅\n\n👤 *Student Name:* ${result.studentName || record.studentName}\n🆔 *Reg No:* ${result.registrationNumber || record.registrationNumber || 'N/A'}\n📅 *Month / Year:* ${result.month || record.month} ${result.year || record.year}\n💰 *Amount Paid:* ₹${result.amount || record.totalAmount}\n🔢 *UTR No:* ${result.utr || record.utr || 'Direct UPI'}\n\nThank you for training with Champions Karate Club! 🔥🥋`;
+          const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+          window.open(waUrl, '_blank');
+        } else {
+          alert(`Fee verified! (No WhatsApp phone number found for ${record.studentName})`);
+        }
+
+        fetchFees();
+      } else {
+        alert(result.error || "Failed to verify fee payment");
+      }
+    } catch (e: any) {
+      alert("Error verifying payment: " + (e?.message || "Please check connection."));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const exportToCSV = () => {
     const headers = ['Student Name', 'Reg No', 'Branch', 'Month/Year', 'Base Fee', 'Late Fee', 'Total Payable', 'Status', 'Payment Method', 'Paid Date'];
 
@@ -172,6 +217,7 @@ export default function AdminFees() {
               style={{ background: '#111827', color: 'white', border: '1px solid #374151', padding: '0.5rem 0.8rem', borderRadius: '6px' }}
             >
               <option value="ALL">All Statuses</option>
+              <option value="AWAITING_CONFIRMATION">⏳ Awaiting Verification Only</option>
               <option value="OVERDUE">Overdue Only</option>
               <option value="UNPAID">Unpaid / Overdue</option>
               <option value="PAID">Paid Only</option>
@@ -224,16 +270,22 @@ export default function AdminFees() {
             </thead>
             <tbody>
               {filteredRecords.map((r: any, idx: number) => {
-                const isPaid = r.status === 'PAID';
-                const isOverdue = r.status === 'OVERDUE';
+                const isPaid = r.status === 'PAID' || r.status === 'Verified';
+                const isAwaiting = !isPaid && (r.status === 'AWAITING_CONFIRMATION' || r.status === 'PAYMENT_PENDING' || !!r.utr);
+                const isOverdue = !isPaid && !isAwaiting && r.status === 'OVERDUE';
 
                 return (
-                  <tr key={idx} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <tr key={idx} style={{ borderBottom: '1px solid var(--border-color)', background: isAwaiting ? 'rgba(251, 191, 36, 0.05)' : undefined }}>
                     <td data-label="Student" style={{ padding: '1rem' }}>
                       <strong style={{ color: 'white' }}>{r.studentName}</strong>
                       <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
                         {r.registrationNumber} • {r.branchName}
                       </div>
+                      {r.whatsappNumber && (
+                        <div style={{ fontSize: '0.75rem', color: '#38bdf8' }}>
+                          📱 {r.whatsappNumber}
+                        </div>
+                      )}
                     </td>
 
                     <td data-label="Month" style={{ padding: '1rem', fontWeight: 'bold' }}>
@@ -249,36 +301,71 @@ export default function AdminFees() {
                       {r.lateFeeWaived && <span style={{ display: 'block', fontSize: '0.75rem', color: '#60a5fa' }}>(Waived)</span>}
                     </td>
 
-                    <td data-label="Total" style={{ padding: '1rem', fontWeight: 'bold', fontSize: '1.05rem', color: isPaid ? '#4ade80' : isOverdue ? '#ef4444' : 'white' }}>
+                    <td data-label="Total" style={{ padding: '1rem', fontWeight: 'bold', fontSize: '1.05rem', color: isPaid ? '#4ade80' : isAwaiting ? '#fbbf24' : isOverdue ? '#ef4444' : 'white' }}>
                       ₹{r.totalAmount}
                     </td>
 
                     <td data-label="Status" style={{ padding: '1rem' }}>
                       <span
                         style={{
-                          padding: '0.3rem 0.6rem',
+                          padding: '0.35rem 0.65rem',
                           borderRadius: '12px',
                           fontSize: '0.75rem',
                           fontWeight: 'bold',
-                          background: isPaid ? 'rgba(74,222,128,0.15)' : isOverdue ? 'rgba(239,68,68,0.2)' : 'rgba(96,165,250,0.15)',
-                          color: isPaid ? '#4ade80' : isOverdue ? '#ef4444' : '#60a5fa'
+                          background: isPaid 
+                            ? 'rgba(74,222,128,0.15)' 
+                            : isAwaiting 
+                            ? 'rgba(251,191,36,0.2)' 
+                            : isOverdue 
+                            ? 'rgba(239,68,68,0.2)' 
+                            : 'rgba(96,165,250,0.15)',
+                          color: isPaid ? '#4ade80' : isAwaiting ? '#fbbf24' : isOverdue ? '#ef4444' : '#60a5fa',
+                          border: isAwaiting ? '1px solid #fbbf24' : undefined
                         }}
                       >
-                        {r.status}
+                        {isAwaiting ? '⏳ Awaiting Verification' : r.status}
                       </span>
+
+                      {/* Display UTR if submitted */}
+                      {r.utr && (
+                        <div style={{ fontSize: '0.8rem', color: '#4ade80', marginTop: '0.35rem', fontWeight: 'bold', fontFamily: 'monospace' }}>
+                          UTR: {r.utr}
+                        </div>
+                      )}
+
                       {r.paymentMethod && (
-                        <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.3rem' }}>
+                        <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.25rem' }}>
                           {r.paymentMethod}
                         </div>
                       )}
                     </td>
 
                     <td data-label="Actions" style={{ padding: '1rem' }}>
-                      {!isPaid ? (
+                      {isAwaiting ? (
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                          <button
+                            className="btn btn-primary"
+                            style={{ padding: '0.45rem 0.8rem', fontSize: '0.8rem', fontWeight: 'bold', background: '#22c55e', borderColor: '#22c55e' }}
+                            disabled={submitting}
+                            onClick={() => handleVerifyFee(r)}
+                          >
+                            ✓ Verify & Send WhatsApp
+                          </button>
+
+                          <button
+                            className="btn btn-outline"
+                            style={{ padding: '0.45rem 0.65rem', fontSize: '0.75rem' }}
+                            disabled={submitting}
+                            onClick={() => setManualPayModal(r)}
+                          >
+                            Mark Paid
+                          </button>
+                        </div>
+                      ) : !isPaid ? (
                         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                           <button
                             className="btn btn-primary"
-                            style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}
+                            style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem' }}
                             onClick={() => setManualPayModal(r)}
                           >
                             Mark Paid Manually
@@ -287,7 +374,7 @@ export default function AdminFees() {
                           {isOverdue && !r.lateFeeWaived && (
                             <button
                               className="btn btn-outline"
-                              style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderColor: '#60a5fa', color: '#60a5fa' }}
+                              style={{ padding: '0.35rem 0.65rem', fontSize: '0.75rem', borderColor: '#60a5fa', color: '#60a5fa' }}
                               onClick={() => setWaiveModal(r)}
                             >
                               Waive Late Fee
@@ -295,7 +382,28 @@ export default function AdminFees() {
                           )}
                         </div>
                       ) : (
-                        <span style={{ color: '#4ade80', fontSize: '0.85rem' }}>Paid on {r.paidAt ? new Date(r.paidAt).toLocaleDateString() : 'N/A'}</span>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                          <span style={{ color: '#4ade80', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                            ✓ Paid
+                          </span>
+                          <button
+                            type="button"
+                            className="btn btn-outline"
+                            style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', borderColor: '#22c55e', color: '#4ade80' }}
+                            onClick={() => {
+                              const rawPhone = String(r.whatsappNumber || '').replace(/[^0-9]/g, '');
+                              const phone = rawPhone.length === 10 ? `91${rawPhone}` : rawPhone;
+                              const msg = `🥋 *Champions Karate Club — Fee Payment Receipt*\n\nDear Parent / Student,\nYour monthly fee payment is confirmed *PAID*! ✅\n\n👤 *Student Name:* ${r.studentName}\n🆔 *Reg No:* ${r.registrationNumber || 'N/A'}\n📅 *Month / Year:* ${r.month} ${r.year}\n💰 *Amount:* ₹${r.totalAmount}\n🔢 *UTR No:* ${r.utr || 'Direct UPI'}\n\nThank you for training with Champions Karate Club! 🔥🥋`;
+                              if (phone) {
+                                window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+                              } else {
+                                alert("No phone number found for this student.");
+                              }
+                            }}
+                          >
+                            📲 Send WhatsApp
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>

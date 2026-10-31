@@ -125,6 +125,12 @@ export default function PayFee() {
   const handleSubmitPaid = async () => {
     if (!paymentAttempt) return;
 
+    const trimmedUtr = utrInput.trim();
+    if (!trimmedUtr || trimmedUtr.length !== 12) {
+      alert("Please enter your exact 12-digit UTR Number from your UPI payment receipt.");
+      return;
+    }
+
     setIsSubmittingPaid(true);
     setError('');
 
@@ -492,31 +498,61 @@ export default function PayFee() {
             </a>
           </div>
 
-          {/* Optional UTR Field & I HAVE PAID Confirmation */}
-          <div style={{ background: '#1e293b', padding: '1.5rem', borderRadius: '12px', border: '1px dashed #4b5563' }}>
-            <h3 style={{ color: 'white', margin: '0 0 1rem 0', fontSize: '1.2rem' }}>Step 2: Confirm After Payment</h3>
+          {/* Mandatory UTR Field & I HAVE PAID Confirmation */}
+          <div style={{ background: '#1e293b', padding: '1.5rem', borderRadius: '12px', border: '1px dashed #ef4444' }}>
+            <h3 style={{ color: 'white', margin: '0 0 1rem 0', fontSize: '1.2rem' }}>Step 2: Enter Transaction ID (UTR)</h3>
             
             <div className="form-group" style={{ marginBottom: '1.25rem' }}>
-              <label style={{ color: '#cbd5e1', fontSize: '0.9rem', marginBottom: '0.4rem', display: 'block' }}>
-                Optional: Enter UPI Transaction ID (UTR No.)
+              <label style={{ color: '#fff', fontSize: '0.95rem', marginBottom: '0.4rem', display: 'block', fontWeight: 'bold' }}>
+                UPI Transaction ID / UTR Number <span style={{ color: '#ef4444' }}>(Mandatory *)</span>
               </label>
               <input
                 type="text"
-                placeholder="12-digit UTR No. (optional)"
+                placeholder="Enter 12-digit UTR No. from your UPI app"
                 value={utrInput}
-                onChange={(e) => setUtrInput(e.target.value)}
-                style={{ width: '100%', padding: '0.75rem', background: '#0f172a', border: '1px solid #334155', color: 'white', borderRadius: '8px' }}
+                maxLength={12}
+                onChange={(e) => setUtrInput(e.target.value.replace(/\D/g, '').slice(0, 12))}
+                style={{
+                  width: '100%',
+                  padding: '0.85rem',
+                  background: '#0f172a',
+                  border: utrInput && utrInput.length !== 12 ? '1px solid #ef4444' : '1px solid #334155',
+                  color: 'white',
+                  borderRadius: '8px',
+                  fontSize: '1.05rem',
+                  letterSpacing: '1px',
+                  fontFamily: 'monospace'
+                }}
               />
+              {utrInput && utrInput.length !== 12 && (
+                <span style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '4px', display: 'block' }}>
+                  ⚠️ UTR number must be exactly 12 digits ({utrInput.length}/12)
+                </span>
+              )}
+              {!utrInput && (
+                <span style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '4px', display: 'block' }}>
+                  After payment, find the 12-digit UTR / UPI Ref No. in GPay/PhonePe/Paytm and enter it here.
+                </span>
+              )}
             </div>
 
             <button
               type="button"
               className="btn btn-primary"
               onClick={handleSubmitPaid}
-              disabled={isSubmittingPaid}
-              style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', fontWeight: 'bold', background: '#22c55e', borderColor: '#22c55e' }}
+              disabled={isSubmittingPaid || utrInput.trim().length !== 12}
+              style={{
+                width: '100%',
+                padding: '1rem',
+                fontSize: '1.1rem',
+                fontWeight: 'bold',
+                background: utrInput.trim().length === 12 ? '#22c55e' : '#334155',
+                borderColor: utrInput.trim().length === 12 ? '#22c55e' : '#334155',
+                opacity: utrInput.trim().length === 12 ? 1 : 0.6,
+                cursor: utrInput.trim().length === 12 ? 'pointer' : 'not-allowed'
+              }}
             >
-              {isSubmittingPaid ? 'Submitting...' : '✓ I HAVE PAID'}
+              {isSubmittingPaid ? 'Submitting...' : '✓ I HAVE PAID (SUBMIT UTR FOR VERIFICATION)'}
             </button>
 
             <button
