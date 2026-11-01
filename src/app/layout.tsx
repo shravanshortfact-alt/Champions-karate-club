@@ -85,7 +85,7 @@ export default async function RootLayout({
           {children}
         </main>
         <footer style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)', borderTop: '1px solid var(--border-color)', marginTop: '4rem' }}>
-          <p>&copy; {new Date().getFullYear()} Champions Karate Club. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Champions Karate Club. All rights reserved. • <a href="/admin" style={{ color: 'inherit', textDecoration: 'none', opacity: 0.7 }}>Admin Portal</a></p>
         </footer>
 
         {/* Floating Social Icons */}

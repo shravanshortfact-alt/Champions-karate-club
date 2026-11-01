@@ -186,6 +186,8 @@ export default function Navbar({ settings }: { settings: any }) {
           <Link href="/register/competition" onClick={() => setIsOpen(false)}>Competition</Link>
           <Link href="/register/seminar" onClick={() => setIsOpen(false)}>Seminar</Link>
           <Link href="/pay-fee" onClick={() => setIsOpen(false)}>Fee Payment</Link>
+          <hr style={{ borderColor: "#333", margin: "1rem 0" }} />
+          <Link href="/admin" onClick={() => setIsOpen(false)} style={{ color: "#ef4444", fontWeight: "bold" }}>Admin Portal</Link>
         </div>
       </div>
       
