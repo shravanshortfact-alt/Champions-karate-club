@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface UPIPaymentBlockProps {
   amount: string | number;
@@ -18,36 +18,77 @@ export default function UPIPaymentBlock({
   purpose = 'Karate Academy Fee'
 }: UPIPaymentBlockProps) {
   const [copied, setCopied] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
+  const [qrError, setQrError] = useState(false);
+
+  useEffect(() => {
+    // Detect iOS Safari — intent:// URIs crash Safari
+    const ua = navigator.userAgent || '';
+    const ios = /iPad|iPhone|iPod/.test(ua) && !(window as any).MSStream;
+    setIsIOS(ios);
+  }, []);
 
   const numAmount = parseFloat(String(amount || 0));
   const cleanAmount = numAmount > 0 ? numAmount.toFixed(2) : '700.00';
   const encodedName = encodeURIComponent(payeeName);
   const encodedNote = encodeURIComponent(purpose);
 
-  // Standard Universal UPI Intent URI
+  // Standard Universal UPI URI — works on both Android & iOS
   const upiIntentUri = `upi://pay?pa=${upiId}&pn=${encodedName}&am=${cleanAmount}&cu=INR&tn=${encodedNote}`;
 
-  // App-specific intent deep-links
-  const gpayUri = `intent://pay?pa=${upiId}&pn=${encodedName}&am=${cleanAmount}&cu=INR&tn=${encodedNote}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`;
-  const phonepeUri = `intent://pay?pa=${upiId}&pn=${encodedName}&am=${cleanAmount}&cu=INR&tn=${encodedNote}#Intent;scheme=upi;package=com.phonepe.app;end`;
-  const paytmUri = `paytmmp://pay?pa=${upiId}&pn=${encodedName}&am=${cleanAmount}&cu=INR&tn=${encodedNote}`;
+  // Android-specific intent URIs (NOT used on iOS)
+  const gpayUriAndroid = `intent://pay?pa=${upiId}&pn=${encodedName}&am=${cleanAmount}&cu=INR&tn=${encodedNote}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`;
+  const phonepeUriAndroid = `intent://pay?pa=${upiId}&pn=${encodedName}&am=${cleanAmount}&cu=INR&tn=${encodedNote}#Intent;scheme=upi;package=com.phonepe.app;end`;
+  const paytmUriAndroid = `paytmmp://pay?pa=${upiId}&pn=${encodedName}&am=${cleanAmount}&cu=INR&tn=${encodedNote}`;
+
+  // iOS-compatible deep links
+  const gpayUriIOS = `gpay://upi/pay?pa=${upiId}&pn=${encodedName}&am=${cleanAmount}&cu=INR&tn=${encodedNote}`;
+  const phonepeUriIOS = `phonepe://pay?pa=${upiId}&pn=${encodedName}&am=${cleanAmount}&cu=INR&tn=${encodedNote}`;
+  const paytmUriIOS = `paytmmp://pay?pa=${upiId}&pn=${encodedName}&am=${cleanAmount}&cu=INR&tn=${encodedNote}`;
+
+  const gpayUri = isIOS ? gpayUriIOS : gpayUriAndroid;
+  const phonepeUri = isIOS ? phonepeUriIOS : phonepeUriAndroid;
+  const paytmUri = isIOS ? paytmUriIOS : paytmUriAndroid;
 
   const handleCopy = () => {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(upiId);
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
+    } else {
+      // Fallback for older browsers / iOS WebView
+      const el = document.createElement('textarea');
+      el.value = upiId;
+      el.setAttribute('readonly', '');
+      el.style.position = 'absolute';
+      el.style.left = '-9999px';
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
     }
   };
 
-  const handleOpenApp = (appUri: string, fallbackUri: string) => {
-    // Attempt app launch on mobile
-    window.location.href = appUri;
-    setTimeout(() => {
-      // Fallback to standard UPI chooser if app not directly opened
-      window.location.href = fallbackUri;
-    }, 500);
+  const handleOpenApp = (appUri: string) => {
+    if (isIOS) {
+      // On iOS: directly set location. If app isn't installed the URL just fails silently.
+      window.location.href = appUri;
+    } else {
+      // On Android: try app-specific intent, fallback to universal UPI chooser
+      window.location.href = appUri;
+      setTimeout(() => {
+        window.location.href = upiIntentUri;
+      }, 600);
+    }
   };
+
+  const handleMainPayBtn = () => {
+    window.location.href = upiIntentUri;
+  };
+
+  const effectiveQrUrl = qrError ? '/qr-700-card.png' : (qrCodeUrl || '/qr-700-card.png');
 
   return (
     <div style={{
@@ -69,7 +110,7 @@ export default function UPIPaymentBlock({
         </div>
       </div>
 
-      {/* MOBILE ONE-TAP DIRECT PAYMENT (No Screenshot Required!) */}
+      {/* MOBILE ONE-TAP DIRECT PAYMENT */}
       <div style={{
         background: 'rgba(37, 99, 235, 0.1)',
         border: '1px solid rgba(59, 130, 246, 0.3)',
@@ -81,10 +122,10 @@ export default function UPIPaymentBlock({
           <span>⚡ Same Phone Payment (No Screenshot Needed!)</span>
         </div>
 
-        {/* Big Universal Button */}
-        <a
-          href={upiIntentUri}
-          className="btn btn-primary"
+        {/* Big Universal Button — uses button+onClick so iOS doesn't try to navigate to intent:// */}
+        <button
+          type="button"
+          onClick={handleMainPayBtn}
           style={{
             display: 'block',
             width: '100%',
@@ -93,21 +134,21 @@ export default function UPIPaymentBlock({
             fontWeight: 'bold',
             letterSpacing: '0.5px',
             background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
-            borderColor: '#2563eb',
+            border: '2px solid #2563eb',
             color: 'white',
             borderRadius: '10px',
-            textDecoration: 'none',
+            cursor: 'pointer',
             boxShadow: '0 6px 20px rgba(37, 99, 235, 0.4)'
           }}
         >
           📱 OPEN IN UPI APP (GPay / PhonePe / Paytm / Any App)
-        </a>
+        </button>
 
         {/* Quick App Shortcut Buttons */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', marginTop: '0.75rem' }}>
           <button
             type="button"
-            onClick={() => handleOpenApp(gpayUri, upiIntentUri)}
+            onClick={() => handleOpenApp(gpayUri)}
             style={{
               background: '#1e293b',
               border: '1px solid #334155',
@@ -127,7 +168,7 @@ export default function UPIPaymentBlock({
           </button>
           <button
             type="button"
-            onClick={() => handleOpenApp(phonepeUri, upiIntentUri)}
+            onClick={() => handleOpenApp(phonepeUri)}
             style={{
               background: '#1e293b',
               border: '1px solid #334155',
@@ -147,7 +188,7 @@ export default function UPIPaymentBlock({
           </button>
           <button
             type="button"
-            onClick={() => handleOpenApp(paytmUri, upiIntentUri)}
+            onClick={() => handleOpenApp(paytmUri)}
             style={{
               background: '#1e293b',
               border: '1px solid #334155',
@@ -166,6 +207,13 @@ export default function UPIPaymentBlock({
             Paytm
           </button>
         </div>
+
+        {/* iOS note */}
+        {isIOS && (
+          <p style={{ color: '#94a3b8', fontSize: '0.75rem', marginTop: '0.75rem', marginBottom: 0 }}>
+            💡 If button doesn't open app, use the UPI ID below to pay manually.
+          </p>
+        )}
       </div>
 
       {/* Copy UPI ID Box */}
@@ -206,7 +254,7 @@ export default function UPIPaymentBlock({
         </button>
       </div>
 
-      {/* QR Code Divider / Alternative for Desktop or 2nd Phone */}
+      {/* QR Code Section */}
       <div style={{ position: 'relative', margin: '1.5rem 0', textAlign: 'center' }}>
         <div style={{ borderTop: '1px solid #334155', position: 'absolute', top: '50%', width: '100%', left: 0 }}></div>
         <span style={{ background: '#0f172a', padding: '0 1rem', position: 'relative', color: '#94a3b8', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -214,7 +262,7 @@ export default function UPIPaymentBlock({
         </span>
       </div>
 
-      {/* QR Code Display */}
+      {/* QR Code Display with fallback */}
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
         <div style={{
           border: '3px solid var(--primary)',
@@ -225,11 +273,35 @@ export default function UPIPaymentBlock({
           padding: '0.5rem',
           boxShadow: '0 8px 25px rgba(220, 38, 38, 0.25)'
         }}>
-          <img
-            src={qrCodeUrl || '/qr-700-card.png'}
-            alt="Payment QR Code"
-            style={{ width: '230px', height: 'auto', display: 'block', borderRadius: '6px' }}
-          />
+          {!qrError ? (
+            <img
+              src={effectiveQrUrl}
+              alt="Payment QR Code"
+              style={{ width: '230px', height: 'auto', display: 'block', borderRadius: '6px' }}
+              onError={() => setQrError(true)}
+              crossOrigin="anonymous"
+            />
+          ) : (
+            <div style={{
+              width: '230px',
+              height: '230px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: '#f9fafb',
+              borderRadius: '6px',
+              gap: '0.5rem'
+            }}>
+              <span style={{ fontSize: '2rem' }}>📵</span>
+              <p style={{ color: '#374151', fontSize: '0.8rem', textAlign: 'center', margin: 0, padding: '0 1rem' }}>
+                QR unavailable — use UPI ID above to pay
+              </p>
+              <span style={{ color: '#15803d', fontSize: '0.75rem', fontWeight: 'bold', fontFamily: 'monospace', padding: '0 0.5rem', textAlign: 'center' }}>
+                {upiId}
+              </span>
+            </div>
+          )}
         </div>
       </div>
       <p style={{ color: '#94a3b8', fontSize: '0.82rem', marginTop: '0.5rem', marginBottom: 0 }}>

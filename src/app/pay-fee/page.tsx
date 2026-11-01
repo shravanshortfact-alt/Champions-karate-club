@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 
 export default function PayFee() {
@@ -24,9 +24,38 @@ export default function PayFee() {
 
   const handleCopyUpi = (upi: string) => {
     if (!upi) return;
-    navigator.clipboard.writeText(upi);
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(upi).catch(() => {
+        // Fallback for iOS Safari clipboard restrictions
+        const el = document.createElement('textarea');
+        el.value = upi;
+        el.setAttribute('readonly', '');
+        el.style.position = 'absolute';
+        el.style.left = '-9999px';
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+      });
+    } else {
+      // Fallback for browsers without clipboard API
+      const el = document.createElement('textarea');
+      el.value = upi;
+      el.setAttribute('readonly', '');
+      el.style.position = 'absolute';
+      el.style.left = '-9999px';
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+    }
     setCopiedUpi(true);
     setTimeout(() => setCopiedUpi(false), 2500);
+  };
+
+  const handleOpenUpiApp = (upiUri: string) => {
+    // upi:// scheme works on both Android and iOS
+    window.location.href = upiUri;
   };
 
   const handleLookup = async (e?: React.FormEvent) => {
@@ -480,8 +509,9 @@ export default function PayFee() {
 
           {/* UPI Intent Deep Link Button for Mobile */}
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <a
-              href={paymentAttempt.upiUri}
+            <button
+              type="button"
+              onClick={() => handleOpenUpiApp(paymentAttempt.upiUri)}
               className="btn btn-primary"
               style={{
                 display: 'block',
@@ -491,11 +521,12 @@ export default function PayFee() {
                 fontWeight: 'bold',
                 letterSpacing: '0.5px',
                 background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
-                borderColor: '#2563eb'
+                borderColor: '#2563eb',
+                cursor: 'pointer'
               }}
             >
               📱 OPEN IN UPI APP (GPay / PhonePe / Paytm / BHIM)
-            </a>
+            </button>
           </div>
 
           {/* Mandatory UTR Field & I HAVE PAID Confirmation */}
